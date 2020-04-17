@@ -8,3 +8,4 @@ edition = "2018"
 
 [dependencies]
 dbus = "0.8.2"
+anitomy = "0.1"
