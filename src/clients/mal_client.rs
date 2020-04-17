@@ -156,11 +156,12 @@ impl MalClient {
 
 #[async_trait]
 impl AnimeDbClient for MalClient {
-    async fn set_title_watched(&self, title: Title) -> Result<bool, Box<dyn std::error::Error>> {
+    async fn set_title_watched(&self, title: &Title) -> Result<bool, Box<dyn std::error::Error>> {
         let results = self.search(&title.title).await?;
         if !results.data.is_empty() {
             let anime_object = &results.data[0].node;
-            self.set_episode_number(anime_object, title.episode_number);
+            self.set_episode_number(anime_object, title.episode_number)
+                .await?;
             Ok(true)
         } else {
             Ok(false)
