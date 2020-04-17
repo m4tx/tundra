@@ -80,9 +80,17 @@ impl<'a> Player<'a> {
         let x = metadata
             .get("mpris:length")
             .ok_or("duration was not found")?;
-        let duration: u64 = x.0.as_u64().ok_or("duration is not integer")?;
+        let duration_any = x.0.as_any();
 
-        Ok(Duration::from_micros(duration))
+        if let Some(duration) = duration_any.downcast_ref::<i64>() {
+            Ok(Duration::from_micros(*duration as u64))
+        } else if let Some(duration) = duration_any.downcast_ref::<u64>() {
+            Ok(Duration::from_micros(*duration))
+        } else if let Some(duration) = duration_any.downcast_ref::<f64>() {
+            Ok(Duration::from_micros(*duration as u64))
+        } else {
+            Err("duration is not integer".into())
+        }
     }
 
     pub fn position(&self) -> PlayerControllerResult<f32> {
