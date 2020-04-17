@@ -28,7 +28,7 @@ impl TitleRecognizer {
                     episode_number,
                 })
             }
-            Err(ref elements) => None,
+            Err(_elements) => None,
         }
     }
 }

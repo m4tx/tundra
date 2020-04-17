@@ -1,11 +1,8 @@
 use std::path::Path;
 use std::time::Duration;
 
-use anitomy::{Anitomy, ElementCategory};
-
 use dbus;
-use dbus::arg;
-use dbus::blocking;
+
 use dbus::blocking::stdintf::org_freedesktop_dbus::Properties;
 use dbus::blocking::Connection;
 use dbus::blocking::Proxy;
