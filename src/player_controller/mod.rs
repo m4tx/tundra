@@ -3,7 +3,6 @@ use std::time::Duration;
 
 use dbus;
 
-use dbus::blocking::stdintf::org_freedesktop_dbus::Properties;
 use dbus::blocking::Connection;
 use dbus::blocking::Proxy;
 use mpris::OrgMprisMediaPlayer2;

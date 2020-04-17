@@ -1,6 +1,6 @@
 use crate::clients::mal_client::MalClient;
 use crate::player_controller::PlayerController;
-use crate::title_recognizer::{Title, TitleRecognizer};
+use crate::title_recognizer::TitleRecognizer;
 use directories::ProjectDirs;
 
 use crate::clients::AnimeDbClient;
