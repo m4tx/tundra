@@ -22,6 +22,31 @@ struct PasswordGrantResponse {
     token_type: String,
 }
 
+#[derive(Debug, Deserialize)]
+struct SearchResponse {
+    data: Vec<SearchResponseObject>,
+}
+
+#[derive(Debug, Deserialize)]
+struct SearchResponseObject {
+    node: AnimeObject,
+}
+
+#[derive(Debug, Deserialize)]
+struct AnimeObject {
+    id: i64,
+    title: String,
+    average_episode_duration: i64,
+    num_episodes: i32,
+    my_list_status: Option<MyListStatus>,
+}
+
+#[derive(Debug, Deserialize)]
+struct MyListStatus {
+    status: String,
+    num_episodes_watched: i32,
+}
+
 impl MalClient {
     pub async fn new(username: &str, password: &str) -> Result<Self, Box<dyn std::error::Error>> {
         use reqwest::header;
@@ -70,11 +95,75 @@ impl MalClient {
 
         Ok(())
     }
+
+    async fn search(&self, query: &str) -> Result<SearchResponse, Box<dyn std::error::Error>> {
+        let params = [
+            ("q", query),
+            (
+                "fields",
+                "title,alternative_titles,average_episode_duration,num_episodes,my_list_status",
+            ),
+        ];
+
+        let req = self
+            .client
+            .get(&format!("{}/v2/anime", MAL_URL))
+            .header("Authorization", format!("Bearer {}", self.access_token))
+            .query(&params);
+
+        Ok(req.send().await?.json::<SearchResponse>().await?)
+    }
+
+    async fn set_status(
+        &self,
+        id: i64,
+        status: &str,
+        num_episodes_watched: i32,
+    ) -> Result<MyListStatus, Box<dyn std::error::Error>> {
+        let params = [
+            ("status", status),
+            ("num_watched_episodes", &num_episodes_watched.to_string()),
+        ];
+
+        let req = self
+            .client
+            .patch(&format!("{}/v2/anime/{}/my_list_status", MAL_URL, id))
+            .header("Authorization", format!("Bearer {}", self.access_token))
+            .form(&params);
+
+        Ok(req.send().await?.json::<MyListStatus>().await?)
+    }
+
+    async fn set_episode_number(
+        &self,
+        anime_object: &AnimeObject,
+        num_episodes_watched: i32,
+    ) -> Result<bool, Box<dyn std::error::Error>> {
+        if anime_object.my_list_status.is_none() {
+            return Ok(false);
+        }
+
+        let new_status = if num_episodes_watched == anime_object.num_episodes {
+            "completed"
+        } else {
+            "watching"
+        };
+        self.set_status(anime_object.id, new_status, num_episodes_watched)
+            .await?;
+        Ok(true)
+    }
 }
 
 #[async_trait]
 impl AnimeDbClient for MalClient {
-    async fn set_title_watched(_title: Title) -> Result<(), Box<dyn std::error::Error>> {
-        unimplemented!()
+    async fn set_title_watched(&self, title: Title) -> Result<bool, Box<dyn std::error::Error>> {
+        let results = self.search(&title.title).await?;
+        if !results.data.is_empty() {
+            let anime_object = &results.data[0].node;
+            self.set_episode_number(anime_object, title.episode_number);
+            Ok(true)
+        } else {
+            Ok(false)
+        }
     }
 }
