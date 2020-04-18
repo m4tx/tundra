@@ -68,7 +68,7 @@ Make sure the username and password you entered is correct.";
 
 impl fmt::Display for AuthenticationFailedError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, AUTHENTICATION_ERROR_STRING)
+        write!(f, "{}", AUTHENTICATION_ERROR_STRING)
     }
 }
 
