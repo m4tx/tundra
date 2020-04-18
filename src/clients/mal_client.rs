@@ -1,5 +1,5 @@
 use core::fmt;
-use std::sync::Arc;
+use std::sync::{Arc, RwLock};
 
 use log::info;
 use reqwest::StatusCode;
@@ -9,6 +9,7 @@ use async_trait::async_trait;
 
 use crate::anime_relations::{AnimeDbs, AnimeRelations};
 use crate::clients::AnimeDbClient;
+use crate::config::Config;
 use crate::title_recognizer::Title;
 
 static MAL_URL: &str = "https://api.myanimelist.net/v2";
@@ -17,9 +18,8 @@ static CLIENT_ID: &str = "6114d00ca681b7701d1e15fe11a4987e";
 static USER_AGENT: &str = concat!(env!("CARGO_PKG_NAME"), "/", env!("CARGO_PKG_VERSION"));
 
 pub struct MalClient {
+    config: Arc<RwLock<Config>>,
     client: reqwest::Client,
-    access_token: String,
-    refresh_token: String,
     anime_relations: Arc<AnimeRelations>,
 }
 
@@ -81,7 +81,10 @@ impl std::error::Error for AuthenticationFailedError {
 }
 
 impl MalClient {
-    pub fn new(anime_relations: Arc<AnimeRelations>) -> Result<Self, Box<dyn std::error::Error>> {
+    pub fn new(
+        config: Arc<RwLock<Config>>,
+        anime_relations: Arc<AnimeRelations>,
+    ) -> Result<Self, Box<dyn std::error::Error>> {
         use reqwest::header;
         let mut headers = header::HeaderMap::new();
         headers.insert(
@@ -95,9 +98,8 @@ impl MalClient {
             .build()?;
 
         Ok(Self {
+            config,
             client,
-            access_token: "".to_owned(),
-            refresh_token: "".to_owned(),
             anime_relations,
         })
     }
@@ -121,10 +123,18 @@ impl MalClient {
             .await?)
     }
 
+    fn access_token(&self) -> String {
+        return self.config.read().unwrap().mal.access_token.clone();
+    }
+
+    fn refresh_token(&self) -> String {
+        return self.config.read().unwrap().mal.refresh_token.clone();
+    }
+
     async fn refresh_auth(&mut self) -> Result<(), Box<dyn std::error::Error>> {
         info!("Refreshing MAL authentication token");
 
-        let refresh_token = self.refresh_token.to_owned();
+        let refresh_token = self.refresh_token();
         let params = vec![
             ("client_id", CLIENT_ID),
             ("grant_type", "refresh_token"),
@@ -151,8 +161,11 @@ impl MalClient {
             .error_for_status()?
             .json::<AuthenticationResponse>()
             .await?;
-        self.access_token = response_data.access_token;
-        self.refresh_token = response_data.refresh_token;
+
+        let mut config = self.config.write().unwrap();
+        config.mal.access_token = response_data.access_token;
+        config.mal.refresh_token = response_data.refresh_token;
+        config.save();
 
         Ok(())
     }
@@ -163,14 +176,14 @@ impl MalClient {
     ) -> Result<reqwest::Response, Box<dyn std::error::Error>> {
         let request_copy = request.try_clone().expect("Request could not be cloned");
         let response = request
-            .header("Authorization", format!("Bearer {}", self.access_token))
+            .header("Authorization", format!("Bearer {}", self.access_token()))
             .send()
             .await?;
 
         if response.status() == StatusCode::UNAUTHORIZED {
             self.refresh_auth().await?;
             return Ok(request_copy
-                .header("Authorization", format!("Bearer {}", self.access_token))
+                .header("Authorization", format!("Bearer {}", self.access_token()))
                 .send()
                 .await?
                 .error_for_status()?);

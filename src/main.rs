@@ -1,21 +1,19 @@
-use std::fs;
-
 use clap::{App, Arg, SubCommand};
-use directories::ProjectDirs;
 
-use crate::app::{Config, MALConfig, TundraApp};
+use crate::app::TundraApp;
 use crate::logging::init_logging;
 
 mod anime_relations;
 mod app;
 mod clients;
+mod config;
 mod logging;
 mod player_controller;
 mod title_recognizer;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    init_logging()?;
+    init_logging().expect("Could not initialize logging");
 
     let matches = App::new(env!("CARGO_PKG_NAME"))
         .version(env!("CARGO_PKG_VERSION"))
@@ -39,37 +37,17 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         )
         .get_matches();
 
+    let mut app = TundraApp::init()?;
+
     if let Some(matches) = matches.subcommand_matches("authenticate") {
         let username = matches.value_of("username").unwrap();
         let password = matches.value_of("password").unwrap();
 
-        save_config(username, password)?;
+        app.authenticate_mal(username, password).await?;
     } else {
-        let mut app = TundraApp::init()?;
-        app.authenticate_mal()
-            .await
-            .expect("Could not authenticate to MAL");
+        app.check_mal_authenticated();
         app.run_daemon().await?;
     }
-
-    Ok(())
-}
-
-fn save_config(username: &str, password: &str) -> Result<(), Box<dyn std::error::Error>> {
-    let project_dirs =
-        ProjectDirs::from("com", "m4tx", "tundra").ok_or("config directory not found")?;
-    fs::create_dir_all(project_dirs.config_dir())?;
-    let config_file = project_dirs.config_dir().join("config.toml");
-
-    let config = Config {
-        mal: MALConfig {
-            username: username.to_owned(),
-            password: password.to_owned(),
-        },
-    };
-    let toml = toml::to_string(&config).unwrap();
-
-    fs::write(config_file, toml)?;
 
     Ok(())
 }

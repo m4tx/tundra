@@ -1,36 +1,23 @@
-use log::info;
 use std::collections::HashSet;
-use std::fs;
-use std::sync::Arc;
+use std::sync::{Arc, RwLock};
 use std::time::Duration;
 
-use directories::ProjectDirs;
+use log::info;
 use notify_rust::Notification;
-use serde::{Deserialize, Serialize};
 use tokio::time;
 
 use crate::anime_relations::AnimeRelations;
 use crate::clients::mal_client::MalClient;
 use crate::clients::AnimeDbClient;
+use crate::config::Config;
 use crate::player_controller::PlayerController;
 use crate::title_recognizer::{Title, TitleRecognizer};
-
-#[derive(Deserialize, Serialize)]
-pub struct Config {
-    pub mal: MALConfig,
-}
-
-#[derive(Deserialize, Serialize)]
-pub struct MALConfig {
-    pub username: String,
-    pub password: String,
-}
 
 // Check player status every 20 seconds
 static REFRESH_INTERVAL: u64 = 20000;
 
 pub struct TundraApp {
-    config: Config,
+    config: Arc<RwLock<Config>>,
     player_controller: PlayerController,
     title_recognizer: TitleRecognizer,
     mal_client: MalClient,
@@ -39,11 +26,11 @@ pub struct TundraApp {
 
 impl TundraApp {
     pub fn init() -> Result<Self, Box<dyn std::error::Error>> {
-        let config = Self::load_config()?;
+        let config = Arc::new(RwLock::new(Config::load()));
         let anime_relations = Arc::new(AnimeRelations::new());
         let player_controller = PlayerController::new()?;
         let title_recognizer = TitleRecognizer::new();
-        let mal_client = MalClient::new(anime_relations.clone())?;
+        let mal_client = MalClient::new(config.clone(), anime_relations.clone())?;
         let scrobbled_titles = Default::default();
 
         Ok(Self {
@@ -55,23 +42,22 @@ impl TundraApp {
         })
     }
 
-    fn load_config() -> Result<Config, Box<dyn std::error::Error>> {
-        let project_dirs =
-            ProjectDirs::from("com", "m4tx", "tundra").ok_or("config directory not found")?;
-        let config_file = project_dirs.config_dir().join("config.toml");
-        let config_file_str = fs::read_to_string(config_file).expect(
-            "Config file could not be read. Make sure to execute \
-            `tundra authenticate <username> <password>` before using.",
-        );
-
-        Ok(toml::from_str(&config_file_str)?)
+    pub async fn authenticate_mal(
+        &mut self,
+        username: &str,
+        password: &str,
+    ) -> Result<(), Box<dyn std::error::Error>> {
+        self.mal_client.authenticate(username, password).await?;
+        Ok(())
     }
 
-    pub async fn authenticate_mal(&mut self) -> Result<(), Box<dyn std::error::Error>> {
-        self.mal_client
-            .authenticate(&self.config.mal.username, &self.config.mal.password)
-            .await?;
-        Ok(())
+    pub fn check_mal_authenticated(&self) {
+        if !self.config.read().unwrap().is_mal_authenticated() {
+            panic!(
+                "You are not authenticated to MyAnimeList. \
+            Please execute `tundra authenticate <username> <password>` first."
+            );
+        }
     }
 
     pub async fn run_daemon(&mut self) -> Result<(), Box<dyn std::error::Error>> {
