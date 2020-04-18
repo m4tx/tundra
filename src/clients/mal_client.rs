@@ -54,11 +54,7 @@ struct MyListStatus {
 }
 
 impl MalClient {
-    pub async fn new(
-        username: &str,
-        password: &str,
-        anime_relations: Arc<AnimeRelations>,
-    ) -> Result<Self, Box<dyn std::error::Error>> {
+    pub fn new(anime_relations: Arc<AnimeRelations>) -> Result<Self, Box<dyn std::error::Error>> {
         use reqwest::header;
         let mut headers = header::HeaderMap::new();
         headers.insert(
@@ -71,18 +67,15 @@ impl MalClient {
             .default_headers(headers)
             .build()?;
 
-        let mut client = Self {
+        Ok(Self {
             client,
             access_token: "".to_owned(),
             refresh_token: "".to_owned(),
             anime_relations,
-        };
-        client.authenticate(username, password).await?;
-
-        Ok(client)
+        })
     }
 
-    async fn authenticate(
+    pub async fn authenticate(
         &mut self,
         username: &str,
         password: &str,
