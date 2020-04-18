@@ -43,7 +43,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     } else {
         let mut app = TundraApp::init()?;
         app.authenticate_mal().await?;
-        app.try_scrobble().await?;
+        app.run_daemon().await?;
     }
 
     Ok(())

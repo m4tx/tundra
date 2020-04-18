@@ -1,6 +1,6 @@
 use anitomy::{Anitomy, ElementCategory};
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Eq, Hash, PartialEq)]
 pub struct Title {
     pub title: String,
     pub episode_number: i32,

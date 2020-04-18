@@ -1,9 +1,12 @@
+use std::collections::HashSet;
 use std::fs;
 use std::sync::Arc;
+use std::time::Duration;
 
 use directories::ProjectDirs;
 use notify_rust::Notification;
 use serde::{Deserialize, Serialize};
+use tokio::time;
 
 use crate::anime_relations::AnimeRelations;
 use crate::clients::mal_client::MalClient;
@@ -22,11 +25,15 @@ pub struct MALConfig {
     pub password: String,
 }
 
+// Check player status every 20 seconds
+static REFRESH_INTERVAL: u64 = 20000;
+
 pub struct TundraApp {
     config: Config,
     player_controller: PlayerController,
     title_recognizer: TitleRecognizer,
     mal_client: MalClient,
+    scrobbled_titles: HashSet<Title>,
 }
 
 impl TundraApp {
@@ -36,12 +43,14 @@ impl TundraApp {
         let player_controller = PlayerController::new()?;
         let title_recognizer = TitleRecognizer::new();
         let mal_client = MalClient::new(anime_relations.clone())?;
+        let scrobbled_titles = Default::default();
 
         Ok(Self {
             config,
             player_controller,
             title_recognizer,
             mal_client,
+            scrobbled_titles,
         })
     }
 
@@ -61,8 +70,18 @@ impl TundraApp {
         Ok(())
     }
 
+    pub async fn run_daemon(&mut self) -> Result<(), Box<dyn std::error::Error>> {
+        let mut interval = time::interval(Duration::from_millis(REFRESH_INTERVAL));
+
+        loop {
+            interval.tick().await;
+            self.try_scrobble().await?;
+        }
+    }
+
     pub async fn try_scrobble(&mut self) -> Result<(), Box<dyn std::error::Error>> {
         let players = self.player_controller.get_players()?;
+        let mut titles = Vec::new();
 
         for player in players {
             let filename = player.filename_played();
@@ -72,18 +91,27 @@ impl TundraApp {
                     None => {}
                     Some(t) => {
                         if player.position()? > 0.5 && player.is_currently_playing()? {
-                            self.scrobble_title(&t).await?;
+                            titles.push(t);
                         }
                     }
                 }
             }
         }
 
+        for title in titles {
+            self.scrobble_title(&title).await?;
+        }
+
         Ok(())
     }
 
-    async fn scrobble_title(&self, title: &Title) -> Result<(), Box<dyn std::error::Error>> {
+    async fn scrobble_title(&mut self, title: &Title) -> Result<(), Box<dyn std::error::Error>> {
+        if self.scrobbled_titles.contains(&title) {
+            return Ok(());
+        }
+
         let new_title = self.mal_client.set_title_watched(&title).await?;
+        self.scrobbled_titles.insert(title.clone());
 
         if let Some(title) = new_title {
             Notification::new()
