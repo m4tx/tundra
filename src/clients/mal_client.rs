@@ -1,3 +1,4 @@
+use core::fmt;
 use std::sync::Arc;
 
 use serde::Deserialize;
@@ -53,6 +54,30 @@ struct MyListStatus {
     num_episodes_watched: i32,
 }
 
+#[derive(Debug)]
+struct AuthenticationFailedError;
+
+impl AuthenticationFailedError {
+    fn new() -> Self {
+        Self {}
+    }
+}
+
+static AUTHENTICATION_ERROR_STRING: &str = "Could not authenticate to MyAnimeList. \
+Make sure the username and password you entered is correct.";
+
+impl fmt::Display for AuthenticationFailedError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, AUTHENTICATION_ERROR_STRING)
+    }
+}
+
+impl std::error::Error for AuthenticationFailedError {
+    fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
+        None
+    }
+}
+
 impl MalClient {
     pub fn new(anime_relations: Arc<AnimeRelations>) -> Result<Self, Box<dyn std::error::Error>> {
         use reqwest::header;
@@ -91,13 +116,30 @@ impl MalClient {
             .client
             .post(&format!("{}/auth/token", MAL_URL))
             .form(&params);
-        let response: PasswordGrantResponse =
-            req.send().await?.json::<PasswordGrantResponse>().await?;
+        let response = req.send().await?;
+        if response.status().is_client_error() {
+            return Err(Box::new(AuthenticationFailedError::new()));
+        }
 
-        self.access_token = response.access_token;
-        self.refresh_token = response.refresh_token;
+        let response_data: PasswordGrantResponse = response
+            .error_for_status()?
+            .json::<PasswordGrantResponse>()
+            .await?;
+        self.access_token = response_data.access_token;
+        self.refresh_token = response_data.refresh_token;
 
         Ok(())
+    }
+
+    async fn make_request(
+        &self,
+        request: reqwest::RequestBuilder,
+    ) -> Result<reqwest::Response, Box<dyn std::error::Error>> {
+        Ok(request
+            .header("Authorization", format!("Bearer {}", self.access_token))
+            .send()
+            .await?
+            .error_for_status()?)
     }
 
     async fn search(&self, query: &str) -> Result<SearchResponse, Box<dyn std::error::Error>> {
@@ -110,12 +152,14 @@ impl MalClient {
         ];
 
         let req = self
-            .client
-            .get(&format!("{}/anime", MAL_URL))
-            .header("Authorization", format!("Bearer {}", self.access_token))
-            .query(&params);
+            .make_request(
+                self.client
+                    .get(&format!("{}/anime", MAL_URL))
+                    .query(&params),
+            )
+            .await?;
 
-        Ok(req.send().await?.json::<SearchResponse>().await?)
+        Ok(req.json::<SearchResponse>().await?)
     }
 
     async fn get_by_id(&self, id: i64) -> Result<AnimeObject, Box<dyn std::error::Error>> {
@@ -125,12 +169,14 @@ impl MalClient {
         )];
 
         let req = self
-            .client
-            .get(&format!("{}/anime/{}", MAL_URL, id))
-            .header("Authorization", format!("Bearer {}", self.access_token))
-            .query(&params);
+            .make_request(
+                self.client
+                    .get(&format!("{}/anime/{}", MAL_URL, id))
+                    .query(&params),
+            )
+            .await?;
 
-        Ok(req.send().await?.json::<AnimeObject>().await?)
+        Ok(req.json::<AnimeObject>().await?)
     }
 
     async fn set_status(
@@ -145,12 +191,14 @@ impl MalClient {
         ];
 
         let req = self
-            .client
-            .patch(&format!("{}/anime/{}/my_list_status", MAL_URL, id))
-            .header("Authorization", format!("Bearer {}", self.access_token))
-            .form(&params);
+            .make_request(
+                self.client
+                    .patch(&format!("{}/anime/{}/my_list_status", MAL_URL, id))
+                    .form(&params),
+            )
+            .await?;
 
-        Ok(req.send().await?.json::<MyListStatus>().await?)
+        Ok(req.json::<MyListStatus>().await?)
     }
 
     async fn set_episode_number(

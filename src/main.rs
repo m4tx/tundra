@@ -42,7 +42,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         save_config(username, password)?;
     } else {
         let mut app = TundraApp::init()?;
-        app.authenticate_mal().await?;
+        app.authenticate_mal()
+            .await
+            .expect("Could not authenticate to MAL");
         app.run_daemon().await?;
     }
 
