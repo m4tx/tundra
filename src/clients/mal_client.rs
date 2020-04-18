@@ -1,6 +1,8 @@
 use core::fmt;
 use std::sync::Arc;
 
+use log::info;
+use reqwest::StatusCode;
 use serde::Deserialize;
 
 use async_trait::async_trait;
@@ -8,7 +10,6 @@ use async_trait::async_trait;
 use crate::anime_relations::{AnimeDbs, AnimeRelations};
 use crate::clients::AnimeDbClient;
 use crate::title_recognizer::Title;
-use reqwest::StatusCode;
 
 static MAL_URL: &str = "https://api.myanimelist.net/v2";
 static CLIENT_ID_HEADER: &str = "X-MAL-Client-ID";
@@ -106,6 +107,8 @@ impl MalClient {
         username: &str,
         password: &str,
     ) -> Result<(), Box<dyn std::error::Error>> {
+        info!("Authenticating with MAL");
+
         let params = vec![
             ("client_id", CLIENT_ID),
             ("grant_type", "password"),
@@ -119,6 +122,8 @@ impl MalClient {
     }
 
     async fn refresh_auth(&mut self) -> Result<(), Box<dyn std::error::Error>> {
+        info!("Refreshing MAL authentication token");
+
         let refresh_token = self.refresh_token.to_owned();
         let params = vec![
             ("client_id", CLIENT_ID),

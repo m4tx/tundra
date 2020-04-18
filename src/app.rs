@@ -1,3 +1,4 @@
+use log::info;
 use std::collections::HashSet;
 use std::fs;
 use std::sync::Arc;
@@ -83,6 +84,8 @@ impl TundraApp {
     }
 
     pub async fn try_scrobble(&mut self) -> Result<(), Box<dyn std::error::Error>> {
+        info!("Checking active players");
+
         let players = self.player_controller.get_players()?;
         let mut titles = Vec::new();
 
@@ -94,7 +97,18 @@ impl TundraApp {
                     None => {}
                     Some(t) => {
                         if player.position()? > 0.5 && player.is_currently_playing()? {
-                            titles.push(t);
+                            info!(
+                                "Found an active player: {}, playing {} episode {}",
+                                player.player_name()?,
+                                t.title,
+                                t.episode_number
+                            );
+
+                            if self.scrobbled_titles.contains(&t) {
+                                info!("Already scrobbled, skipping...");
+                            } else {
+                                titles.push(t);
+                            }
                         }
                     }
                 }
@@ -109,9 +123,10 @@ impl TundraApp {
     }
 
     async fn scrobble_title(&mut self, title: &Title) -> Result<(), Box<dyn std::error::Error>> {
-        if self.scrobbled_titles.contains(&title) {
-            return Ok(());
-        }
+        info!(
+            "Scrobbling {} episode {}",
+            title.title, title.episode_number
+        );
 
         let new_title = self.mal_client.set_title_watched(&title).await?;
         self.scrobbled_titles.insert(title.clone());

@@ -1,18 +1,22 @@
 use std::fs;
 
+use clap::{App, Arg, SubCommand};
 use directories::ProjectDirs;
 
 use crate::app::{Config, MALConfig, TundraApp};
-use clap::{App, Arg, SubCommand};
+use crate::logging::init_logging;
 
 mod anime_relations;
 mod app;
 mod clients;
+mod logging;
 mod player_controller;
 mod title_recognizer;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    init_logging()?;
+
     let matches = App::new(env!("CARGO_PKG_NAME"))
         .version(env!("CARGO_PKG_VERSION"))
         .author(env!("CARGO_PKG_AUTHORS"))
