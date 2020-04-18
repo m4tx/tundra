@@ -3,11 +3,11 @@ use crate::player_controller::PlayerController;
 use crate::title_recognizer::TitleRecognizer;
 use directories::ProjectDirs;
 
-use crate::anime_relations::{AnimeRelationRule, AnimeRelations};
+use crate::anime_relations::AnimeRelations;
 use crate::clients::AnimeDbClient;
 use serde::Deserialize;
 use std::fs;
-use std::rc::Rc;
+
 use std::sync::Arc;
 
 mod anime_relations;
