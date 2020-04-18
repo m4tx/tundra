@@ -1,17 +1,24 @@
-use crate::clients::AnimeDbClient;
-use crate::title_recognizer::Title;
-use async_trait::async_trait;
+use std::rc::Rc;
+use std::sync::Arc;
+
 use serde::Deserialize;
 
-static MAL_URL: &str = "https://api.myanimelist.net";
+use async_trait::async_trait;
+
+use crate::anime_relations::{AnimeDbs, AnimeRelations};
+use crate::clients::AnimeDbClient;
+use crate::title_recognizer::Title;
+
+static MAL_URL: &str = "https://api.myanimelist.net/v2";
 static CLIENT_ID_HEADER: &str = "X-MAL-Client-ID";
 static CLIENT_ID: &str = "6114d00ca681b7701d1e15fe11a4987e";
-static USER_AGENT: &str = concat!(env!("CARGO_PKG_NAME"), "/", env!("CARGO_PKG_VERSION"),);
+static USER_AGENT: &str = concat!(env!("CARGO_PKG_NAME"), "/", env!("CARGO_PKG_VERSION"));
 
 pub struct MalClient {
     client: reqwest::Client,
     access_token: String,
     refresh_token: String,
+    anime_relations: Arc<AnimeRelations>,
 }
 
 #[derive(Debug, Deserialize)]
@@ -48,7 +55,11 @@ struct MyListStatus {
 }
 
 impl MalClient {
-    pub async fn new(username: &str, password: &str) -> Result<Self, Box<dyn std::error::Error>> {
+    pub async fn new(
+        username: &str,
+        password: &str,
+        anime_relations: Arc<AnimeRelations>,
+    ) -> Result<Self, Box<dyn std::error::Error>> {
         use reqwest::header;
         let mut headers = header::HeaderMap::new();
         headers.insert(
@@ -65,6 +76,7 @@ impl MalClient {
             client,
             access_token: "".to_owned(),
             refresh_token: "".to_owned(),
+            anime_relations,
         };
         client.authenticate(username, password).await?;
 
@@ -85,7 +97,7 @@ impl MalClient {
 
         let req = self
             .client
-            .post(&format!("{}/v2/auth/token", MAL_URL))
+            .post(&format!("{}/auth/token", MAL_URL))
             .form(&params);
         let response: PasswordGrantResponse =
             req.send().await?.json::<PasswordGrantResponse>().await?;
@@ -107,11 +119,26 @@ impl MalClient {
 
         let req = self
             .client
-            .get(&format!("{}/v2/anime", MAL_URL))
+            .get(&format!("{}/anime", MAL_URL))
             .header("Authorization", format!("Bearer {}", self.access_token))
             .query(&params);
 
         Ok(req.send().await?.json::<SearchResponse>().await?)
+    }
+
+    async fn get_by_id(&self, id: i64) -> Result<AnimeObject, Box<dyn std::error::Error>> {
+        let params = [(
+            "fields",
+            "title,alternative_titles,average_episode_duration,num_episodes,my_list_status",
+        )];
+
+        let req = self
+            .client
+            .get(&format!("{}/anime/{}", MAL_URL, id))
+            .header("Authorization", format!("Bearer {}", self.access_token))
+            .query(&params);
+
+        Ok(req.send().await?.json::<AnimeObject>().await?)
     }
 
     async fn set_status(
@@ -127,7 +154,7 @@ impl MalClient {
 
         let req = self
             .client
-            .patch(&format!("{}/v2/anime/{}/my_list_status", MAL_URL, id))
+            .patch(&format!("{}/anime/{}/my_list_status", MAL_URL, id))
             .header("Authorization", format!("Bearer {}", self.access_token))
             .form(&params);
 
@@ -160,8 +187,22 @@ impl AnimeDbClient for MalClient {
         let results = self.search(&title.title).await?;
         if !results.data.is_empty() {
             let anime_object = &results.data[0].node;
-            self.set_episode_number(anime_object, title.episode_number)
-                .await?;
+            let relation_rule = self
+                .anime_relations
+                .get_rule(&AnimeDbs::Mal, anime_object.id);
+
+            if let Some(rule) = relation_rule {
+                let (new_id, new_ep) = rule.convert_episode_number(
+                    &AnimeDbs::Mal,
+                    anime_object.id,
+                    title.episode_number,
+                );
+                let anime_object = self.get_by_id(new_id).await?;
+                self.set_episode_number(&anime_object, new_ep).await?;
+            } else {
+                self.set_episode_number(anime_object, title.episode_number)
+                    .await?;
+            }
             Ok(true)
         } else {
             Ok(false)

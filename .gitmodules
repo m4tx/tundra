@@ -1,0 +1,3 @@
+[submodule "vendor/anime-relations"]
+	path = vendor/anime-relations
+	url = https://github.com/erengy/anime-relations.git

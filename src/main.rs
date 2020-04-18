@@ -3,10 +3,14 @@ use crate::player_controller::PlayerController;
 use crate::title_recognizer::TitleRecognizer;
 use directories::ProjectDirs;
 
+use crate::anime_relations::{AnimeRelationRule, AnimeRelations};
 use crate::clients::AnimeDbClient;
 use serde::Deserialize;
 use std::fs;
+use std::rc::Rc;
+use std::sync::Arc;
 
+mod anime_relations;
 mod clients;
 mod player_controller;
 mod title_recognizer;
@@ -24,13 +28,17 @@ struct MALConfig {
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    // println!("{:#?}", AnimeRelations::get_rules().len());
+    let anime_relations = Arc::new(AnimeRelations::new());
+
     let project_dirs =
         ProjectDirs::from("com", "m4tx", "tundra").ok_or("config directory not found")?;
     let config_file = project_dirs.config_dir().join("config.toml");
     let config_file_str = fs::read_to_string(config_file)?;
     let config: Config = toml::from_str(&config_file_str)?;
 
-    let client = MalClient::new(&config.mal.username, &config.mal.password).await?;
+    let client =
+        MalClient::new(&config.mal.username, &config.mal.password, anime_relations).await?;
 
     let controller = PlayerController::new()?;
     let mut title_recognizer = TitleRecognizer::new();
