@@ -10,7 +10,7 @@ use crate::anime_relations::AnimeRelations;
 use crate::clients::mal_client::MalClient;
 use crate::clients::AnimeDbClient;
 use crate::config::Config;
-use crate::player_controller::PlayerController;
+use crate::player_controller::{Player, PlayerController};
 use crate::title_recognizer::{Title, TitleRecognizer};
 
 // Check player status every 20 seconds
@@ -76,27 +76,18 @@ impl TundraApp {
         let mut titles = Vec::new();
 
         for player in players {
-            let filename = player.filename_played();
-            if filename.is_ok() {
-                let title = self.title_recognizer.recognize(&filename.unwrap());
-                match title {
-                    None => {}
-                    Some(t) => {
-                        if player.position()? > 0.5 && player.is_currently_playing()? {
-                            info!(
-                                "Found an active player: {}, playing {} episode {}",
-                                player.player_name()?,
-                                t.title,
-                                t.episode_number
-                            );
+            if let Some(title) = Self::check_player(&mut self.title_recognizer, &player)? {
+                info!(
+                    "Found an active player: {}, playing {} episode {}",
+                    player.player_name()?,
+                    title.title,
+                    title.episode_number
+                );
 
-                            if self.scrobbled_titles.contains(&t) {
-                                info!("Already scrobbled, skipping...");
-                            } else {
-                                titles.push(t);
-                            }
-                        }
-                    }
+                if self.scrobbled_titles.contains(&title) {
+                    info!("Already scrobbled, skipping...");
+                } else {
+                    titles.push(title);
                 }
             }
         }
@@ -106,6 +97,18 @@ impl TundraApp {
         }
 
         Ok(())
+    }
+
+    fn check_player(
+        title_recognizer: &mut TitleRecognizer,
+        player: &Player,
+    ) -> Result<Option<Title>, Box<dyn std::error::Error>> {
+        let filename = player.filename_played();
+        if filename.is_ok() && player.position()? > 0.5 && player.is_currently_playing()? {
+            Ok(title_recognizer.recognize(&filename.unwrap()))
+        } else {
+            Ok(None)
+        }
     }
 
     async fn scrobble_title(&mut self, title: &Title) -> Result<(), Box<dyn std::error::Error>> {
