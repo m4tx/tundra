@@ -113,7 +113,9 @@ impl MalClient {
             ("password", password),
         ];
 
-        Ok(self.make_auth_request(&params).await?)
+        Ok(self
+            .make_auth_request(&format!("{}/auth/token", MAL_URL), &params)
+            .await?)
     }
 
     async fn refresh_auth(&mut self) -> Result<(), Box<dyn std::error::Error>> {
@@ -124,17 +126,17 @@ impl MalClient {
             ("refresh_token", &refresh_token),
         ];
 
-        Ok(self.make_auth_request(&params).await?)
+        Ok(self
+            .make_auth_request("https://myanimelist.net/v1/oauth2/token", &params)
+            .await?)
     }
 
     pub async fn make_auth_request(
         &mut self,
+        url: &str,
         params: &Vec<(&str, &str)>,
     ) -> Result<(), Box<dyn std::error::Error>> {
-        let req = self
-            .client
-            .post(&format!("{}/auth/token", MAL_URL))
-            .form(&params);
+        let req = self.client.post(url).form(&params);
         let response = req.send().await?;
         if response.status().is_client_error() {
             return Err(Box::new(AuthenticationFailedError::new()));
@@ -154,13 +156,19 @@ impl MalClient {
         &mut self,
         request: reqwest::RequestBuilder,
     ) -> Result<reqwest::Response, Box<dyn std::error::Error>> {
-        let request = request.header("Authorization", format!("Bearer {}", self.access_token));
         let request_copy = request.try_clone().expect("Request could not be cloned");
-        let response = request.send().await?;
+        let response = request
+            .header("Authorization", format!("Bearer {}", self.access_token))
+            .send()
+            .await?;
 
         if response.status() == StatusCode::UNAUTHORIZED {
-            self.refresh_auth();
-            return Ok(request_copy.send().await?.error_for_status()?);
+            self.refresh_auth().await?;
+            return Ok(request_copy
+                .header("Authorization", format!("Bearer {}", self.access_token))
+                .send()
+                .await?
+                .error_for_status()?);
         } else {
             return Ok(response.error_for_status()?);
         }
