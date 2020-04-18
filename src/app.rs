@@ -58,7 +58,10 @@ impl TundraApp {
         let project_dirs =
             ProjectDirs::from("com", "m4tx", "tundra").ok_or("config directory not found")?;
         let config_file = project_dirs.config_dir().join("config.toml");
-        let config_file_str = fs::read_to_string(config_file)?;
+        let config_file_str = fs::read_to_string(config_file).expect(
+            "Config file could not be read. Make sure to execute \
+            `tundra authenticate <username> <password>` before using.",
+        );
 
         Ok(toml::from_str(&config_file_str)?)
     }
