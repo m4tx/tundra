@@ -8,6 +8,7 @@ use async_trait::async_trait;
 use crate::anime_relations::{AnimeDbs, AnimeRelations};
 use crate::clients::AnimeDbClient;
 use crate::title_recognizer::Title;
+use reqwest::StatusCode;
 
 static MAL_URL: &str = "https://api.myanimelist.net/v2";
 static CLIENT_ID_HEADER: &str = "X-MAL-Client-ID";
@@ -22,7 +23,7 @@ pub struct MalClient {
 }
 
 #[derive(Debug, Deserialize)]
-struct PasswordGrantResponse {
+struct AuthenticationResponse {
     access_token: String,
     expires_in: i64,
     refresh_token: String,
@@ -105,13 +106,31 @@ impl MalClient {
         username: &str,
         password: &str,
     ) -> Result<(), Box<dyn std::error::Error>> {
-        let params = [
+        let params = vec![
             ("client_id", CLIENT_ID),
             ("grant_type", "password"),
             ("username", username),
             ("password", password),
         ];
 
+        Ok(self.make_auth_request(&params).await?)
+    }
+
+    async fn refresh_auth(&mut self) -> Result<(), Box<dyn std::error::Error>> {
+        let refresh_token = self.refresh_token.to_owned();
+        let params = vec![
+            ("client_id", CLIENT_ID),
+            ("grant_type", "refresh_token"),
+            ("refresh_token", &refresh_token),
+        ];
+
+        Ok(self.make_auth_request(&params).await?)
+    }
+
+    pub async fn make_auth_request(
+        &mut self,
+        params: &Vec<(&str, &str)>,
+    ) -> Result<(), Box<dyn std::error::Error>> {
         let req = self
             .client
             .post(&format!("{}/auth/token", MAL_URL))
@@ -121,9 +140,9 @@ impl MalClient {
             return Err(Box::new(AuthenticationFailedError::new()));
         }
 
-        let response_data: PasswordGrantResponse = response
+        let response_data: AuthenticationResponse = response
             .error_for_status()?
-            .json::<PasswordGrantResponse>()
+            .json::<AuthenticationResponse>()
             .await?;
         self.access_token = response_data.access_token;
         self.refresh_token = response_data.refresh_token;
@@ -132,17 +151,22 @@ impl MalClient {
     }
 
     async fn make_request(
-        &self,
+        &mut self,
         request: reqwest::RequestBuilder,
     ) -> Result<reqwest::Response, Box<dyn std::error::Error>> {
-        Ok(request
-            .header("Authorization", format!("Bearer {}", self.access_token))
-            .send()
-            .await?
-            .error_for_status()?)
+        let request = request.header("Authorization", format!("Bearer {}", self.access_token));
+        let request_copy = request.try_clone().expect("Request could not be cloned");
+        let response = request.send().await?;
+
+        if response.status() == StatusCode::UNAUTHORIZED {
+            self.refresh_auth();
+            return Ok(request_copy.send().await?.error_for_status()?);
+        } else {
+            return Ok(response.error_for_status()?);
+        }
     }
 
-    async fn search(&self, query: &str) -> Result<SearchResponse, Box<dyn std::error::Error>> {
+    async fn search(&mut self, query: &str) -> Result<SearchResponse, Box<dyn std::error::Error>> {
         let params = [
             ("q", query),
             (
@@ -162,7 +186,7 @@ impl MalClient {
         Ok(req.json::<SearchResponse>().await?)
     }
 
-    async fn get_by_id(&self, id: i64) -> Result<AnimeObject, Box<dyn std::error::Error>> {
+    async fn get_by_id(&mut self, id: i64) -> Result<AnimeObject, Box<dyn std::error::Error>> {
         let params = [(
             "fields",
             "title,alternative_titles,average_episode_duration,num_episodes,my_list_status",
@@ -180,7 +204,7 @@ impl MalClient {
     }
 
     async fn set_status(
-        &self,
+        &mut self,
         id: i64,
         status: &str,
         num_episodes_watched: i32,
@@ -202,7 +226,7 @@ impl MalClient {
     }
 
     async fn set_episode_number(
-        &self,
+        &mut self,
         anime_object: &AnimeObject,
         num_episodes_watched: i32,
     ) -> Result<bool, Box<dyn std::error::Error>> {
@@ -224,7 +248,7 @@ impl MalClient {
 #[async_trait]
 impl AnimeDbClient for MalClient {
     async fn set_title_watched(
-        &self,
+        &mut self,
         title: &Title,
     ) -> Result<Option<Title>, Box<dyn std::error::Error>> {
         let results = self.search(&title.title).await?;
