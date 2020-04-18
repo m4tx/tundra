@@ -1,14 +1,15 @@
-use crate::clients::mal_client::MalClient;
-use crate::player_controller::PlayerController;
-use crate::title_recognizer::TitleRecognizer;
+use std::fs;
+use std::sync::Arc;
+
 use directories::ProjectDirs;
+use notify_rust::Notification;
+use serde::Deserialize;
 
 use crate::anime_relations::AnimeRelations;
+use crate::clients::mal_client::MalClient;
 use crate::clients::AnimeDbClient;
-use serde::Deserialize;
-use std::fs;
-
-use std::sync::Arc;
+use crate::player_controller::PlayerController;
+use crate::title_recognizer::TitleRecognizer;
 
 mod anime_relations;
 mod clients;
@@ -28,7 +29,6 @@ struct MALConfig {
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    // println!("{:#?}", AnimeRelations::get_rules().len());
     let anime_relations = Arc::new(AnimeRelations::new());
 
     let project_dirs =
@@ -64,8 +64,19 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                         player.position()?
                     );
                     if player.position()? > 0.5 && player.is_currently_playing()? {
-                        client.set_title_watched(&t).await?;
-                        println!("Scrobbled successfully");
+                        let new_title = client.set_title_watched(&t).await?;
+
+                        if let Some(title) = new_title {
+                            Notification::new()
+                                .summary("Tundra")
+                                .body(&format!(
+                                    "Scrobbled anime: {}, episode {}",
+                                    title.title, title.episode_number
+                                ))
+                                .icon("dialog-information-symbolic")
+                                .timeout(6000)
+                                .show();
+                        }
                     } else {
                         println!("Not scrobbling");
                     }

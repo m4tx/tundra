@@ -4,5 +4,8 @@ pub mod mal_client;
 
 #[async_trait]
 pub trait AnimeDbClient {
-    async fn set_title_watched(&self, title: &Title) -> Result<bool, Box<dyn std::error::Error>>;
+    async fn set_title_watched(
+        &self,
+        title: &Title,
+    ) -> Result<Option<Title>, Box<dyn std::error::Error>>;
 }

@@ -1,8 +1,18 @@
 use anitomy::{Anitomy, ElementCategory};
 
+#[derive(Clone, Debug)]
 pub struct Title {
     pub title: String,
     pub episode_number: i32,
+}
+
+impl Title {
+    pub fn new(title: String, episode_number: i32) -> Self {
+        Self {
+            title,
+            episode_number,
+        }
+    }
 }
 
 pub struct TitleRecognizer {
@@ -23,10 +33,7 @@ impl TitleRecognizer {
                 let episode_number: i32 =
                     elements.get(ElementCategory::EpisodeNumber)?.parse().ok()?;
 
-                Some(Title {
-                    title,
-                    episode_number,
-                })
+                Some(Title::new(title, episode_number))
             }
             Err(_elements) => None,
         }
