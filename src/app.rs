@@ -48,6 +48,7 @@ impl TundraApp {
         password: &str,
     ) -> Result<(), Box<dyn std::error::Error>> {
         self.mal_client.authenticate(username, password).await?;
+        self.scrobbled_titles.clear();
         Ok(())
     }
 
