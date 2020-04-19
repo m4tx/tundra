@@ -2,6 +2,7 @@ use crate::title_recognizer::Title;
 use async_trait::async_trait;
 pub mod mal_client;
 
+#[derive(Clone, Eq, Hash, PartialEq)]
 pub struct AnimeInfo {
     pub title: String,
     pub episode_watched: i32,

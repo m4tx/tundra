@@ -12,17 +12,12 @@ use crate::anime_relations::{AnimeDbs, AnimeRelations};
 use crate::clients::{AnimeDbClient, AnimeInfo};
 use crate::config::Config;
 use crate::title_recognizer::Title;
+use std::collections::HashMap;
 
 static MAL_URL: &str = "https://api.myanimelist.net/v2";
 static CLIENT_ID_HEADER: &str = "X-MAL-Client-ID";
 static CLIENT_ID: &str = "6114d00ca681b7701d1e15fe11a4987e";
 static USER_AGENT: &str = concat!(env!("CARGO_PKG_NAME"), "/", env!("CARGO_PKG_VERSION"));
-
-pub struct MalClient {
-    config: Arc<RwLock<Config>>,
-    client: reqwest::Client,
-    anime_relations: Arc<AnimeRelations>,
-}
 
 #[derive(Debug, Deserialize)]
 struct AuthenticationResponse {
@@ -81,6 +76,13 @@ impl std::error::Error for AuthenticationFailedError {
     }
 }
 
+pub struct MalClient {
+    config: Arc<RwLock<Config>>,
+    client: reqwest::Client,
+    anime_relations: Arc<AnimeRelations>,
+    title_cache: HashMap<Title, AnimeInfo>,
+}
+
 impl MalClient {
     pub fn new(
         config: Arc<RwLock<Config>>,
@@ -102,6 +104,7 @@ impl MalClient {
             config,
             client,
             anime_relations,
+            title_cache: HashMap::new(),
         })
     }
 
@@ -311,14 +314,23 @@ impl MalClient {
 #[async_trait]
 impl AnimeDbClient for MalClient {
     async fn get_anime_info(&mut self, title: &Title) -> Result<Option<AnimeInfo>, Box<Error>> {
+        if self.title_cache.contains_key(title) {
+            return Ok(Some(self.title_cache[title].clone()));
+        }
+
         let anime_object = self.get_anime_object(title).await?;
-        Ok(
-            anime_object.map(|(anime_object, episode_number)| AnimeInfo {
-                title: anime_object.title,
-                episode_watched: episode_number,
-                total_episodes: anime_object.num_episodes,
-            }),
-        )
+        let anime_info = anime_object.map(|(anime_object, episode_number)| AnimeInfo {
+            title: anime_object.title,
+            episode_watched: episode_number,
+            total_episodes: anime_object.num_episodes,
+        });
+
+        if anime_info.is_some() {
+            self.title_cache
+                .insert(title.clone(), anime_info.as_ref().unwrap().clone());
+        }
+
+        Ok(anime_info)
     }
 
     async fn set_title_watched(
