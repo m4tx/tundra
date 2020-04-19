@@ -291,13 +291,17 @@ impl AnimeDbClient for MalClient {
                     title.episode_number,
                 );
                 let anime_object = self.get_by_id(new_id).await?;
-                self.set_episode_number(&anime_object, new_ep).await?;
+                if anime_object.num_episodes < new_ep {
+                    self.set_episode_number(&anime_object, new_ep).await?;
+                }
 
                 let new_title = Title::new(anime_object.title, new_ep);
                 Ok(Some(new_title))
             } else {
-                self.set_episode_number(anime_object, title.episode_number)
-                    .await?;
+                if anime_object.num_episodes < title.episode_number {
+                    self.set_episode_number(anime_object, title.episode_number)
+                        .await?;
+                }
 
                 let new_title = Title::new(anime_object.title.clone(), title.episode_number);
                 Ok(Some(new_title))
