@@ -118,15 +118,20 @@ impl TundraApp {
             title.title, title.episode_number
         );
 
-        let new_title = self.mal_client.set_title_watched(&title).await?;
+        let scrobbled = self.mal_client.set_title_watched(&title).await?;
         self.scrobbled_titles.insert(title.clone());
 
-        if let Some(title) = new_title {
+        if scrobbled {
+            let anime_info = self
+                .mal_client
+                .get_anime_info(&title)
+                .await?
+                .expect("Could not get anime info");
             Notification::new()
                 .summary("Tundra")
                 .body(&format!(
-                    "Scrobbled anime: {}, episode {}",
-                    title.title, title.episode_number
+                    "Scrobbled anime: {}, episode {}/{}",
+                    anime_info.title, anime_info.episode_watched, anime_info.total_episodes
                 ))
                 .icon("dialog-information-symbolic")
                 .timeout(6000)

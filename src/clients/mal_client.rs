@@ -1,4 +1,5 @@
 use core::fmt;
+use std::error::Error;
 use std::sync::{Arc, RwLock};
 
 use log::info;
@@ -8,7 +9,7 @@ use serde::Deserialize;
 use async_trait::async_trait;
 
 use crate::anime_relations::{AnimeDbs, AnimeRelations};
-use crate::clients::AnimeDbClient;
+use crate::clients::{AnimeDbClient, AnimeInfo};
 use crate::config::Config;
 use crate::title_recognizer::Title;
 
@@ -269,17 +270,14 @@ impl MalClient {
             .await?;
         Ok(true)
     }
-}
 
-#[async_trait]
-impl AnimeDbClient for MalClient {
-    async fn set_title_watched(
+    async fn get_anime_object(
         &mut self,
         title: &Title,
-    ) -> Result<Option<Title>, Box<dyn std::error::Error>> {
+    ) -> Result<Option<(AnimeObject, i32)>, Box<dyn std::error::Error>> {
         let results = self.search(&title.title).await?;
         if !results.data.is_empty() {
-            let anime_object = &results.data[0].node;
+            let anime_object = results.data.into_iter().nth(0).unwrap().node;
             let relation_rule = self
                 .anime_relations
                 .get_rule(&AnimeDbs::Mal, anime_object.id);
@@ -290,24 +288,59 @@ impl AnimeDbClient for MalClient {
                     anime_object.id,
                     title.episode_number,
                 );
-                let anime_object = self.get_by_id(new_id).await?;
-                if anime_object.num_episodes < new_ep {
-                    self.set_episode_number(&anime_object, new_ep).await?;
-                }
+                let new_anime_object = self.get_by_id(new_id).await?;
 
-                let new_title = Title::new(anime_object.title, new_ep);
-                Ok(Some(new_title))
+                if new_anime_object.my_list_status.is_some() {
+                    Ok(Some((new_anime_object, new_ep)))
+                } else {
+                    Ok(None)
+                }
             } else {
-                if anime_object.num_episodes < title.episode_number {
-                    self.set_episode_number(anime_object, title.episode_number)
-                        .await?;
+                if anime_object.my_list_status.is_some() {
+                    Ok(Some((anime_object, title.episode_number)))
+                } else {
+                    Ok(None)
                 }
-
-                let new_title = Title::new(anime_object.title.clone(), title.episode_number);
-                Ok(Some(new_title))
             }
         } else {
             Ok(None)
+        }
+    }
+}
+
+#[async_trait]
+impl AnimeDbClient for MalClient {
+    async fn get_anime_info(&mut self, title: &Title) -> Result<Option<AnimeInfo>, Box<Error>> {
+        let anime_object = self.get_anime_object(title).await?;
+        Ok(
+            anime_object.map(|(anime_object, episode_number)| AnimeInfo {
+                title: anime_object.title,
+                episode_watched: episode_number,
+                total_episodes: anime_object.num_episodes,
+            }),
+        )
+    }
+
+    async fn set_title_watched(
+        &mut self,
+        title: &Title,
+    ) -> Result<bool, Box<dyn std::error::Error>> {
+        let anime_object = self.get_anime_object(title).await?;
+        if let Some((anime_object, episode_number)) = anime_object {
+            let episodes_watched = anime_object
+                .my_list_status
+                .as_ref()
+                .unwrap()
+                .num_episodes_watched;
+            if episodes_watched < episode_number {
+                self.set_episode_number(&anime_object, episode_number)
+                    .await?;
+                Ok(true)
+            } else {
+                Ok(false)
+            }
+        } else {
+            Ok(false)
         }
     }
 }
