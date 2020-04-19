@@ -1,3 +1,5 @@
+use std::cell::RefCell;
+
 use anitomy::{Anitomy, ElementCategory};
 
 #[derive(Clone, Debug, Eq, Hash, PartialEq)]
@@ -15,19 +17,20 @@ impl Title {
     }
 }
 
-pub struct TitleRecognizer {
-    anitomy: Anitomy,
+#[derive(Default)]
+pub struct TitleRecognizer {}
+
+thread_local! {
+    static ANITOMY: RefCell<Anitomy> = RefCell::new(Anitomy::new());
 }
 
 impl TitleRecognizer {
     pub fn new() -> Self {
-        Self {
-            anitomy: Anitomy::new(),
-        }
+        Default::default()
     }
 
     pub fn recognize(&mut self, filename: &str) -> Option<Title> {
-        match self.anitomy.parse(filename) {
+        ANITOMY.with(|anitomy| match anitomy.borrow_mut().parse(filename) {
             Ok(ref elements) => {
                 let title = elements.get(ElementCategory::AnimeTitle)?.to_owned();
                 let episode_number: i32 =
@@ -36,6 +39,6 @@ impl TitleRecognizer {
                 Some(Title::new(title, episode_number))
             }
             Err(_elements) => None,
-        }
+        })
     }
 }
