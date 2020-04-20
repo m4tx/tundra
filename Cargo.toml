@@ -29,3 +29,8 @@ notify-rust = "2.0"
 clap = "2.33"
 log = "0.4"
 chrono = "0.4"
+gtk = { version = "0.8", features = ["v3_22_29"] }
+gio = { version = "0.8", features = ["v2_44"] }
+glib = "0.9"
+gdk-pixbuf = "0.8"
+async-std = "0.99"

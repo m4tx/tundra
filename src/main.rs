@@ -7,6 +7,7 @@ mod anime_relations;
 mod app;
 mod clients;
 mod config;
+mod gtk_gui;
 mod logging;
 mod player_controller;
 mod title_recognizer;
@@ -38,16 +39,17 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .get_matches();
 
     let mut app = TundraApp::init()?;
+    gtk_gui::GtkApp::start(app);
 
-    if let Some(matches) = matches.subcommand_matches("authenticate") {
-        let username = matches.value_of("username").unwrap();
-        let password = matches.value_of("password").unwrap();
-
-        app.authenticate_mal(username, password).await?;
-    } else {
-        app.check_mal_authenticated();
-        app.run_daemon().await?;
-    }
+    // if let Some(matches) = matches.subcommand_matches("authenticate") {
+    //     let username = matches.value_of("username").unwrap();
+    //     let password = matches.value_of("password").unwrap();
+    //
+    //     app.authenticate_mal(username, password).await?;
+    // } else {
+    //     app.check_mal_authenticated();
+    //     app.run_daemon().await?;
+    // }
 
     Ok(())
 }
