@@ -36,7 +36,7 @@ This way, Tundra will periodically check for players running and scrobble any an
 * GTK+ 3
 
 ### How to build
-Tundra uses [*Cargo*](https://doc.rust-lang.org/cargo/) as its package manager and build system. It can be built by executing `cargo build` in the project root directory. For the release version, execute `cargo build --release`.
+Make sure you have executed `git clone --recursive`, so the submodules are cloned as well. Tundra uses [*Cargo*](https://doc.rust-lang.org/cargo/) as its package manager and build system. It can be built by executing `cargo build` in the project root directory. For the release version, execute `cargo build --release`.
 
 ### Snap
 After you have installed [*snap*](https://snapcraft.io/) and *snapcraft* execute `snapcraft` in the project root directory to build the Snap package.
