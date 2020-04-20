@@ -25,8 +25,8 @@ struct MainWindow {
     about_dialog: gtk::AboutDialog,
 
     overflow_menu: gtk::MenuButton,
-    sign_out: gtk::ModelButton,
-    about: gtk::ModelButton,
+    sign_out_button: gtk::ModelButton,
+    about_button: gtk::ModelButton,
 
     sign_in_button: gtk::Button,
     enabled_switch: gtk::Switch,
@@ -40,11 +40,11 @@ struct MainWindow {
 
     scrobble_page: gtk::Container,
     image: gtk::Image,
-    status_summary: gtk::Label,
-    title: gtk::Label,
-    episode_number: gtk::Label,
-    player_name: gtk::Label,
-    status: gtk::Label,
+    status_summary_label: gtk::Label,
+    title_label: gtk::Label,
+    episode_number_label: gtk::Label,
+    player_name_label: gtk::Label,
+    status_label: gtk::Label,
 }
 
 impl MainWindow {
@@ -90,22 +90,22 @@ impl MainWindow {
         status: &str,
         picture: Option<&gdk_pixbuf::Pixbuf>,
     ) {
-        self.status_summary.set_text("Scrobbling now");
-        self.title.set_text(title);
-        self.episode_number.set_text(episode_number);
-        self.player_name.set_text(player_name);
-        self.status.set_text(status);
+        self.status_summary_label.set_text("Scrobbling now");
+        self.title_label.set_text(title);
+        self.episode_number_label.set_text(episode_number);
+        self.player_name_label.set_text(player_name);
+        self.status_label.set_text(status);
         if picture.is_some() {
             self.image.set_from_pixbuf(picture);
         }
     }
 
     fn set_anime_info_none(&self) {
-        self.status_summary.set_text("Not scrobbling now");
-        self.title.set_text("N/A");
-        self.episode_number.set_text("N/A");
-        self.player_name.set_text("N/A");
-        self.status.set_text("N/A");
+        self.status_summary_label.set_text("Not scrobbling now");
+        self.title_label.set_text("N/A");
+        self.episode_number_label.set_text("N/A");
+        self.player_name_label.set_text("N/A");
+        self.status_label.set_text("N/A");
         self.image.clear();
     }
 }
@@ -146,29 +146,33 @@ impl GtkApp {
         let builder = Builder::new();
         builder
             .add_from_string(glade_src)
-            .expect("Couldn't add from string");
+            .expect("Couldn't build UI from string");
 
         MainWindow {
             window: builder.get_object("window").unwrap(),
             about_dialog: builder.get_object("about_dialog").unwrap(),
-            sign_in_button: builder.get_object("sign_in").unwrap(),
-            enabled_switch: builder.get_object("enabled_switch").unwrap(),
-            sign_out: builder.get_object("sign_out").unwrap(),
-            about: builder.get_object("about").unwrap(),
+
             overflow_menu: builder.get_object("overflow_menu").unwrap(),
+            sign_out_button: builder.get_object("sign_out_button").unwrap(),
+            about_button: builder.get_object("about_button").unwrap(),
+
+            sign_in_button: builder.get_object("sign_in_button").unwrap(),
+            enabled_switch: builder.get_object("enabled_switch").unwrap(),
             info_bar: builder.get_object("info_bar").unwrap(),
             info_bar_text: builder.get_object("info_bar_text").unwrap(),
+            main_stack: builder.get_object("main_stack").unwrap(),
+
+            sign_in_page: builder.get_object("sign_in_page").unwrap(),
             username_entry: builder.get_object("username").unwrap(),
             password_entry: builder.get_object("password").unwrap(),
-            main_stack: builder.get_object("main_stack").unwrap(),
-            sign_in_page: builder.get_object("sign_in_page").unwrap(),
+
             scrobble_page: builder.get_object("scrobble_page").unwrap(),
             image: builder.get_object("image").unwrap(),
-            status_summary: builder.get_object("status_summary").unwrap(),
-            title: builder.get_object("title").unwrap(),
-            episode_number: builder.get_object("episode_number").unwrap(),
-            player_name: builder.get_object("player_name").unwrap(),
-            status: builder.get_object("status").unwrap(),
+            status_summary_label: builder.get_object("status_summary_label").unwrap(),
+            title_label: builder.get_object("title_label").unwrap(),
+            episode_number_label: builder.get_object("episode_number_label").unwrap(),
+            player_name_label: builder.get_object("player_name_label").unwrap(),
+            status_label: builder.get_object("status_label").unwrap(),
         }
     }
 
@@ -216,18 +220,18 @@ impl GtkApp {
             }),
         );
 
-        self.main_window
-            .about
-            .connect_clicked(clone!(@strong self as this => move |button| {
+        self.main_window.about_button.connect_clicked(
+            clone!(@strong self as this => move |button| {
                 this.main_window.about_dialog.run();
                 this.main_window.about_dialog.hide();
-            }));
+            }),
+        );
 
-        self.main_window
-            .sign_out
-            .connect_clicked(clone!(@strong self as this => move |button| {
+        self.main_window.sign_out_button.connect_clicked(
+            clone!(@strong self as this => move |button| {
                 this.switch_to_sign_in_page();
-            }));
+            }),
+        );
 
         self.main_window.set_anime_info_none();
 
