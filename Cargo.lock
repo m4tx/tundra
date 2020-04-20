@@ -1619,6 +1619,7 @@ dependencies = [
  "lazy_static",
  "log",
  "notify-rust",
+ "percent-encoding",
  "regex",
  "reqwest",
  "serde",

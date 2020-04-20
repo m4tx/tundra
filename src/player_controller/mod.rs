@@ -64,7 +64,13 @@ impl<'a> Player<'a> {
         let metadata = self.dbus_proxy.metadata()?;
         let x = metadata.get("xesam:url").ok_or("URL was not found")?;
         let url: &str = x.0.as_str().ok_or("URL is not string")?;
-        let path = Path::new(url);
+        let url: String = if url.starts_with("file://") {
+            percent_encoding::percent_decode_str(url).decode_utf8()?.to_string()
+        } else {
+            url.to_owned()
+        };
+        let url = url.replace("file://", "");
+        let path = Path::new(&url);
 
         Ok(path
             .file_name()
