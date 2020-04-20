@@ -16,6 +16,8 @@ use tokio::time;
 use crate::app::{PlayedTitle, TundraApp};
 use crate::constants::{APP_VERSION, REFRESH_INTERVAL, USER_AGENT};
 
+static LOGO_BYTES: &[u8] = include_bytes!("../../data/logo-64.png");
+
 struct MainWindow {
     window: gtk::ApplicationWindow,
     about_dialog: gtk::AboutDialog,
@@ -178,6 +180,12 @@ impl GtkApp {
             .set_application(Some(&self.gtk_application));
 
         self.main_window.about_dialog.set_version(Some(APP_VERSION));
+        let bytes = glib::Bytes::from(LOGO_BYTES);
+        let stream = gio::MemoryInputStream::new_from_bytes(&bytes);
+        let pixbuf =
+            gdk_pixbuf::Pixbuf::new_from_stream::<_, gio::Cancellable>(&stream, None)
+                .unwrap();
+        self.main_window.about_dialog.set_logo(Some(&pixbuf));
 
         self.main_window.info_bar.connect_response(|bar, response| {
             if response == gtk::ResponseType::Close {
