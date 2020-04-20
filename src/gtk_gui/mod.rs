@@ -346,7 +346,7 @@ impl GtkApp {
             let picture_url = &played_title.anime_info.picture;
             let image_downloaded = images.read().unwrap().contains_key(picture_url);
             if !image_downloaded {
-                let bytes = reqwest::get(picture_url).await?.bytes().await?;
+                let bytes = Self::get_picture(picture_url).await?;
                 let vec = Vec::from(bytes.as_ref());
                 let glib_bytes = glib::Bytes::from_owned(vec);
                 images
@@ -357,6 +357,11 @@ impl GtkApp {
         }
 
         Ok(played_title)
+    }
+
+    async fn get_picture(url: &str) -> Result<bytes::Bytes, Box<dyn std::error::Error>> {
+        let client: reqwest::Client = reqwest::Client::builder().user_agent(USER_AGENT).build()?;
+        Ok(client.get(url).send().await?.bytes().await?)
     }
 
     fn handle_ui_daemon_tick(

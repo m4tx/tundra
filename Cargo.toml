@@ -34,3 +34,4 @@ gio = { version = "0.8", features = ["v2_44"] }
 glib = "0.9"
 gdk-pixbuf = "0.8"
 async-std = "0.99"
+bytes = "0.5"
