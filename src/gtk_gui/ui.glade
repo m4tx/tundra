@@ -85,7 +85,6 @@
         </child>
         <child>
           <object class="GtkMenuButton" id="overflow_menu">
-            <property name="visible">True</property>
             <property name="can_focus">True</property>
             <property name="focus_on_click">False</property>
             <property name="receives_default">True</property>
@@ -230,6 +229,7 @@
                     <property name="can_focus">True</property>
                     <property name="has_focus">True</property>
                     <property name="hexpand">True</property>
+                    <property name="activates_default">True</property>
                   </object>
                   <packing>
                     <property name="left_attach">1</property>
@@ -257,6 +257,7 @@
                     <property name="hexpand">True</property>
                     <property name="visibility">False</property>
                     <property name="invisible_char">•</property>
+                    <property name="activates_default">True</property>
                     <property name="input_purpose">password</property>
                   </object>
                   <packing>

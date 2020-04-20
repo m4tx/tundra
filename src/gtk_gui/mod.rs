@@ -213,6 +213,16 @@ impl GtkApp {
             .connect_changed(clone!(@strong self as this => move |_| {
                 this.clone().check_sign_in_enabled();
             }));
+        self.main_window
+            .username_entry
+            .connect_activate(clone!(@strong self as this => move |_| {
+                this.clone().sign_in();
+            }));
+        self.main_window
+            .password_entry
+            .connect_activate(clone!(@strong self as this => move |_| {
+                this.clone().sign_in();
+            }));
 
         self.main_window
             .about_button
@@ -276,9 +286,13 @@ impl GtkApp {
     }
 
     fn sign_in(&mut self) {
+        let (username, password) = self.main_window.get_login_data();
+        if username.is_empty() || password.is_empty() {
+            return;
+        }
+
         self.main_window.set_sign_in_page_loading(true);
 
-        let (username, password) = self.main_window.get_login_data();
         let (tx, rx) = glib::MainContext::channel(glib::PRIORITY_DEFAULT);
         let app = self.app.clone();
         tokio::spawn(async move {
