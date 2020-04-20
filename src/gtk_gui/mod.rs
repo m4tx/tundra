@@ -119,7 +119,7 @@ pub struct GtkApp {
 
 impl GtkApp {
     pub fn start(app: TundraApp) {
-        let application = gtk::Application::new(Some("com.m4tx.tundra"), Default::default())
+        let application = gtk::Application::new(Some("com.m4tx.Tundra"), Default::default())
             .expect("Initialization failed...");
         let rc_app = Arc::new(Mutex::new(app));
 

@@ -22,7 +22,7 @@ impl Config {
     }
 
     fn config_path() -> PathBuf {
-        let project_dirs = ProjectDirs::from("com", "m4tx", "tundra")
+        let project_dirs = ProjectDirs::from("com", "m4tx", "Tundra")
             .expect("config directory could not be obtained");
         project_dirs.config_dir().to_owned()
     }
