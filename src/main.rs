@@ -36,20 +36,27 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                         .help("MyAnimeList password"),
                 ),
         )
+        .subcommand(
+            SubCommand::with_name("daemon")
+                .about("start Tundra daemon")
+                .version(env!("CARGO_PKG_VERSION"))
+                .author(env!("CARGO_PKG_AUTHORS"))
+        )
         .get_matches();
 
     let mut app = TundraApp::init()?;
-    gtk_gui::GtkApp::start(app);
 
-    // if let Some(matches) = matches.subcommand_matches("authenticate") {
-    //     let username = matches.value_of("username").unwrap();
-    //     let password = matches.value_of("password").unwrap();
-    //
-    //     app.authenticate_mal(username, password).await?;
-    // } else {
-    //     app.check_mal_authenticated();
-    //     app.run_daemon().await?;
-    // }
+    if let Some(matches) = matches.subcommand_matches("authenticate") {
+        let username = matches.value_of("username").unwrap();
+        let password = matches.value_of("password").unwrap();
+
+        app.authenticate_mal(username, password).await?;
+    } else if let Some(_) = matches.subcommand_matches("daemon") {
+        app.check_mal_authenticated();
+        app.run_daemon().await?;
+    } else {
+        gtk_gui::GtkApp::start(app);
+    }
 
     Ok(())
 }
