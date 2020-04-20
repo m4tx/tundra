@@ -10,11 +10,9 @@ use crate::anime_relations::AnimeRelations;
 use crate::clients::mal_client::MalClient;
 use crate::clients::{AnimeDbClient, AnimeInfo};
 use crate::config::Config;
+use crate::constants::REFRESH_INTERVAL;
 use crate::player_controller::{Player, PlayerController};
 use crate::title_recognizer::{Title, TitleRecognizer};
-
-// Check player status every 20 seconds
-static REFRESH_INTERVAL: u64 = 20000;
 
 #[derive(Clone)]
 pub struct PlayedTitle {
@@ -76,7 +74,7 @@ impl TundraApp {
     }
 
     pub async fn run_daemon(&mut self) -> Result<(), Box<dyn std::error::Error>> {
-        let mut interval = time::interval(Duration::from_millis(REFRESH_INTERVAL));
+        let mut interval = time::interval(REFRESH_INTERVAL);
 
         loop {
             interval.tick().await;

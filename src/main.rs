@@ -1,12 +1,14 @@
 use clap::{App, Arg, SubCommand};
 
 use crate::app::TundraApp;
+use crate::constants::{APP_AUTHORS, APP_NAME, APP_VERSION};
 use crate::logging::init_logging;
 
 mod anime_relations;
 mod app;
 mod clients;
 mod config;
+mod constants;
 mod gtk_gui;
 mod logging;
 mod player_controller;
@@ -16,15 +18,15 @@ mod title_recognizer;
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     init_logging().expect("Could not initialize logging");
 
-    let matches = App::new(env!("CARGO_PKG_NAME"))
-        .version(env!("CARGO_PKG_VERSION"))
-        .author(env!("CARGO_PKG_AUTHORS"))
+    let matches = App::new(APP_NAME)
+        .version(APP_VERSION)
+        .author(APP_AUTHORS)
         .about("MyAnimeList scrobbler")
         .subcommand(
             SubCommand::with_name("authenticate")
                 .about("sign in to MyAnimeList")
-                .version(env!("CARGO_PKG_VERSION"))
-                .author(env!("CARGO_PKG_AUTHORS"))
+                .version(APP_VERSION)
+                .author(APP_AUTHORS)
                 .arg(
                     Arg::with_name("username")
                         .required(true)
@@ -39,8 +41,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .subcommand(
             SubCommand::with_name("daemon")
                 .about("start Tundra daemon")
-                .version(env!("CARGO_PKG_VERSION"))
-                .author(env!("CARGO_PKG_AUTHORS")),
+                .version(APP_VERSION)
+                .author(APP_AUTHORS),
         )
         .get_matches();
 

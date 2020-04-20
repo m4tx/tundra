@@ -6,7 +6,7 @@ edition = "2018"
 
 readme = "README.md"
 license = "GPL-3.0"
-homepage = "https://github.com/m4tx/tundra"
+homepage = "https://tundra.moe"
 repository = "https://github.com/m4tx/tundra"
 description = "MAL scrobbler for Linux"
 

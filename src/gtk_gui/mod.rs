@@ -15,6 +15,7 @@ use gtk::Builder;
 use tokio::time;
 
 use crate::app::{PlayedTitle, TundraApp};
+use crate::constants::{APP_VERSION, REFRESH_INTERVAL, USER_AGENT};
 
 struct MainWindow {
     window: gtk::ApplicationWindow,
@@ -177,9 +178,7 @@ impl GtkApp {
             .window
             .set_application(Some(&self.gtk_application));
 
-        self.main_window
-            .about_dialog
-            .set_version(Some(env!("CARGO_PKG_VERSION")));
+        self.main_window.about_dialog.set_version(Some(APP_VERSION));
 
         self.main_window.info_bar.connect_response(|bar, response| {
             if response == gtk::ResponseType::Close {
@@ -311,7 +310,7 @@ impl GtkApp {
         let scrobbling_enabled = self.scrobbling_enabled.clone();
         let (tx, rx) = glib::MainContext::channel(glib::PRIORITY_DEFAULT);
         tokio::spawn(async move {
-            let mut interval = time::interval(Duration::from_millis(1000));
+            let mut interval = time::interval(REFRESH_INTERVAL);
 
             loop {
                 interval.tick().await;

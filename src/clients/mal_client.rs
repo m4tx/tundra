@@ -13,12 +13,11 @@ use async_trait::async_trait;
 use crate::anime_relations::{AnimeDbs, AnimeRelations};
 use crate::clients::{AnimeDbClient, AnimeInfo};
 use crate::config::Config;
+use crate::constants::{MAL_CLIENT_ID, USER_AGENT};
 use crate::title_recognizer::Title;
 
 static MAL_URL: &str = "https://api.myanimelist.net/v2";
 static CLIENT_ID_HEADER: &str = "X-MAL-Client-ID";
-static CLIENT_ID: &str = "6114d00ca681b7701d1e15fe11a4987e";
-static USER_AGENT: &str = concat!(env!("CARGO_PKG_NAME"), "/", env!("CARGO_PKG_VERSION"));
 
 #[derive(Debug, Deserialize)]
 struct AuthenticationResponse {
@@ -100,7 +99,7 @@ impl MalClient {
         let mut headers = header::HeaderMap::new();
         headers.insert(
             CLIENT_ID_HEADER,
-            header::HeaderValue::from_static(CLIENT_ID),
+            header::HeaderValue::from_static(MAL_CLIENT_ID),
         );
 
         let client: reqwest::Client = reqwest::Client::builder()
@@ -124,7 +123,7 @@ impl MalClient {
         info!("Authenticating with MAL");
 
         let params = vec![
-            ("client_id", CLIENT_ID),
+            ("client_id", MAL_CLIENT_ID),
             ("grant_type", "password"),
             ("username", username),
             ("password", password),
@@ -148,7 +147,7 @@ impl MalClient {
 
         let refresh_token = self.refresh_token();
         let params = vec![
-            ("client_id", CLIENT_ID),
+            ("client_id", MAL_CLIENT_ID),
             ("grant_type", "refresh_token"),
             ("refresh_token", &refresh_token),
         ];
