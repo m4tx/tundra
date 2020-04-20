@@ -1,4 +1,4 @@
-use std::collections::HashSet;
+use std::collections::{HashMap, HashSet};
 use std::sync::{Arc, RwLock};
 use std::time::Duration;
 
@@ -30,6 +30,7 @@ pub struct TundraApp {
     title_recognizer: TitleRecognizer,
     mal_client: MalClient,
     scrobbled_titles: HashSet<AnimeInfo>,
+    anime_info_cache: HashMap<Title, Option<AnimeInfo>>,
 }
 
 impl TundraApp {
@@ -47,6 +48,7 @@ impl TundraApp {
             title_recognizer,
             mal_client,
             scrobbled_titles,
+            anime_info_cache: HashMap::new(),
         })
     }
 
@@ -122,7 +124,7 @@ impl TundraApp {
         let result = self.get_scrobblable_title().await?;
 
         if let Some((title, player_name, should_scrobble)) = result {
-            let anime_info = self.mal_client.get_anime_info(&title).await?;
+            let anime_info = self.anime_info_for_title(title).await?;
 
             if let Some(anime_info) = anime_info {
                 let scrobbled = self.scrobbled_titles.contains(&anime_info);
@@ -138,6 +140,20 @@ impl TundraApp {
         } else {
             Ok(None)
         }
+    }
+
+    async fn anime_info_for_title(
+        &mut self,
+        title: Title,
+    ) -> Result<Option<AnimeInfo>, Box<dyn std::error::Error>> {
+        if self.anime_info_cache.contains_key(&title) {
+            return Ok(self.anime_info_cache[&title].clone());
+        }
+
+        let anime_info = self.mal_client.get_anime_info(&title).await?;
+        self.anime_info_cache.insert(title, anime_info.clone());
+
+        Ok(anime_info)
     }
 
     pub async fn try_scrobble(&mut self) -> Result<(), Box<dyn std::error::Error>> {
