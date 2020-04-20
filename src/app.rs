@@ -1,6 +1,5 @@
 use std::collections::{HashMap, HashSet};
 use std::sync::{Arc, RwLock};
-use std::time::Duration;
 
 use log::info;
 use notify_rust::Notification;

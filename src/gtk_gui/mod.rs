@@ -5,7 +5,6 @@ use std::rc::Rc;
 use std::sync::atomic::AtomicBool;
 use std::sync::atomic::Ordering;
 use std::sync::{Arc, RwLock};
-use std::time::Duration;
 
 use async_std::sync::Mutex;
 use gio::prelude::*;
