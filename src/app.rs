@@ -8,7 +8,7 @@ use tokio::time;
 
 use crate::anime_relations::AnimeRelations;
 use crate::clients::mal_client::MalClient;
-use crate::clients::AnimeDbClient;
+use crate::clients::{AnimeDbClient, AnimeInfo};
 use crate::config::Config;
 use crate::player_controller::{Player, PlayerController};
 use crate::title_recognizer::{Title, TitleRecognizer};
@@ -16,12 +16,20 @@ use crate::title_recognizer::{Title, TitleRecognizer};
 // Check player status every 20 seconds
 static REFRESH_INTERVAL: u64 = 20000;
 
+#[derive(Clone)]
+pub struct PlayedTitle {
+    pub anime_info: AnimeInfo,
+    pub player_name: String,
+    pub scrobbled: bool,
+    pub should_scrobble: bool,
+}
+
 pub struct TundraApp {
     config: Arc<RwLock<Config>>,
     player_controller: PlayerController,
     title_recognizer: TitleRecognizer,
     mal_client: MalClient,
-    scrobbled_titles: HashSet<Title>,
+    scrobbled_titles: HashSet<AnimeInfo>,
 }
 
 impl TundraApp {
@@ -52,8 +60,12 @@ impl TundraApp {
         Ok(())
     }
 
+    pub fn is_mal_authenticated(&self) -> bool {
+        self.config.read().unwrap().is_mal_authenticated()
+    }
+
     pub fn check_mal_authenticated(&self) {
-        if !self.config.read().unwrap().is_mal_authenticated() {
+        if !self.is_mal_authenticated() {
             panic!(
                 "You are not authenticated to MyAnimeList. \
             Please execute `tundra authenticate <username> <password>` first."
@@ -70,34 +82,25 @@ impl TundraApp {
         }
     }
 
-    pub async fn try_scrobble(&mut self) -> Result<(), Box<dyn std::error::Error>> {
+    async fn get_scrobblable_title(
+        &mut self,
+    ) -> Result<Option<(Title, String, bool)>, Box<dyn std::error::Error>> {
         info!("Checking active players");
 
         let players = self.player_controller.get_players()?;
-        let mut titles = Vec::new();
-
         for player in players {
             if let Some(title) = Self::check_player(&mut self.title_recognizer, &player)? {
+                let player_name = player.player_name()?;
+                let should_scrobble = player.position()? > 0.5;
                 info!(
                     "Found an active player: {}, playing {} episode {}",
-                    player.player_name()?,
-                    title.title,
-                    title.episode_number
+                    player_name, title.title, title.episode_number
                 );
-
-                if self.scrobbled_titles.contains(&title) {
-                    info!("Already scrobbled, skipping...");
-                } else {
-                    titles.push(title);
-                }
+                return Ok(Some((title, player_name, should_scrobble)));
             }
         }
 
-        for title in titles {
-            self.scrobble_title(&title).await?;
-        }
-
-        Ok(())
+        Ok(None)
     }
 
     fn check_player(
@@ -105,32 +108,71 @@ impl TundraApp {
         player: &Player,
     ) -> Result<Option<Title>, Box<dyn std::error::Error>> {
         let filename = player.filename_played();
-        if filename.is_ok() && player.position()? > 0.5 && player.is_currently_playing()? {
-            Ok(title_recognizer.recognize(&filename.unwrap()))
+        if filename.is_ok() && player.is_currently_playing()? {
+            let title = title_recognizer.recognize(&filename.unwrap());
+            Ok(title)
         } else {
             Ok(None)
         }
     }
 
-    async fn scrobble_title(&mut self, title: &Title) -> Result<(), Box<dyn std::error::Error>> {
+    pub async fn get_played_title(
+        &mut self,
+    ) -> Result<Option<PlayedTitle>, Box<dyn std::error::Error>> {
+        let result = self.get_scrobblable_title().await?;
+
+        if let Some((title, player_name, should_scrobble)) = result {
+            let anime_info = self.mal_client.get_anime_info(&title).await?;
+
+            if let Some(anime_info) = anime_info {
+                let scrobbled = self.scrobbled_titles.contains(&anime_info);
+                Ok(Some(PlayedTitle {
+                    anime_info,
+                    player_name,
+                    scrobbled,
+                    should_scrobble,
+                }))
+            } else {
+                Ok(None)
+            }
+        } else {
+            Ok(None)
+        }
+    }
+
+    pub async fn try_scrobble(&mut self) -> Result<(), Box<dyn std::error::Error>> {
+        let title = self.get_played_title().await?;
+
+        if let Some(title) = title {
+            if title.should_scrobble {
+                if title.scrobbled {
+                    info!("Already scrobbled, skipping...");
+                } else {
+                    self.scrobble_title(&title.anime_info).await?;
+                }
+            }
+        }
+
+        Ok(())
+    }
+
+    async fn scrobble_title(
+        &mut self,
+        anime_info: &AnimeInfo,
+    ) -> Result<(), Box<dyn std::error::Error>> {
         info!(
-            "Scrobbling {} episode {}",
-            title.title, title.episode_number
+            "Scrobbling {} episode {} / {}",
+            anime_info.title, anime_info.episode_watched, anime_info.total_episodes
         );
 
-        let scrobbled = self.mal_client.set_title_watched(&title).await?;
-        self.scrobbled_titles.insert(title.clone());
+        let scrobbled = self.mal_client.set_title_watched(&anime_info).await?;
+        self.scrobbled_titles.insert(anime_info.clone());
 
         if scrobbled {
-            let anime_info = self
-                .mal_client
-                .get_anime_info(&title)
-                .await?
-                .expect("Could not get anime info");
             Notification::new()
                 .summary("Tundra")
                 .body(&format!(
-                    "Scrobbled anime: {}, episode {}/{}",
+                    "Scrobbled anime: {}, episode {} / {}",
                     anime_info.title, anime_info.episode_watched, anime_info.total_episodes
                 ))
                 .icon("dialog-information-symbolic")

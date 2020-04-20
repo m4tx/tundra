@@ -1,5 +1,7 @@
 use core::fmt;
+use std::collections::HashMap;
 use std::error::Error;
+use std::str::FromStr;
 use std::sync::{Arc, RwLock};
 
 use log::info;
@@ -12,7 +14,6 @@ use crate::anime_relations::{AnimeDbs, AnimeRelations};
 use crate::clients::{AnimeDbClient, AnimeInfo};
 use crate::config::Config;
 use crate::title_recognizer::Title;
-use std::collections::HashMap;
 
 static MAL_URL: &str = "https://api.myanimelist.net/v2";
 static CLIENT_ID_HEADER: &str = "X-MAL-Client-ID";
@@ -43,7 +44,14 @@ struct AnimeObject {
     title: String,
     average_episode_duration: i64,
     num_episodes: i32,
+    main_picture: PictureObject,
     my_list_status: Option<MyListStatus>,
+}
+
+#[derive(Debug, Deserialize)]
+struct PictureObject {
+    large: String,
+    medium: String,
 }
 
 #[derive(Debug, Deserialize)]
@@ -201,7 +209,7 @@ impl MalClient {
             ("q", query),
             (
                 "fields",
-                "title,alternative_titles,average_episode_duration,num_episodes,my_list_status",
+                "title,main_picture,alternative_titles,average_episode_duration,num_episodes,my_list_status",
             ),
         ];
 
@@ -219,7 +227,7 @@ impl MalClient {
     async fn get_by_id(&mut self, id: i64) -> Result<AnimeObject, Box<dyn std::error::Error>> {
         let params = [(
             "fields",
-            "title,alternative_titles,average_episode_duration,num_episodes,my_list_status",
+            "title,main_picture,alternative_titles,average_episode_duration,num_episodes,my_list_status",
         )];
 
         let req = self
@@ -320,7 +328,9 @@ impl AnimeDbClient for MalClient {
 
         let anime_object = self.get_anime_object(title).await?;
         let anime_info = anime_object.map(|(anime_object, episode_number)| AnimeInfo {
+            id: anime_object.id.to_string(),
             title: anime_object.title,
+            picture: anime_object.main_picture.medium,
             episode_watched: episode_number,
             total_episodes: anime_object.num_episodes,
         });
@@ -335,22 +345,20 @@ impl AnimeDbClient for MalClient {
 
     async fn set_title_watched(
         &mut self,
-        title: &Title,
+        anime_info: &AnimeInfo,
     ) -> Result<bool, Box<dyn std::error::Error>> {
-        let anime_object = self.get_anime_object(title).await?;
-        if let Some((anime_object, episode_number)) = anime_object {
-            let episodes_watched = anime_object
-                .my_list_status
-                .as_ref()
-                .unwrap()
-                .num_episodes_watched;
-            if episodes_watched < episode_number {
-                self.set_episode_number(&anime_object, episode_number)
-                    .await?;
-                Ok(true)
-            } else {
-                Ok(false)
-            }
+        let anime_object = self.get_by_id(i64::from_str(&anime_info.id)?).await?;
+
+        let episodes_watched = anime_object
+            .my_list_status
+            .as_ref()
+            .unwrap()
+            .num_episodes_watched;
+        let episode_number = anime_info.episode_watched;
+        if episodes_watched < episode_number {
+            self.set_episode_number(&anime_object, episode_number)
+                .await?;
+            Ok(true)
         } else {
             Ok(false)
         }
