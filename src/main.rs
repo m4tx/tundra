@@ -40,7 +40,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             SubCommand::with_name("daemon")
                 .about("start Tundra daemon")
                 .version(env!("CARGO_PKG_VERSION"))
-                .author(env!("CARGO_PKG_AUTHORS"))
+                .author(env!("CARGO_PKG_AUTHORS")),
         )
         .get_matches();
 

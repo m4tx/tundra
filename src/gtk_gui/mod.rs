@@ -1,10 +1,6 @@
-use std::borrow::BorrowMut;
 use std::cell::RefCell;
 use std::collections::HashMap;
 use std::env::args;
-use std::fs::File;
-use std::io::prelude::*;
-use std::io::BufReader;
 use std::rc::Rc;
 use std::sync::atomic::AtomicBool;
 use std::sync::atomic::Ordering;
@@ -191,14 +187,14 @@ impl GtkApp {
             }
         });
 
-        self.main_window.sign_in_button.connect_clicked(
-            clone!(@strong self as this => move |button| {
+        self.main_window
+            .sign_in_button
+            .connect_clicked(clone!(@strong self as this => move |_| {
                 this.clone().sign_in();
-            }),
-        );
+            }));
 
         self.main_window.enabled_switch.connect_state_set(
-            clone!(@strong self as this => move |switch, state| {
+            clone!(@strong self as this => move |_, state| {
                 this.set_scrobbling_enabled(state);
                 if !state {
                     this.main_window.set_anime_info_none();
@@ -209,29 +205,29 @@ impl GtkApp {
             }),
         );
 
-        self.main_window.username_entry.connect_changed(
-            clone!(@strong self as this => move |button| {
+        self.main_window
+            .username_entry
+            .connect_changed(clone!(@strong self as this => move |_| {
                 this.clone().check_sign_in_enabled();
-            }),
-        );
-        self.main_window.password_entry.connect_changed(
-            clone!(@strong self as this => move |button| {
+            }));
+        self.main_window
+            .password_entry
+            .connect_changed(clone!(@strong self as this => move |_| {
                 this.clone().check_sign_in_enabled();
-            }),
-        );
+            }));
 
-        self.main_window.about_button.connect_clicked(
-            clone!(@strong self as this => move |button| {
+        self.main_window
+            .about_button
+            .connect_clicked(clone!(@strong self as this => move |_| {
                 this.main_window.about_dialog.run();
                 this.main_window.about_dialog.hide();
-            }),
-        );
+            }));
 
-        self.main_window.sign_out_button.connect_clicked(
-            clone!(@strong self as this => move |button| {
+        self.main_window
+            .sign_out_button
+            .connect_clicked(clone!(@strong self as this => move |_| {
                 this.switch_to_sign_in_page();
-            }),
-        );
+            }));
 
         self.main_window.set_anime_info_none();
 
@@ -244,8 +240,8 @@ impl GtkApp {
         let (tx, rx) = glib::MainContext::channel(glib::PRIORITY_DEFAULT);
         let app = self.app.clone();
         tokio::spawn(async move {
-            let mut app = app.lock().await;
-            let mut result = app.is_mal_authenticated();
+            let app = app.lock().await;
+            let result = app.is_mal_authenticated();
             tx.send(result).expect("Couldn't send data to channel");
         });
 
@@ -262,10 +258,6 @@ impl GtkApp {
 
     fn set_scrobbling_enabled(&self, state: bool) {
         self.scrobbling_enabled.store(state, Ordering::Relaxed);
-    }
-
-    fn get_scrobbling_enabled(&self, state: bool) -> bool {
-        self.scrobbling_enabled.load(Ordering::Relaxed)
     }
 
     fn switch_to_sign_in_page(&self) {
@@ -293,7 +285,7 @@ impl GtkApp {
         let app = self.app.clone();
         tokio::spawn(async move {
             let mut app = app.lock().await;
-            let mut result = app.authenticate_mal(&username, &password).await;
+            let result = app.authenticate_mal(&username, &password).await;
 
             let new_result = result.map_err(|x| x.to_string());
 

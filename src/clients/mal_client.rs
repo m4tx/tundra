@@ -321,7 +321,7 @@ impl MalClient {
 
 #[async_trait]
 impl AnimeDbClient for MalClient {
-    async fn get_anime_info(&mut self, title: &Title) -> Result<Option<AnimeInfo>, Box<Error>> {
+    async fn get_anime_info(&mut self, title: &Title) -> Result<Option<AnimeInfo>, Box<dyn Error>> {
         if self.title_cache.contains_key(title) {
             return Ok(Some(self.title_cache[title].clone()));
         }
