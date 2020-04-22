@@ -4,14 +4,21 @@ Tundra is an open-source MyAnimeList scrobbler application for Linux. It automat
 ![Screenshot of Tundra](data/screenshot1.png)
 
 ## Download
+### Snap Store
 [![Get it on Snap Store](https://snapcraft.io/static/images/badges/en/snap-store-black.svg)](https://snapcraft.io/tundra)
 
-...or see [GitHub Releases](https://github.com/m4tx/tundra/releases) for an AppImage version.
+### AppImage
+If you do not have Snap installed, or do not want to install Tundra as a Snap package, there is also an AppImage version that can be found on [GitHub Releases](https://github.com/m4tx/tundra/releases). Just download the .AppImage file, check the file permissions to allow running it as an executable, and then run it.
 
 ## Usage
 
 ### GUI
-The usage is very simple. First, you need to sign in to your MyAnimeList account with your MAL username and password. Make sure that the title you are about to watch is marked as "watching" or "plan to watch" on your MAL account. Then, you need to run an MPRIS-enabled media player and play a local anime video file. Its title, poster picture and episode number will appear after a few seconds in Tundra window. The episode will be scrobbled after you watch over half of the video. You will know once you see the notification!
+The usage is very simple:
+
+1. First, you need to sign in to your MyAnimeList account with your MAL username and password.
+2. Make sure that the title you are about to watch is marked as "watching" or "plan to watch" on your MAL account.
+3. Then, you need to run an MPRIS-enabled (see the FAQ section below) media player and play a local anime video file. Its title, poster picture and episode number will appear after a few seconds in Tundra window.
+4. The episode will be scrobbled after you watch over half of the video. You will know once you see the notification!
 
 ### CLI
 Tundra has CLI interface as well. First, you need to authenticate:
@@ -33,7 +40,7 @@ This way, Tundra will periodically check for players running and scrobble any an
 * [Rust stable](https://www.rust-lang.org/)
 * D-Bus
 * libnotify
-* GTK+ 3
+* GTK 3
 
 ### How to build
 Make sure you have executed `git clone --recursive`, so the submodules are cloned as well. Tundra uses [*Cargo*](https://doc.rust-lang.org/cargo/) as its package manager and build system. It can be built by executing `cargo build` in the project root directory. For the release version, execute `cargo build --release`.
