@@ -10,6 +10,9 @@ Tundra is an open-source MyAnimeList scrobbler application for Linux. It automat
 ### AppImage
 If you do not have Snap installed, or do not want to install Tundra as a Snap package, there is also an AppImage version that can be found on [GitHub Releases](https://github.com/m4tx/tundra/releases). Just download the .AppImage file, check the file permissions to allow running it as an executable, and then run it.
 
+### AUR
+For Arch Linux users, there is a package in AUR: [aur/tundra](https://aur.archlinux.org/packages/tundra/)
+
 ## Usage
 
 ### GUI
