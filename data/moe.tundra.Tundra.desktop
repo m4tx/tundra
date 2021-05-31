@@ -6,5 +6,5 @@ Exec=tundra
 Terminal=false
 Categories=Utility;GTK;
 Keywords=GTK;MyAnimeList;MAL;scrobble;automatic;
-Icon=pl.m4tx.Tundra
+Icon=moe.tundra.Tundra
 StartupNotify=true

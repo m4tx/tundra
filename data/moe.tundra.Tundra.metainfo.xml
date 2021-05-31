@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <component type="desktop-application">
-    <id>pl.m4tx.Tundra</id>
+    <id>moe.tundra.Tundra</id>
     <metadata_license>CC0</metadata_license>
     <project_license>GPL-3.0+</project_license>
     <name>Tundra</name>
@@ -38,5 +38,5 @@
     <developer_name>Mateusz Maćkowski</developer_name>
     <update_contact>mateusz@mackowski.org</update_contact>
 
-    <launchable type="desktop-id">pl.m4tx.Tundra.desktop</launchable>
+    <launchable type="desktop-id">moe.tundra.Tundra.desktop</launchable>
 </component>

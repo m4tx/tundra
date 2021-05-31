@@ -467,7 +467,7 @@
     <property name="website">https://tundra.moe</property>
     <property name="website_label" translatable="yes">tundra.moe</property>
     <property name="authors">Mateusz Maćkowski</property>
-    <property name="logo_icon_name">pl.m4tx.Tundra</property>
+    <property name="logo_icon_name">moe.tundra.Tundra</property>
     <property name="license_type">gpl-3-0</property>
     <child type="titlebar">
       <placeholder/>

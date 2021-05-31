@@ -43,6 +43,6 @@ check() {
 package() {
     cd "$pkgname-$pkgver"
     install -Dm 755 target/release/${pkgname} -t "${pkgdir}/usr/bin"
-    install -Dm 755 data/pl.m4tx.Tundra.svg -t "${pkgdir}/usr/share/icons/hicolor/scalable/apps"
-    install -Dm 755 data/pl.m4tx.Tundra.desktop -t "${pkgdir}/usr/share/applications"
+    install -Dm 755 data/moe.tundra.Tundra.svg -t "${pkgdir}/usr/share/icons/hicolor/scalable/apps"
+    install -Dm 755 data/moe.tundra.Tundra.desktop -t "${pkgdir}/usr/share/applications"
 }

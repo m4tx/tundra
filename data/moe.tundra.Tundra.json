@@ -1,5 +1,5 @@
 {
-  "app-id": "pl.m4tx.Tundra",
+  "app-id": "moe.tundra.Tundra",
   "runtime": "org.freedesktop.Platform",
   "runtime-version": "20.08",
   "sdk": "org.freedesktop.Sdk",
