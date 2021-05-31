@@ -33,10 +33,10 @@ apps:
     plugs:
       - network
       - mpris
-    common-id: com.m4tx.Tundra
+    common-id: pl.m4tx.Tundra
 
 slots:
   dbus-daemon:
     interface: dbus
     bus: session
-    name: com.m4tx.Tundra
+    name: pl.m4tx.Tundra

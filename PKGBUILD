@@ -27,12 +27,12 @@ md5sums=('1e3427b3cc4fc7f36afe673d02983eb7'
 validpgpkeys=()
 
 prepare() {
-	cd "$pkgname-$pkgver"
-	cp "$srcdir/anime-relations.txt" "vendor/anime-relations/"
+    cd "$pkgname-$pkgver"
+    cp "$srcdir/anime-relations.txt" "vendor/anime-relations/"
 }
 
 build() {
-	cd "$pkgname-$pkgver"
+    cd "$pkgname-$pkgver"
     cargo build --release --locked --all-features
 }
 
@@ -41,8 +41,8 @@ check() {
 }
 
 package() {
-	cd "$pkgname-$pkgver"
+    cd "$pkgname-$pkgver"
     install -Dm 755 target/release/${pkgname} -t "${pkgdir}/usr/bin"
-    install -Dm 755 data/com.m4tx.Tundra.svg -t "${pkgdir}/usr/share/icons/hicolor/scalable/apps"
-    install -Dm 755 data/com.m4tx.Tundra.desktop -t "${pkgdir}/usr/share/applications"
+    install -Dm 755 data/pl.m4tx.Tundra.svg -t "${pkgdir}/usr/share/icons/hicolor/scalable/apps"
+    install -Dm 755 data/pl.m4tx.Tundra.desktop -t "${pkgdir}/usr/share/applications"
 }

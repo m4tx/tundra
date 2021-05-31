@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+    <id>pl.m4tx.Tundra</id>
+    <metadata_license>CC0</metadata_license>
+    <project_license>GPL-3.0+</project_license>
+    <name>Tundra</name>
+    <summary>MyAnimeList scrobbler</summary>
+    <description>
+        <p>This metainfo is part of a Rust Flatpak-ed application</p>
+    </description>
+    <screenshots>
+        <screenshot type="default">
+            <image>https://gitlab.gnome.org/World/design/contrast/raw/master/data/resources/screenshots/screenshot1.png</image>
+            <caption>Main Window</caption>
+        </screenshot>
+    </screenshots>
+    <url type="homepage">https://tundra.moe/</url>
+    <!--
+    Open Age Rating Service
+    https://hughsie.github.io/oars/index.html
+    -->
+    <content_rating type="oars-1.0" />
+    <releases>
+        <release version="0.1.0" date="2020-04-20">
+            <description>
+                <p>First release of Tundra</p>
+            </description>
+        </release>
+    </releases>
+    <kudos>
+        <!--
+        GNOME Software kudos:
+        https://gitlab.gnome.org/GNOME/gnome-software/blob/master/doc/kudos.md
+        -->
+        <kudo>ModernToolkit</kudo>
+        <kudo>HiDpiIcon</kudo>
+    </kudos>
+    <developer_name>Mateusz Maćkowski</developer_name>
+    <update_contact>mateusz@mackowski.org</update_contact>
+
+    <launchable type="desktop-id">pl.m4tx.Tundra.desktop</launchable>
+</component>
