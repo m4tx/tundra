@@ -32,9 +32,19 @@ impl TitleRecognizer {
     pub fn recognize(&mut self, filename: &str) -> Option<Title> {
         ANITOMY.with(|anitomy| match anitomy.borrow_mut().parse(filename) {
             Ok(ref elements) => {
-                let title = elements.get(ElementCategory::AnimeTitle)?.to_owned();
+                let mut title = elements.get(ElementCategory::AnimeTitle)?.to_owned();
+
                 let episode_number: i32 =
-                    elements.get(ElementCategory::EpisodeNumber)?.parse().ok()?;
+                    elements.get(ElementCategory::EpisodeNumber)?.parse().ok()?;;
+                if episode_number < 1 {
+                    return None;
+                }
+
+                let season = elements.get(ElementCategory::AnimeSeason);
+                if let Some(season) = season {
+                    title += " Season ";
+                    title += season;
+                }
 
                 Some(Title::new(title, episode_number))
             }
