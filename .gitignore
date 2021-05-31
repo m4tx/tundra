@@ -7,3 +7,7 @@
 
 # Generated executables
 *.snap
+
+# Flatpak
+.flatpak-builder/
+repo/

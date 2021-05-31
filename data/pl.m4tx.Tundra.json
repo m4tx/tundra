@@ -1,10 +1,10 @@
 {
   "app-id": "pl.m4tx.Tundra",
   "runtime": "org.freedesktop.Platform",
-  "runtime-version": "19.08",
+  "runtime-version": "20.08",
   "sdk": "org.freedesktop.Sdk",
   "sdk-extensions" : [
-    "org.freedesktop.Sdk.Extension.rust-nightly"
+    "org.freedesktop.Sdk.Extension.rust-stable"
   ],
   "command": "tundra",
   "finish-args": [
@@ -12,14 +12,12 @@
     "--share=ipc",
     "--socket=fallback-x11",
     "--socket=wayland",
-    "--socket=session-bus",
+    "--talk-name=org.freedesktop.DBus",
+    "--talk-name=org.mpris.MediaPlayer2.*",
     "--device=dri"
   ],
   "build-options": {
-    "append-path" : "/usr/lib/sdk/rust-nightly/bin",
-    "build-args": [
-      "--share=network"
-    ],
+    "append-path" : "/usr/lib/sdk/rust-stable/bin",
     "env" : {
       "RUSTFLAGS" : "--remap-path-prefix =../",
       "CARGO_HOME" : "/run/build/tundra/cargo"
@@ -30,8 +28,8 @@
       "name": "tundra",
       "buildsystem": "simple",
       "build-commands": [
-        "cargo fetch --locked --manifest-path Cargo.toml --verbose",
-        "cargo build --locked --release --verbose",
+        "cargo --offline fetch --manifest-path Cargo.toml --verbose",
+        "cargo --offline build --release --verbose",
         "install -Dm755 ./target/release/tundra -t /app/bin/",
         "install -Dm644 ./data/${FLATPAK_ID}.metainfo.xml -t /app/share/metainfo/",
         "install -Dm644 ./data/${FLATPAK_ID}.desktop -t /app/share/applications/",
@@ -41,7 +39,8 @@
         {
           "type": "dir",
           "path": "../"
-        }
+        },
+        "cargo-sources.json"
       ]
     }
   ]
