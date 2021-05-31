@@ -3,18 +3,26 @@
     <id>moe.tundra.Tundra</id>
     <metadata_license>CC0</metadata_license>
     <project_license>GPL-3.0+</project_license>
+
     <name>Tundra</name>
     <summary>MyAnimeList scrobbler</summary>
     <description>
         <p>Tundra is an open-source MyAnimeList scrobbler application for Linux. It automatically detects media players running on your computer, checks for any anime videos playing, and marks them as watched on your MAL profile.</p>
     </description>
+
+    <categories>
+        <category>Utility</category>
+    </categories>
+
     <screenshots>
         <screenshot type="default">
             <image>https://github.com/m4tx/tundra/raw/master/data/screenshot1.png</image>
             <caption>Main Window</caption>
         </screenshot>
     </screenshots>
+
     <url type="homepage">https://tundra.moe/</url>
+
     <!--
     Open Age Rating Service
     https://hughsie.github.io/oars/index.html
@@ -32,6 +40,7 @@
             </description>
         </release>
     </releases>
+
     <kudos>
         <!--
         GNOME Software kudos:
@@ -40,6 +49,7 @@
         <kudo>ModernToolkit</kudo>
         <kudo>HiDpiIcon</kudo>
     </kudos>
+
     <developer_name>Mateusz Maćkowski</developer_name>
     <update_contact>mateusz@mackowski.org</update_contact>
 
