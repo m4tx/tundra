@@ -35,7 +35,7 @@ impl TitleRecognizer {
                 let mut title = elements.get(ElementCategory::AnimeTitle)?.to_owned();
 
                 let episode_number: i32 =
-                    elements.get(ElementCategory::EpisodeNumber)?.parse().ok()?;;
+                    elements.get(ElementCategory::EpisodeNumber)?.parse().ok()?;
                 if episode_number < 1 {
                     return None;
                 }
