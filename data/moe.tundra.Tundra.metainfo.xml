@@ -6,11 +6,11 @@
     <name>Tundra</name>
     <summary>MyAnimeList scrobbler</summary>
     <description>
-        <p>This metainfo is part of a Rust Flatpak-ed application</p>
+        <p>Tundra is an open-source MyAnimeList scrobbler application for Linux. It automatically detects media players running on your computer, checks for any anime videos playing, and marks them as watched on your MAL profile.</p>
     </description>
     <screenshots>
         <screenshot type="default">
-            <image>https://gitlab.gnome.org/World/design/contrast/raw/master/data/resources/screenshots/screenshot1.png</image>
+            <image>https://github.com/m4tx/tundra/raw/master/data/screenshot1.png</image>
             <caption>Main Window</caption>
         </screenshot>
     </screenshots>
@@ -21,6 +21,11 @@
     -->
     <content_rating type="oars-1.0" />
     <releases>
+        <release version="0.1.1" date="2021-05-31">
+            <description>
+                <p>Anime season detection fixes</p>
+            </description>
+        </release>
         <release version="0.1.0" date="2020-04-20">
             <description>
                 <p>First release of Tundra</p>
