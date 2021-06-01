@@ -19,7 +19,6 @@
   "build-options": {
     "append-path" : "/usr/lib/sdk/rust-stable/bin",
     "env" : {
-      "RUSTFLAGS" : "--remap-path-prefix =../",
       "CARGO_HOME" : "/run/build/tundra/cargo"
     }
   },
@@ -38,7 +37,7 @@
       "sources": [
         {
           "type": "dir",
-          "path": "../"
+          "path": "./"
         },
         "cargo-sources.json"
       ]

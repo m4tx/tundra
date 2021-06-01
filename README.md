@@ -4,11 +4,8 @@ Tundra is an open-source MyAnimeList scrobbler application for Linux. It automat
 ![Screenshot of Tundra](data/screenshot1.png)
 
 ## Download
-### Snap Store
-[![Get it on Snap Store](https://snapcraft.io/static/images/badges/en/snap-store-black.svg)](https://snapcraft.io/tundra)
-
-### AppImage
-If you do not have Snap installed, or do not want to install Tundra as a Snap package, there is also an AppImage version that can be found on [GitHub Releases](https://github.com/m4tx/tundra/releases). Just download the .AppImage file, check the file permissions to allow running it as an executable, and then run it.
+### Flatpak
+<a href="https://flathub.org/apps/details/moe.tundra.Tundra"><img width="240" alt="Download on Flathub" src="https://flathub.org/assets/badges/flathub-badge-en.svg"/></a>
 
 ### AUR
 For Arch Linux users, there is a package in AUR: [aur/tundra](https://aur.archlinux.org/packages/tundra/)
@@ -48,8 +45,10 @@ This way, Tundra will periodically check for players running and scrobble any an
 ### How to build
 Make sure you have executed `git clone --recursive`, so the submodules are cloned as well. Tundra uses [*Cargo*](https://doc.rust-lang.org/cargo/) as its package manager and build system. It can be built by executing `cargo build` in the project root directory. For the release version, execute `cargo build --release`.
 
-### Snap
-After you have installed [*snap*](https://snapcraft.io/) and *snapcraft* execute `snapcraft` in the project root directory to build the Snap package.
+### Flatpak
+After you have installed [*Flatpak Builder*](https://docs.flatpak.org/en/latest/flatpak-builder.html) execute `flatpak-builder --install repo moe.tundra.Tundra.json --force-clean --user -y` in the project root directory to build and install the Flatpak package.
+
+Flathub repo can be found here: [flathub/moe.tundra.Tundra](https://github.com/flathub/moe.tundra.Tundra).
 
 ## Related projects
 * [Taiga](https://github.com/erengy/taiga)
