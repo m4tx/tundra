@@ -1,4 +1,4 @@
-use clap::{App, Arg, SubCommand};
+use clap::{App, Arg};
 
 use crate::app::TundraApp;
 use crate::constants::{APP_AUTHORS, APP_NAME, APP_VERSION};
@@ -23,23 +23,23 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .author(APP_AUTHORS)
         .about("MyAnimeList scrobbler")
         .subcommand(
-            SubCommand::with_name("authenticate")
+            App::new("authenticate")
                 .about("sign in to MyAnimeList")
                 .version(APP_VERSION)
                 .author(APP_AUTHORS)
                 .arg(
-                    Arg::with_name("username")
+                    Arg::new("username")
                         .required(true)
                         .help("MyAnimeList username"),
                 )
                 .arg(
-                    Arg::with_name("password")
+                    Arg::new("password")
                         .required(true)
                         .help("MyAnimeList password"),
                 ),
         )
         .subcommand(
-            SubCommand::with_name("daemon")
+            App::new("daemon")
                 .about("start Tundra daemon")
                 .version(APP_VERSION)
                 .author(APP_AUTHORS),

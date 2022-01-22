@@ -74,8 +74,8 @@ impl MainWindow {
     }
 
     fn get_login_data(&self) -> (String, String) {
-        let username = self.username_entry.get_text().unwrap().as_str().to_owned();
-        let password = self.password_entry.get_text().unwrap().as_str().to_owned();
+        let username = self.username_entry.text().as_str().to_owned();
+        let password = self.password_entry.text().as_str().to_owned();
 
         (username.to_owned(), password.to_owned())
     }
@@ -120,8 +120,7 @@ pub struct GtkApp {
 
 impl GtkApp {
     pub fn start(app: TundraApp) {
-        let application = gtk::Application::new(Some("moe.tundra.Tundra"), Default::default())
-            .expect("Initialization failed...");
+        let application = gtk::Application::new(Some("moe.tundra.Tundra"), Default::default());
         let rc_app = Arc::new(Mutex::new(app));
 
         application.connect_activate(move |gtk_application| {
@@ -136,7 +135,7 @@ impl GtkApp {
             gtk_app.build_ui();
         });
 
-        application.run(&args().collect::<Vec<_>>());
+        application.run_with_args(&args().collect::<Vec<_>>());
     }
 
     fn build_main_window() -> MainWindow {
@@ -147,30 +146,30 @@ impl GtkApp {
             .expect("Couldn't build UI from string");
 
         MainWindow {
-            window: builder.get_object("window").unwrap(),
-            about_dialog: builder.get_object("about_dialog").unwrap(),
+            window: builder.object("window").unwrap(),
+            about_dialog: builder.object("about_dialog").unwrap(),
 
-            overflow_menu: builder.get_object("overflow_menu").unwrap(),
-            sign_out_button: builder.get_object("sign_out_button").unwrap(),
-            about_button: builder.get_object("about_button").unwrap(),
+            overflow_menu: builder.object("overflow_menu").unwrap(),
+            sign_out_button: builder.object("sign_out_button").unwrap(),
+            about_button: builder.object("about_button").unwrap(),
 
-            sign_in_button: builder.get_object("sign_in_button").unwrap(),
-            enabled_switch: builder.get_object("enabled_switch").unwrap(),
-            info_bar: builder.get_object("info_bar").unwrap(),
-            info_bar_text: builder.get_object("info_bar_text").unwrap(),
-            main_stack: builder.get_object("main_stack").unwrap(),
+            sign_in_button: builder.object("sign_in_button").unwrap(),
+            enabled_switch: builder.object("enabled_switch").unwrap(),
+            info_bar: builder.object("info_bar").unwrap(),
+            info_bar_text: builder.object("info_bar_text").unwrap(),
+            main_stack: builder.object("main_stack").unwrap(),
 
-            sign_in_page: builder.get_object("sign_in_page").unwrap(),
-            username_entry: builder.get_object("username").unwrap(),
-            password_entry: builder.get_object("password").unwrap(),
+            sign_in_page: builder.object("sign_in_page").unwrap(),
+            username_entry: builder.object("username").unwrap(),
+            password_entry: builder.object("password").unwrap(),
 
-            scrobble_page: builder.get_object("scrobble_page").unwrap(),
-            image: builder.get_object("image").unwrap(),
-            status_summary_label: builder.get_object("status_summary_label").unwrap(),
-            title_label: builder.get_object("title_label").unwrap(),
-            episode_number_label: builder.get_object("episode_number_label").unwrap(),
-            player_name_label: builder.get_object("player_name_label").unwrap(),
-            status_label: builder.get_object("status_label").unwrap(),
+            scrobble_page: builder.object("scrobble_page").unwrap(),
+            image: builder.object("image").unwrap(),
+            status_summary_label: builder.object("status_summary_label").unwrap(),
+            title_label: builder.object("title_label").unwrap(),
+            episode_number_label: builder.object("episode_number_label").unwrap(),
+            player_name_label: builder.object("player_name_label").unwrap(),
+            status_label: builder.object("status_label").unwrap(),
         }
     }
 
@@ -181,10 +180,8 @@ impl GtkApp {
 
         self.main_window.about_dialog.set_version(Some(APP_VERSION));
         let bytes = glib::Bytes::from(LOGO_BYTES);
-        let stream = gio::MemoryInputStream::new_from_bytes(&bytes);
-        let pixbuf =
-            gdk_pixbuf::Pixbuf::new_from_stream::<_, gio::Cancellable>(&stream, None)
-                .unwrap();
+        let stream = gio::MemoryInputStream::from_bytes(&bytes);
+        let pixbuf = gdk_pixbuf::Pixbuf::from_stream(&stream, gio::Cancellable::NONE).unwrap();
         self.main_window.about_dialog.set_logo(Some(&pixbuf));
 
         self.main_window.info_bar.connect_response(|bar, response| {
@@ -283,7 +280,7 @@ impl GtkApp {
 
     fn switch_to_scrobble_page(&self) {
         self.main_window.switch_to_scrobble_page();
-        self.set_scrobbling_enabled(self.main_window.enabled_switch.get_active());
+        self.set_scrobbling_enabled(self.main_window.enabled_switch.is_active());
     }
 
     fn check_sign_in_enabled(&self) {
@@ -406,12 +403,11 @@ impl GtkApp {
 
             let picture = if *current_image_url.borrow() != anime_info.picture {
                 current_image_url.replace(anime_info.picture.clone());
-                let stream = gio::MemoryInputStream::new_from_bytes(
+                let stream = gio::MemoryInputStream::from_bytes(
                     &images.read().unwrap()[&anime_info.picture],
                 );
                 let pixbuf =
-                    gdk_pixbuf::Pixbuf::new_from_stream::<_, gio::Cancellable>(&stream, None)
-                        .unwrap();
+                    gdk_pixbuf::Pixbuf::from_stream(&stream, gio::Cancellable::NONE).unwrap();
                 Some(pixbuf)
             } else {
                 None

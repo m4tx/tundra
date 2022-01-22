@@ -14,25 +14,25 @@ description = "MAL scrobbler for Linux"
 lto = true
 
 [dependencies]
-dbus = "0.8"
-anitomy = "0.1"
-reqwest = { version = "0.10", features = ["json"] }
-tokio = { version = "0.2", features = ["full"] }
-serde = { version = "1.0", features = ["derive"] }
-serde_json = "1.0"
-async-trait = "0.1"
-directories = "2.0"
-toml = "0.5"
-regex = "1.5"
-lazy_static = "1.4"
-notify-rust = "2.1"
-clap = "2.33"
-log = "0.4"
-chrono = "0.4"
-gtk = { version = "0.8", features = ["v3_22_29"] }
-gio = { version = "0.8", features = ["v2_44"] }
-glib = "0.9"
-gdk-pixbuf = "0.8"
-async-std = "0.99"
-bytes = "0.5"
-percent-encoding = "2.1"
+dbus = "0.9.5"
+anitomy = "0.1.2"
+reqwest = { version = "0.11.9", features = ["json"] }
+tokio = { version = "1.15.0", features = ["full"] }
+serde = { version = "1.0.134", features = ["derive"] }
+serde_json = "1.0.76"
+async-trait = "0.1.52"
+directories = "4.0.1"
+toml = "0.5.8"
+regex = "1.5.4"
+lazy_static = "1.4.0"
+notify-rust = "4.5.5"
+clap = "3.0.10"
+log = "0.4.14"
+chrono = "0.4.19"
+gtk = { version = "0.15.2", features = ["v3_22_29"] }
+gio = "0.15.2"
+glib = "0.15.2"
+gdk-pixbuf = "0.15.1"
+async-std = "1.10.0"
+bytes = "1.1.0"
+percent-encoding = "2.1.0"
