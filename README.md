@@ -40,7 +40,8 @@ This way, Tundra will periodically check for players running and scrobble any an
 * [Rust stable](https://www.rust-lang.org/)
 * D-Bus
 * libnotify
-* GTK 3
+* GTK 4
+* libadwaita
 
 ### How to build
 Make sure you have executed `git clone --recursive`, so the submodules are cloned as well. Tundra uses [*Cargo*](https://doc.rust-lang.org/cargo/) as its package manager and build system. It can be built by executing `cargo build` in the project root directory. For the release version, execute `cargo build --release`.
