@@ -11,7 +11,7 @@ use serde::Deserialize;
 use async_trait::async_trait;
 
 use crate::anime_relations::{AnimeDbs, AnimeRelations};
-use crate::clients::{AnimeDbClient, AnimeInfo};
+use crate::clients::{AnimeDbClient, AnimeId, AnimeInfo, PictureUrl, WebsiteUrl};
 use crate::config::Config;
 use crate::constants::{MAL_CLIENT_ID, USER_AGENT};
 use crate::title_recognizer::Title;
@@ -326,12 +326,18 @@ impl AnimeDbClient for MalClient {
         }
 
         let anime_object = self.get_anime_object(title).await?;
-        let anime_info = anime_object.map(|(anime_object, episode_number)| AnimeInfo {
-            id: anime_object.id.to_string(),
-            title: anime_object.title,
-            picture: anime_object.main_picture.medium,
-            episode_watched: episode_number,
-            total_episodes: anime_object.num_episodes,
+        let anime_info = anime_object.map(|(anime_object, episode_number)| {
+            let id = AnimeId(anime_object.id.to_string());
+            let website_url = WebsiteUrl(format!("https://myanimelist.net/anime/{}", &id));
+            let picture_url = PictureUrl(anime_object.main_picture.medium);
+            AnimeInfo {
+                id,
+                title: anime_object.title,
+                website_url,
+                picture: picture_url,
+                episode_watched: episode_number,
+                total_episodes: anime_object.num_episodes,
+            }
         });
 
         if anime_info.is_some() {
@@ -346,7 +352,7 @@ impl AnimeDbClient for MalClient {
         &mut self,
         anime_info: &AnimeInfo,
     ) -> Result<bool, Box<dyn std::error::Error>> {
-        let anime_object = self.get_by_id(i64::from_str(&anime_info.id)?).await?;
+        let anime_object = self.get_by_id(i64::from_str(&anime_info.id.0)?).await?;
 
         let episodes_watched = anime_object
             .my_list_status

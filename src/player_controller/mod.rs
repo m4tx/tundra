@@ -65,7 +65,9 @@ impl<'a> Player<'a> {
         let x = metadata.get("xesam:url").ok_or("URL was not found")?;
         let url: &str = x.0.as_str().ok_or("URL is not string")?;
         let url: String = if url.starts_with("file://") {
-            percent_encoding::percent_decode_str(url).decode_utf8()?.to_string()
+            percent_encoding::percent_decode_str(url)
+                .decode_utf8()?
+                .to_string()
         } else {
             url.to_owned()
         };

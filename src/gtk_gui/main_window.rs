@@ -1,0 +1,265 @@
+use crate::clients::WebsiteUrl;
+use gio::Menu;
+use gio::SimpleAction;
+use glib::clone;
+use gtk::{
+    gdk, Application, Button, InfoBar, Label, MenuButton, MessageType, Orientation, PopoverMenu,
+    Stack, StackTransitionType, Switch,
+};
+use libadwaita::prelude::*;
+use libadwaita::{ApplicationWindow, HeaderBar};
+
+use crate::gtk_gui::login_page::LoginPage;
+use crate::gtk_gui::scrobble_page::ScrobblePage;
+
+pub struct MainWindow {
+    app: Application,
+    window: ApplicationWindow,
+    enable_switch: gtk::Switch,
+    sign_in_button: gtk::Button,
+    overflow_button: gtk::MenuButton,
+    info_bar: gtk::InfoBar,
+    info_bar_text: gtk::Label,
+    main_stack: gtk::Stack,
+    login_page: LoginPage,
+    scrobble_page: ScrobblePage,
+}
+
+const DEFAULT_WIDTH: i32 = 425;
+const DEFAULT_HEIGHT: i32 = 275;
+
+impl MainWindow {
+    pub fn new(app: &Application) -> Self {
+        let login_page = LoginPage::new();
+        let scrobble_page = ScrobblePage::new();
+
+        let main_stack = Self::make_main_stack();
+        main_stack.add_child(&login_page);
+        main_stack.add_child(&scrobble_page);
+
+        let (info_bar, info_bar_text) = Self::make_info_bar();
+
+        let content = gtk::Box::new(Orientation::Vertical, 0);
+        content.append(&info_bar);
+        content.append(&main_stack);
+
+        let enable_switch = Self::make_enable_switch();
+        let overflow_button = Self::make_overflow_button();
+        let sign_in_button = Self::make_sign_in_button();
+
+        let header_bar = HeaderBar::builder()
+            .title_widget(&libadwaita::WindowTitle::new("Tundra", ""))
+            .build();
+        header_bar.pack_start(&enable_switch);
+        header_bar.pack_end(&overflow_button);
+        header_bar.pack_end(&sign_in_button);
+
+        let window_content = gtk::Box::new(Orientation::Vertical, 0);
+        window_content.append(&header_bar);
+        window_content.append(&content);
+
+        let window = ApplicationWindow::builder()
+            .application(app)
+            .default_width(DEFAULT_WIDTH)
+            .default_height(DEFAULT_HEIGHT)
+            .content(&window_content)
+            .build();
+
+        let main_window = Self {
+            app: app.clone(),
+            window,
+            info_bar,
+            info_bar_text,
+            enable_switch,
+            sign_in_button,
+            overflow_button,
+            main_stack,
+            login_page,
+            scrobble_page,
+        };
+
+        main_window.connect_signals();
+        main_window.set_anime_info_none();
+
+        main_window
+    }
+
+    fn make_main_stack() -> Stack {
+        let main_stack = Stack::new();
+        main_stack.set_transition_type(StackTransitionType::SlideLeftRight);
+        main_stack
+    }
+
+    fn make_info_bar() -> (InfoBar, Label) {
+        let info_bar = InfoBar::new();
+        info_bar.set_show_close_button(true);
+        info_bar.set_message_type(MessageType::Error);
+        info_bar.set_revealed(false);
+        info_bar.connect_response(|bar, response| {
+            if response == gtk::ResponseType::Close {
+                bar.set_revealed(false);
+            }
+        });
+
+        let info_bar_text = Label::new(None);
+        info_bar_text.set_wrap(true);
+        info_bar_text.set_wrap_mode(gtk::pango::WrapMode::WordChar);
+        info_bar_text.set_halign(gtk::Align::Center);
+        info_bar_text.set_hexpand(true);
+        info_bar_text.set_justify(gtk::Justification::Center);
+        info_bar.add_child(&info_bar_text);
+
+        (info_bar, info_bar_text)
+    }
+
+    fn make_overflow_button() -> MenuButton {
+        let menu_model = Menu::new();
+        menu_model.append(Some("_Sign out"), Some("app.sign-out"));
+        menu_model.append(Some("_About Tundra"), Some("app.about"));
+        let popover_menu = PopoverMenu::builder().menu_model(&menu_model).build();
+
+        let overflow_button = MenuButton::new();
+        overflow_button.set_icon_name("open-menu-symbolic");
+        overflow_button.set_popover(Some(&popover_menu));
+
+        overflow_button
+    }
+
+    fn make_sign_in_button() -> Button {
+        let sign_in_button = Button::with_mnemonic("_Sign in");
+        sign_in_button.set_receives_default(true);
+        sign_in_button.style_context().add_class("suggested-action");
+
+        sign_in_button
+    }
+
+    fn make_enable_switch() -> Switch {
+        let enable_switch = Switch::new();
+        enable_switch.set_tooltip_text(Some("Enable scrobbling"));
+        enable_switch.set_state(true);
+        enable_switch
+    }
+
+    fn connect_signals(&self) {
+        self.login_page
+            .bind_property(LoginPage::READY_PROPERTY, &self.sign_in_button, "sensitive")
+            .flags(glib::BindingFlags::SYNC_CREATE)
+            .build();
+    }
+
+    pub fn connect_quit<F: Fn() + 'static>(&self, f: F) {
+        let action = SimpleAction::new("quit", None);
+        action.connect_activate(clone!(@strong self as this => move |_, _| {
+            f();
+        }));
+
+        self.app.add_action(&action);
+        self.app.set_accels_for_action("app.quit", &["<primary>Q"])
+    }
+
+    pub fn connect_about<F: Fn() + 'static>(&self, f: F) {
+        let action = SimpleAction::new("about", None);
+        action.connect_activate(clone!(@strong self as this => move |_, _| {
+            f();
+        }));
+
+        self.app.add_action(&action);
+    }
+
+    pub fn connect_sign_out<F: Fn() + 'static>(&self, f: F) {
+        let action = SimpleAction::new("sign-out", None);
+        action.connect_activate(clone!(@strong self as this => move |_, _| {
+            f();
+        }));
+
+        self.app.add_action(&action);
+    }
+
+    pub fn connect_sign_in<F: Fn() + Clone + 'static>(&self, f: F) {
+        self.sign_in_button
+            .connect_clicked(clone!(@strong f => move |_| {
+                f();
+            }));
+        self.login_page.connect_activate(move || {
+            f();
+        });
+    }
+
+    pub fn connect_enable_switch<F: Fn(bool) + 'static>(&self, f: F) {
+        self.enable_switch.connect_state_set(move |_, state| {
+            f(state);
+
+            gtk::Inhibit(false)
+        });
+    }
+
+    pub fn is_scrobbling_enabled(&self) -> bool {
+        self.enable_switch.state()
+    }
+
+    pub fn set_sign_in_page_loading(&self, loading: bool) {
+        self.login_page.set_sensitive(!loading);
+        self.sign_in_button.set_sensitive(!loading);
+    }
+
+    pub fn show_error(&self, error_string: &str) {
+        self.info_bar_text.set_text(&error_string);
+        self.info_bar.set_revealed(true);
+    }
+
+    pub fn switch_to_scrobble_page(&self) {
+        self.main_stack.set_visible_child(&self.scrobble_page);
+        self.sign_in_button.hide();
+        self.enable_switch.show();
+        self.overflow_button.show();
+    }
+
+    pub fn switch_to_sign_in_page(&self) {
+        self.main_stack.set_visible_child(&self.login_page);
+        self.sign_in_button.show();
+        self.enable_switch.hide();
+        self.overflow_button.hide();
+        self.login_page.reset();
+    }
+
+    pub fn set_anime_info(
+        &self,
+        title: &str,
+        episode: &str,
+        player_name: &str,
+        status: &str,
+        website_url: &WebsiteUrl,
+        picture: Option<glib::Bytes>,
+    ) {
+        let picture_texture = picture.map(|bytes| {
+            let stream = gio::MemoryInputStream::from_bytes(&bytes);
+            let pixbuf = gdk_pixbuf::Pixbuf::from_stream(&stream, gio::Cancellable::NONE).unwrap();
+            gdk::Texture::for_pixbuf(&pixbuf)
+        });
+
+        self.scrobble_page.set_anime_info(
+            title,
+            episode,
+            player_name,
+            status,
+            &website_url.0,
+            picture_texture,
+        );
+    }
+
+    pub fn set_anime_info_none(&self) {
+        self.scrobble_page.set_anime_info_none();
+    }
+
+    pub fn login_data(&self) -> (String, String) {
+        (self.login_page.username(), self.login_page.password())
+    }
+
+    pub fn show(&self) {
+        self.window.show();
+    }
+
+    pub fn window(&self) -> ApplicationWindow {
+        self.window.clone()
+    }
+}
