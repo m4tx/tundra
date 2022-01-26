@@ -53,7 +53,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         let password = matches.value_of("password").unwrap();
 
         app.authenticate_mal(username, password).await?;
-    } else if let Some(_) = matches.subcommand_matches("daemon") {
+    } else if matches.subcommand_matches("daemon").is_some() {
         app.check_mal_authenticated();
         app.run_daemon().await?;
     } else {

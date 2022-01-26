@@ -203,7 +203,7 @@ impl MainWindow {
     }
 
     pub fn show_error(&self, error_string: &str) {
-        self.info_bar_text.set_text(&error_string);
+        self.info_bar_text.set_text(error_string);
         self.info_bar.set_revealed(true);
     }
 

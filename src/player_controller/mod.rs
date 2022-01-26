@@ -1,8 +1,6 @@
 use std::path::Path;
 use std::time::Duration;
 
-use dbus;
-
 use dbus::blocking::Connection;
 use dbus::blocking::Proxy;
 use mpris::OrgMprisMediaPlayer2;
@@ -19,7 +17,7 @@ pub struct PlayerController {
 impl PlayerController {
     pub fn new() -> PlayerControllerResult<Self> {
         let connection = Connection::new_session()?;
-        return Ok(Self { connection });
+        Ok(Self { connection })
     }
 
     pub fn get_players(&self) -> Result<Vec<Player>, Box<dyn std::error::Error>> {

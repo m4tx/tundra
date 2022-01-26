@@ -9,6 +9,7 @@ glib::wrapper! {
         @implements gtk::Accessible, gtk::Actionable, gtk::Buildable, gtk::ConstraintTarget;
 }
 
+#[allow(clippy::new_without_default)]
 impl LoginPage {
     pub const ACTIVATE_PROPERTY: &'static str = "activate";
     pub const READY_PROPERTY: &'static str = "ready";

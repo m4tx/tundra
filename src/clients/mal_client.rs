@@ -22,9 +22,9 @@ static CLIENT_ID_HEADER: &str = "X-MAL-Client-ID";
 #[derive(Debug, Deserialize)]
 struct AuthenticationResponse {
     access_token: String,
-    expires_in: i64,
+    // expires_in: i64,
     refresh_token: String,
-    token_type: String,
+    // token_type: String,
 }
 
 #[derive(Debug, Deserialize)]
@@ -41,7 +41,7 @@ struct SearchResponseObject {
 struct AnimeObject {
     id: i64,
     title: String,
-    average_episode_duration: i64,
+    // average_episode_duration: i64,
     num_episodes: i32,
     main_picture: PictureObject,
     my_list_status: Option<MyListStatus>,
@@ -49,13 +49,13 @@ struct AnimeObject {
 
 #[derive(Debug, Deserialize)]
 struct PictureObject {
-    large: String,
+    // large: String,
     medium: String,
 }
 
 #[derive(Debug, Deserialize)]
 struct MyListStatus {
-    status: String,
+    // status: String,
     num_episodes_watched: i32,
 }
 
@@ -160,7 +160,7 @@ impl MalClient {
     pub async fn make_auth_request(
         &mut self,
         url: &str,
-        params: &Vec<(&str, &str)>,
+        params: &[(&str, &str)],
     ) -> Result<(), Box<dyn std::error::Error>> {
         let req = self.client.post(url).form(&params);
         let response = req.send().await?;
@@ -199,7 +199,7 @@ impl MalClient {
                 .await?
                 .error_for_status()?);
         } else {
-            return Ok(response.error_for_status()?);
+            Ok(response.error_for_status()?)
         }
     }
 
@@ -208,7 +208,7 @@ impl MalClient {
             ("q", query),
             (
                 "fields",
-                "title,main_picture,alternative_titles,average_episode_duration,num_episodes,my_list_status",
+                "title,main_picture,alternative_titles,num_episodes,my_list_status",
             ),
         ];
 
@@ -287,7 +287,7 @@ impl MalClient {
     ) -> Result<Option<(AnimeObject, i32)>, Box<dyn std::error::Error>> {
         let results = self.search(&title.title).await?;
         if !results.data.is_empty() {
-            let anime_object = results.data.into_iter().nth(0).unwrap().node;
+            let anime_object = results.data.into_iter().next().unwrap().node;
             let relation_rule = self
                 .anime_relations
                 .get_rule(&AnimeDbs::Mal, anime_object.id);
@@ -305,12 +305,10 @@ impl MalClient {
                 } else {
                     Ok(None)
                 }
+            } else if anime_object.my_list_status.is_some() {
+                Ok(Some((anime_object, title.episode_number)))
             } else {
-                if anime_object.my_list_status.is_some() {
-                    Ok(Some((anime_object, title.episode_number)))
-                } else {
-                    Ok(None)
-                }
+                Ok(None)
             }
         } else {
             Ok(None)

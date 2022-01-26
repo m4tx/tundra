@@ -1,4 +1,3 @@
-use dbus;
 use dbus::arg;
 use dbus::blocking;
 
@@ -14,7 +13,7 @@ impl<'a, C: ::std::ops::Deref<Target = blocking::Connection>> OrgMprisMediaPlaye
 {
     fn identity(&self) -> Result<String, dbus::Error> {
         <Self as blocking::stdintf::org_freedesktop_dbus::Properties>::get(
-            &self,
+            self,
             "org.mpris.MediaPlayer2",
             "Identity",
         )
@@ -22,7 +21,7 @@ impl<'a, C: ::std::ops::Deref<Target = blocking::Connection>> OrgMprisMediaPlaye
 
     fn desktop_entry(&self) -> Result<String, dbus::Error> {
         <Self as blocking::stdintf::org_freedesktop_dbus::Properties>::get(
-            &self,
+            self,
             "org.mpris.MediaPlayer2",
             "DesktopEntry",
         )
@@ -30,7 +29,7 @@ impl<'a, C: ::std::ops::Deref<Target = blocking::Connection>> OrgMprisMediaPlaye
 
     fn supported_uri_schemes(&self) -> Result<Vec<String>, dbus::Error> {
         <Self as blocking::stdintf::org_freedesktop_dbus::Properties>::get(
-            &self,
+            self,
             "org.mpris.MediaPlayer2",
             "SupportedUriSchemes",
         )
@@ -38,7 +37,7 @@ impl<'a, C: ::std::ops::Deref<Target = blocking::Connection>> OrgMprisMediaPlaye
 
     fn supported_mime_types(&self) -> Result<Vec<String>, dbus::Error> {
         <Self as blocking::stdintf::org_freedesktop_dbus::Properties>::get(
-            &self,
+            self,
             "org.mpris.MediaPlayer2",
             "SupportedMimeTypes",
         )
@@ -61,7 +60,7 @@ impl<'a, C: ::std::ops::Deref<Target = blocking::Connection>> OrgMprisMediaPlaye
 {
     fn playback_status(&self) -> Result<String, dbus::Error> {
         <Self as blocking::stdintf::org_freedesktop_dbus::Properties>::get(
-            &self,
+            self,
             "org.mpris.MediaPlayer2.Player",
             "PlaybackStatus",
         )
@@ -74,7 +73,7 @@ impl<'a, C: ::std::ops::Deref<Target = blocking::Connection>> OrgMprisMediaPlaye
         dbus::Error,
     > {
         <Self as blocking::stdintf::org_freedesktop_dbus::Properties>::get(
-            &self,
+            self,
             "org.mpris.MediaPlayer2.Player",
             "Metadata",
         )
@@ -82,7 +81,7 @@ impl<'a, C: ::std::ops::Deref<Target = blocking::Connection>> OrgMprisMediaPlaye
 
     fn position(&self) -> Result<i64, dbus::Error> {
         <Self as blocking::stdintf::org_freedesktop_dbus::Properties>::get(
-            &self,
+            self,
             "org.mpris.MediaPlayer2.Player",
             "Position",
         )

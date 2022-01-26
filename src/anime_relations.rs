@@ -37,7 +37,7 @@ impl AnimeRelations {
         let mut result = Vec::new();
         for line in lines {
             result.push(Self::build_rule(line));
-            if line.ends_with("!") {
+            if line.ends_with('!') {
                 result.push(Self::build_dest_rule(line));
             }
         }
@@ -64,17 +64,14 @@ impl AnimeRelations {
         let range_dst = Self::convert_range(&captures[8]);
 
         let mut mapping = HashMap::new();
-        if mal_src.is_some() && mal_dst.is_some() {
-            mapping.insert(AnimeDbs::Mal, (mal_src.unwrap(), mal_dst.unwrap()));
+        if let (Some(mal_src_val), Some(mal_dst_val)) = (mal_src, mal_dst) {
+            mapping.insert(AnimeDbs::Mal, (mal_src_val, mal_dst_val));
         }
-        if kitsu_src.is_some() && kitsu_dst.is_some() {
-            mapping.insert(AnimeDbs::Kitsu, (kitsu_src.unwrap(), kitsu_dst.unwrap()));
+        if let (Some(kitsu_src_val), Some(kitsu_dst_val)) = (kitsu_src, kitsu_dst) {
+            mapping.insert(AnimeDbs::Kitsu, (kitsu_src_val, kitsu_dst_val));
         }
-        if anilist_src.is_some() && anilist_dst.is_some() {
-            mapping.insert(
-                AnimeDbs::AniList,
-                (anilist_src.unwrap(), anilist_dst.unwrap()),
-            );
+        if let (Some(anilist_src_val), Some(anilist_dst_val)) = (anilist_src, anilist_dst) {
+            mapping.insert(AnimeDbs::AniList, (anilist_src_val, anilist_dst_val));
         }
 
         AnimeRelationRule::new(mapping, range_src, range_dst)
@@ -99,9 +96,9 @@ impl AnimeRelations {
     }
 
     fn convert_range(s: &str) -> Range<i32> {
-        let s = s.replace("?", "99999");
-        if s.contains("-") {
-            let numbers: Vec<&str> = s.split("-").collect();
+        let s = s.replace('?', "99999");
+        if s.contains('-') {
+            let numbers: Vec<&str> = s.split('-').collect();
             let start = i32::from_str(numbers[0]).unwrap();
             let end = i32::from_str(numbers[1]).unwrap();
             start..end + 1
@@ -118,7 +115,7 @@ impl AnimeRelations {
             val.0 = val.1;
         }
 
-        return rule;
+        rule
     }
 }
 
@@ -136,11 +133,11 @@ impl AnimeRelationRule {
         range_dst: Range<i32>,
     ) -> Self {
         db_mappings.shrink_to_fit();
-        return Self {
+        Self {
             db_mappings,
             range_src,
             range_dst,
-        };
+        }
     }
 
     pub fn has_rule_for(&self, anime_db: &AnimeDbs, id: i64) -> bool {

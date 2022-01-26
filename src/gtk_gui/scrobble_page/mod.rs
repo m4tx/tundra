@@ -9,6 +9,7 @@ glib::wrapper! {
         @implements gtk::Accessible, gtk::Actionable, gtk::Buildable, gtk::ConstraintTarget, gtk::Orientable;
 }
 
+#[allow(clippy::new_without_default)]
 impl ScrobblePage {
     pub const STATUS_SUMMARY_PROPERTY: &'static str = "status-summary";
     pub const TITLE_PROPERTY: &'static str = "title";

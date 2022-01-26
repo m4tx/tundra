@@ -230,7 +230,7 @@ impl GtkApp {
         current_image_url: &Rc<RefCell<PictureUrl>>,
     ) {
         if let Err(error_string) = result {
-            main_window.show_error(&error_string);
+            main_window.show_error(error_string);
         } else if let Ok(Some(result)) = result {
             let anime_info = &result.anime_info;
             let title = &anime_info.title;

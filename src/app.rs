@@ -36,7 +36,7 @@ impl TundraApp {
         let anime_relations = Arc::new(AnimeRelations::new());
         let player_controller = PlayerController::new()?;
         let title_recognizer = TitleRecognizer::new();
-        let mal_client = MalClient::new(config.clone(), anime_relations.clone())?;
+        let mal_client = MalClient::new(config.clone(), anime_relations)?;
         let scrobbled_titles = Default::default();
 
         Ok(Self {
@@ -107,9 +107,13 @@ impl TundraApp {
         player: &Player,
     ) -> Result<Option<Title>, Box<dyn std::error::Error>> {
         let filename = player.filename_played();
-        if filename.is_ok() && player.is_currently_playing()? {
-            let title = title_recognizer.recognize(&filename.unwrap());
-            Ok(title)
+        if let Ok(filename_val) = filename {
+            if player.is_currently_playing()? {
+                let title = title_recognizer.recognize(&filename_val);
+                Ok(title)
+            } else {
+                Ok(None)
+            }
         } else {
             Ok(None)
         }
@@ -178,7 +182,7 @@ impl TundraApp {
             anime_info.title, anime_info.episode_watched, anime_info.total_episodes
         );
 
-        let scrobbled = self.mal_client.set_title_watched(&anime_info).await?;
+        let scrobbled = self.mal_client.set_title_watched(anime_info).await?;
         self.scrobbled_titles.insert(anime_info.clone());
 
         if scrobbled {
@@ -190,7 +194,7 @@ impl TundraApp {
                 ))
                 .icon("dialog-information-symbolic")
                 .timeout(6000)
-                .show();
+                .show()?;
         }
 
         Ok(())
