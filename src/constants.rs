@@ -12,4 +12,8 @@ pub const USER_AGENT: &str = concat!(env!("CARGO_PKG_NAME"), "/", env!("CARGO_PK
 pub const MAL_CLIENT_ID: &str = "6114d00ca681b7701d1e15fe11a4987e";
 
 // Check players every REFRESH_INTERVAL seconds
-pub const REFRESH_INTERVAL: Duration = Duration::from_secs(20);
+pub const REFRESH_INTERVAL: Duration = if cfg!(debug_assertions) {
+    Duration::from_secs(1)
+} else {
+    Duration::from_secs(20)
+};
