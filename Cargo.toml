@@ -2,7 +2,7 @@
 name = "tundra"
 version = "0.2.0"
 authors = ["Mateusz Maćkowski <mateusz@mackowski.org>"]
-edition = "2018"
+edition = "2021"
 
 readme = "README.md"
 license = "GPL-3.0"
@@ -38,3 +38,5 @@ gdk-pixbuf = "0.15.1"
 async-std = "1.10.0"
 bytes = "1.1.0"
 percent-encoding = "2.1.0"
+futures = "0.3.19"
+edit-distance = "2.1.0"

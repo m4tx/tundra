@@ -5,13 +5,15 @@ use anitomy::{Anitomy, ElementCategory};
 #[derive(Clone, Debug, Eq, Hash, PartialEq)]
 pub struct Title {
     pub title: String,
+    pub season_number: i32,
     pub episode_number: i32,
 }
 
 impl Title {
-    pub fn new(title: String, episode_number: i32) -> Self {
+    pub fn new(title: String, season_number: i32, episode_number: i32) -> Self {
         Self {
             title,
+            season_number,
             episode_number,
         }
     }
@@ -33,7 +35,7 @@ impl TitleRecognizer {
         ANITOMY.with(|anitomy| match anitomy.borrow_mut().parse(filename) {
             Ok(ref elements) => {
                 println!("{:?}", elements);
-                let mut title = elements.get(ElementCategory::AnimeTitle)?.to_owned();
+                let title = elements.get(ElementCategory::AnimeTitle)?.to_owned();
 
                 let episode_number: i32 = elements
                     .get(ElementCategory::EpisodeNumber)
@@ -44,13 +46,13 @@ impl TitleRecognizer {
                     return None;
                 }
 
-                let season = elements.get(ElementCategory::AnimeSeason);
-                if let Some(season) = season {
-                    title += " Season ";
-                    title += season;
-                }
+                let season_number: i32 = elements
+                    .get(ElementCategory::AnimeSeason)
+                    .unwrap_or("1")
+                    .parse()
+                    .ok()?;
 
-                Some(Title::new(title, episode_number))
+                Some(Title::new(title, season_number, episode_number))
             }
             Err(_elements) => None,
         })

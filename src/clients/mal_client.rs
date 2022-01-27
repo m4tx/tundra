@@ -1,6 +1,8 @@
 use core::fmt;
+use std::cmp::Ordering;
 use std::collections::HashMap;
 use std::error::Error;
+use std::fmt::Formatter;
 use std::str::FromStr;
 use std::sync::{Arc, RwLock};
 
@@ -9,6 +11,7 @@ use reqwest::StatusCode;
 use serde::Deserialize;
 
 use async_trait::async_trait;
+use tokio::try_join;
 
 use crate::anime_relations::{AnimeDbs, AnimeRelations};
 use crate::clients::{AnimeDbClient, AnimeId, AnimeInfo, PictureUrl, WebsiteUrl};
@@ -19,7 +22,7 @@ use crate::title_recognizer::Title;
 static MAL_URL: &str = "https://api.myanimelist.net/v2";
 static CLIENT_ID_HEADER: &str = "X-MAL-Client-ID";
 
-#[derive(Debug, Deserialize)]
+#[derive(Clone, Debug, Deserialize)]
 struct AuthenticationResponse {
     access_token: String,
     // expires_in: i64,
@@ -27,60 +30,62 @@ struct AuthenticationResponse {
     // token_type: String,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Clone, Debug, Deserialize)]
 struct SearchResponse {
     data: Vec<SearchResponseObject>,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Clone, Debug, Deserialize)]
 struct SearchResponseObject {
     node: AnimeObject,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Clone, Debug, Deserialize)]
+struct RelatedAnime {
+    node: RelatedAnimeObject,
+    relation_type: String,
+}
+
+#[derive(Clone, Debug, Deserialize)]
+struct RelatedAnimeObject {
+    id: i64,
+}
+
+#[derive(Clone, Debug, Deserialize, PartialEq, Eq)]
+#[serde(rename_all = "lowercase")]
+enum MediaType {
+    TV,
+    OVA,
+    Movie,
+    Special,
+    ONA,
+    Music,
+    Unknown,
+}
+
+#[derive(Clone, Debug, Deserialize)]
 struct AnimeObject {
     id: i64,
     title: String,
-    // average_episode_duration: i64,
     num_episodes: i32,
     main_picture: PictureObject,
     my_list_status: Option<MyListStatus>,
+    media_type: MediaType,
+    popularity: i64,
+    #[serde(default)]
+    related_anime: Vec<RelatedAnime>,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Clone, Debug, Deserialize)]
 struct PictureObject {
     // large: String,
     medium: String,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Clone, Debug, Deserialize)]
 struct MyListStatus {
     // status: String,
     num_episodes_watched: i32,
-}
-
-#[derive(Debug)]
-struct AuthenticationFailedError;
-
-impl AuthenticationFailedError {
-    fn new() -> Self {
-        Self {}
-    }
-}
-
-static AUTHENTICATION_ERROR_STRING: &str = "Could not authenticate to MyAnimeList. \
-Make sure the username and password you entered is correct.";
-
-impl fmt::Display for AuthenticationFailedError {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}", AUTHENTICATION_ERROR_STRING)
-    }
-}
-
-impl std::error::Error for AuthenticationFailedError {
-    fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
-        None
-    }
 }
 
 pub struct MalClient {
@@ -90,11 +95,52 @@ pub struct MalClient {
     title_cache: HashMap<Title, AnimeInfo>,
 }
 
+#[derive(Debug)]
+pub enum MalClientError {
+    HttpClientError(reqwest::Error),
+    AuthenticationError(reqwest::Error),
+}
+
+impl From<reqwest::Error> for MalClientError {
+    fn from(e: reqwest::Error) -> Self {
+        MalClientError::HttpClientError(e)
+    }
+}
+
+const AUTHENTICATION_ERROR_STRING: &str = "Could not authenticate to MyAnimeList. \
+Make sure the username and password you entered is correct.";
+
+impl fmt::Display for MalClientError {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        match self {
+            MalClientError::HttpClientError(error) => {
+                write!(f, "Could not communicate with MAL: {}", error)
+            }
+            MalClientError::AuthenticationError(_) => {
+                write!(f, "{}", AUTHENTICATION_ERROR_STRING)
+            }
+        }
+    }
+}
+
+impl std::error::Error for MalClientError {
+    fn source(&self) -> Option<&(dyn Error + 'static)> {
+        match self {
+            MalClientError::HttpClientError(error) => Some(error),
+            MalClientError::AuthenticationError(error) => Some(error),
+        }
+    }
+}
+
+const RELATION_TYPE_SEQUEL: &str = "sequel";
+
+pub type MalClientResult<T> = Result<T, MalClientError>;
+
 impl MalClient {
     pub fn new(
         config: Arc<RwLock<Config>>,
         anime_relations: Arc<AnimeRelations>,
-    ) -> Result<Self, Box<dyn std::error::Error>> {
+    ) -> MalClientResult<Self> {
         use reqwest::header;
         let mut headers = header::HeaderMap::new();
         headers.insert(
@@ -115,11 +161,7 @@ impl MalClient {
         })
     }
 
-    pub async fn authenticate(
-        &mut self,
-        username: &str,
-        password: &str,
-    ) -> Result<(), Box<dyn std::error::Error>> {
+    pub async fn authenticate(&self, username: &str, password: &str) -> MalClientResult<()> {
         info!("Authenticating with MAL");
 
         let params = vec![
@@ -142,7 +184,7 @@ impl MalClient {
         return self.config.read().unwrap().mal.refresh_token.clone();
     }
 
-    async fn refresh_auth(&mut self) -> Result<(), Box<dyn std::error::Error>> {
+    async fn refresh_auth(&self) -> MalClientResult<()> {
         info!("Refreshing MAL authentication token");
 
         let refresh_token = self.refresh_token();
@@ -158,15 +200,16 @@ impl MalClient {
     }
 
     pub async fn make_auth_request(
-        &mut self,
+        &self,
         url: &str,
         params: &[(&str, &str)],
-    ) -> Result<(), Box<dyn std::error::Error>> {
+    ) -> MalClientResult<()> {
         let req = self.client.post(url).form(&params);
-        let response = req.send().await?;
-        if response.status().is_client_error() {
-            return Err(Box::new(AuthenticationFailedError::new()));
-        }
+        let response = req
+            .send()
+            .await?
+            .error_for_status()
+            .map_err(|e| MalClientError::AuthenticationError(e))?;
 
         let response_data: AuthenticationResponse = response
             .error_for_status()?
@@ -182,9 +225,9 @@ impl MalClient {
     }
 
     async fn make_request(
-        &mut self,
+        &self,
         request: reqwest::RequestBuilder,
-    ) -> Result<reqwest::Response, Box<dyn std::error::Error>> {
+    ) -> MalClientResult<reqwest::Response> {
         let request_copy = request.try_clone().expect("Request could not be cloned");
         let response = request
             .header("Authorization", format!("Bearer {}", self.access_token()))
@@ -203,12 +246,12 @@ impl MalClient {
         }
     }
 
-    async fn search(&mut self, query: &str) -> Result<SearchResponse, Box<dyn std::error::Error>> {
+    async fn search(&self, query: &str) -> MalClientResult<SearchResponse> {
         let params = [
             ("q", query),
             (
                 "fields",
-                "title,main_picture,alternative_titles,num_episodes,my_list_status",
+                "title,main_picture,alternative_titles,num_episodes,my_list_status,media_type,popularity",
             ),
         ];
 
@@ -223,10 +266,10 @@ impl MalClient {
         Ok(req.json::<SearchResponse>().await?)
     }
 
-    async fn get_by_id(&mut self, id: i64) -> Result<AnimeObject, Box<dyn std::error::Error>> {
+    async fn get_by_id(&self, id: i64) -> MalClientResult<AnimeObject> {
         let params = [(
             "fields",
-            "title,main_picture,alternative_titles,average_episode_duration,num_episodes,my_list_status",
+            "title,main_picture,alternative_titles,average_episode_duration,num_episodes,my_list_status,media_type,related_anime,popularity",
         )];
 
         let req = self
@@ -241,11 +284,11 @@ impl MalClient {
     }
 
     async fn set_status(
-        &mut self,
+        &self,
         id: i64,
         status: &str,
         num_episodes_watched: i32,
-    ) -> Result<MyListStatus, Box<dyn std::error::Error>> {
+    ) -> MalClientResult<MyListStatus> {
         let params = [
             ("status", status),
             ("num_watched_episodes", &num_episodes_watched.to_string()),
@@ -263,10 +306,10 @@ impl MalClient {
     }
 
     async fn set_episode_number(
-        &mut self,
+        &self,
         anime_object: &AnimeObject,
         num_episodes_watched: i32,
-    ) -> Result<bool, Box<dyn std::error::Error>> {
+    ) -> MalClientResult<bool> {
         if anime_object.my_list_status.is_none() {
             return Ok(false);
         }
@@ -281,37 +324,120 @@ impl MalClient {
         Ok(true)
     }
 
-    async fn get_anime_object(
-        &mut self,
-        title: &Title,
-    ) -> Result<Option<(AnimeObject, i32)>, Box<dyn std::error::Error>> {
-        let results = self.search(&title.title).await?;
-        if !results.data.is_empty() {
-            let anime_object = results.data.into_iter().next().unwrap().node;
-            let relation_rule = self
-                .anime_relations
-                .get_rule(&AnimeDbs::Mal, anime_object.id);
+    async fn get_anime_object(&self, title: &Title) -> MalClientResult<Option<(AnimeObject, i32)>> {
+        let (anime_1, anime_2) =
+            try_join!(self.find_anime_with_season(title), self.find_anime(title))?;
+        let anime_objects: Vec<AnimeObject> =
+            [anime_1, anime_2].into_iter().filter_map(|x| x).collect();
 
-            if let Some(rule) = relation_rule {
-                let (new_id, new_ep) = rule.convert_episode_number(
-                    &AnimeDbs::Mal,
-                    anime_object.id,
-                    title.episode_number,
-                );
-                let new_anime_object = self.get_by_id(new_id).await?;
-
-                if new_anime_object.my_list_status.is_some() {
-                    Ok(Some((new_anime_object, new_ep)))
-                } else {
-                    Ok(None)
-                }
-            } else if anime_object.my_list_status.is_some() {
-                Ok(Some((anime_object, title.episode_number)))
-            } else {
-                Ok(None)
+        for anime_object in anime_objects {
+            let (anime_object, episode_number) = self
+                .apply_anime_relation(&title.clone(), anime_object)
+                .await?;
+            if Self::is_in_my_list(&anime_object) {
+                return Ok(Some((anime_object, episode_number)));
             }
+        }
+        Ok(None)
+    }
+
+    async fn find_anime(&self, title: &Title) -> MalClientResult<Option<AnimeObject>> {
+        let results = self.search(&title.title).await?;
+
+        let first_result = results.data.into_iter().next();
+        if let Some(search_response_object) = first_result {
+            Ok(Some(search_response_object.node))
         } else {
             Ok(None)
+        }
+    }
+
+    async fn find_anime_with_season(&self, title: &Title) -> MalClientResult<Option<AnimeObject>> {
+        let results = self.search(&title.title).await?;
+        let mut data = results.data;
+        data.sort_by(|a, b| {
+            let a_rel = Self::search_relevance(&title.title, &a.node);
+            let b_rel = Self::search_relevance(&title.title, &b.node);
+            b_rel.partial_cmp(&a_rel).unwrap_or(Ordering::Equal)
+        });
+
+        let first_result = data.into_iter().next();
+        if let Some(search_response_object) = first_result {
+            let anime_object = search_response_object.node;
+
+            Ok(self
+                .get_nth_season(anime_object.id, title.season_number)
+                .await?)
+        } else {
+            Ok(None)
+        }
+    }
+
+    fn search_relevance(query: &str, anime_object: &AnimeObject) -> f32 {
+        let dist =
+            edit_distance::edit_distance(&anime_object.title.to_lowercase(), &query.to_lowercase());
+        let edit_distance_relevance = 1.0 / (dist + 1) as f32;
+        let popularity_relevance = 1.0 / anime_object.popularity as f32;
+
+        edit_distance_relevance * 0.8 + popularity_relevance * 0.2
+    }
+
+    async fn get_nth_season(
+        &self,
+        anime_id: i64,
+        season_number: i32,
+    ) -> MalClientResult<Option<AnimeObject>> {
+        let mut current_season = 0;
+        let mut current_id = anime_id;
+
+        while current_season <= season_number {
+            let anime_object = self.get_by_id(current_id).await?;
+            if anime_object.media_type != MediaType::OVA
+                && anime_object.media_type != MediaType::Music
+                && anime_object.media_type != MediaType::Special
+            {
+                current_season += 1;
+            }
+            if current_season == season_number {
+                return Ok(Some(anime_object));
+            }
+
+            let sequel = anime_object
+                .related_anime
+                .iter()
+                .find(|x| x.relation_type == RELATION_TYPE_SEQUEL);
+
+            if let Some(sequel) = sequel {
+                current_id = sequel.node.id;
+            } else {
+                return Ok(None);
+            }
+        }
+
+        Ok(None)
+    }
+
+    fn is_in_my_list(anime_object: &AnimeObject) -> bool {
+        anime_object.my_list_status.is_some()
+    }
+
+    async fn apply_anime_relation(
+        &self,
+        title: &Title,
+        anime_object: AnimeObject,
+    ) -> MalClientResult<(AnimeObject, i32)> {
+        let relation_rule = self
+            .anime_relations
+            .get_rule(&AnimeDbs::Mal, anime_object.id);
+
+        if let Some(rule) = relation_rule {
+            let (new_id, new_ep) =
+                rule.convert_episode_number(&AnimeDbs::Mal, anime_object.id, title.episode_number);
+            let new_anime_object = self.get_by_id(new_id).await?;
+
+            Ok((new_anime_object, new_ep))
+        } else {
+            Ok((anime_object, title.episode_number))
         }
     }
 }
