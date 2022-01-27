@@ -55,10 +55,10 @@ struct RelatedAnimeObject {
 #[serde(rename_all = "lowercase")]
 enum MediaType {
     TV,
-    OVA,
+    Ova,
     Movie,
     Special,
-    ONA,
+    Ona,
     Music,
     Unknown,
 }
@@ -209,7 +209,7 @@ impl MalClient {
             .send()
             .await?
             .error_for_status()
-            .map_err(|e| MalClientError::AuthenticationError(e))?;
+            .map_err(MalClientError::AuthenticationError)?;
 
         let response_data: AuthenticationResponse = response
             .error_for_status()?
@@ -327,8 +327,7 @@ impl MalClient {
     async fn get_anime_object(&self, title: &Title) -> MalClientResult<Option<(AnimeObject, i32)>> {
         let (anime_1, anime_2) =
             try_join!(self.find_anime_with_season(title), self.find_anime(title))?;
-        let anime_objects: Vec<AnimeObject> =
-            [anime_1, anime_2].into_iter().filter_map(|x| x).collect();
+        let anime_objects: Vec<AnimeObject> = [anime_1, anime_2].into_iter().flatten().collect();
 
         for anime_object in anime_objects {
             let (anime_object, episode_number) = self
@@ -392,7 +391,7 @@ impl MalClient {
 
         while current_season <= season_number {
             let anime_object = self.get_by_id(current_id).await?;
-            if anime_object.media_type != MediaType::OVA
+            if anime_object.media_type != MediaType::Ova
                 && anime_object.media_type != MediaType::Music
                 && anime_object.media_type != MediaType::Special
             {
