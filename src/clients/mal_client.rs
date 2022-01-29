@@ -78,8 +78,8 @@ struct AnimeObject {
 
 #[derive(Clone, Debug, Deserialize)]
 struct PictureObject {
-    // large: String,
-    medium: String,
+    large: String,
+    // medium: String,
 }
 
 #[derive(Clone, Debug, Deserialize)]
@@ -452,7 +452,7 @@ impl AnimeDbClient for MalClient {
         let anime_info = anime_object.map(|(anime_object, episode_number)| {
             let id = AnimeId(anime_object.id.to_string());
             let website_url = WebsiteUrl(format!("https://myanimelist.net/anime/{}", &id));
-            let picture_url = PictureUrl(anime_object.main_picture.medium);
+            let picture_url = PictureUrl(anime_object.main_picture.large);
             AnimeInfo {
                 id,
                 title: anime_object.title,
