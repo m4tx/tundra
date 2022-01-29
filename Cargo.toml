@@ -12,6 +12,8 @@ description = "MAL scrobbler for Linux"
 
 [profile.release]
 lto = true
+strip = true
+panic = "abort"
 
 [dependencies]
 dbus = "0.9.5"
