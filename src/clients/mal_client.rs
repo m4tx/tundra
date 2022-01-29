@@ -378,7 +378,7 @@ impl MalClient {
         let edit_distance_relevance = 1.0 / (dist + 1) as f32;
         let popularity_relevance = 1.0 / anime_object.popularity as f32;
 
-        edit_distance_relevance * 0.8 + popularity_relevance * 0.2
+        edit_distance_relevance * 0.5 + popularity_relevance * 0.5
     }
 
     async fn get_nth_season(
