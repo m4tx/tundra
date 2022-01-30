@@ -1,4 +1,5 @@
 use crate::clients::WebsiteUrl;
+use gettextrs::gettext;
 use gio::Menu;
 use gio::SimpleAction;
 use glib::clone;
@@ -48,7 +49,7 @@ impl MainWindow {
         let sign_in_button = Self::make_sign_in_button();
 
         let header_bar = HeaderBar::builder()
-            .title_widget(&libadwaita::WindowTitle::new("Tundra", ""))
+            .title_widget(&libadwaita::WindowTitle::new(&gettext("Tundra"), ""))
             .build();
         header_bar.pack_start(&enable_switch);
         header_bar.pack_end(&overflow_button);
@@ -114,8 +115,8 @@ impl MainWindow {
 
     fn make_overflow_button() -> MenuButton {
         let menu_model = Menu::new();
-        menu_model.append(Some("_Sign out"), Some("app.sign-out"));
-        menu_model.append(Some("_About Tundra"), Some("app.about"));
+        menu_model.append(Some(&gettext("_Sign out")), Some("app.sign-out"));
+        menu_model.append(Some(&gettext("_About Tundra")), Some("app.about"));
         let popover_menu = PopoverMenu::builder().menu_model(&menu_model).build();
 
         let overflow_button = MenuButton::new();
@@ -126,7 +127,7 @@ impl MainWindow {
     }
 
     fn make_sign_in_button() -> Button {
-        let sign_in_button = Button::with_mnemonic("_Sign in");
+        let sign_in_button = Button::with_mnemonic(&gettext("_Sign in"));
         sign_in_button.set_receives_default(true);
         sign_in_button.style_context().add_class("suggested-action");
 
@@ -135,7 +136,7 @@ impl MainWindow {
 
     fn make_enable_switch() -> Switch {
         let enable_switch = Switch::new();
-        enable_switch.set_tooltip_text(Some("Enable scrobbling"));
+        enable_switch.set_tooltip_text(Some(&gettext("Enable scrobbling")));
         enable_switch.set_state(true);
         enable_switch
     }

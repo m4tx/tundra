@@ -1,4 +1,8 @@
+use std::env;
+
 use clap::{App, Arg};
+use gettextrs::TextDomain;
+use log::info;
 
 use crate::app::TundraApp;
 use crate::constants::{APP_AUTHORS, APP_NAME, APP_VERSION};
@@ -17,6 +21,7 @@ mod title_recognizer;
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     init_logging().expect("Could not initialize logging");
+    init_i18n()?;
 
     let matches = App::new(APP_NAME)
         .version(APP_VERSION)
@@ -59,6 +64,24 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     } else {
         gtk_gui::GtkApp::start(app);
     }
+
+    Ok(())
+}
+
+fn init_i18n() -> Result<(), Box<dyn std::error::Error>> {
+    let text_domain = TextDomain::new("tundra");
+    let text_domain = if cfg!(debug_assertions) {
+        let exe_path = env::current_exe()?;
+        let path = exe_path.parent().unwrap().parent().unwrap();
+        println!("{}", path.display());
+        text_domain.push(path)
+    } else {
+        text_domain
+    };
+    text_domain.init().unwrap_or_else(|e| {
+        info!("Did not initialize i18n: {}", e);
+        None
+    });
 
     Ok(())
 }

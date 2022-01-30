@@ -6,6 +6,7 @@ use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Arc, RwLock};
 
 use async_std::sync::Mutex;
+use gettextrs::gettext;
 use glib::clone;
 use gtk::Application;
 use libadwaita::prelude::*;
@@ -237,9 +238,9 @@ impl GtkApp {
             let episode_number = &anime_info.episode_watched.to_string();
             let player_name = &result.player_name;
             let status = if result.scrobbled {
-                "scrobbled"
+                gettext("scrobbled")
             } else {
-                "not yet scrobbled"
+                gettext("not yet scrobbled")
             };
 
             let website_url = &anime_info.website_url;
@@ -254,7 +255,7 @@ impl GtkApp {
                 title,
                 episode_number,
                 player_name,
-                status,
+                &status,
                 website_url,
                 picture,
             );

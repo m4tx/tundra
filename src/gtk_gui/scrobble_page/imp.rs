@@ -1,3 +1,4 @@
+use gettextrs::gettext;
 use std::cell::RefCell;
 use std::rc::Rc;
 
@@ -21,7 +22,7 @@ pub struct ScrobblePage {
 impl ScrobblePage {
     fn make_label(text: &str) -> gtk::Label {
         let label = gtk::Label::new(None);
-        label.set_markup(&format!("<i>{}:</i>", text));
+        label.set_markup(&format!("<i>{}</i>", text));
         label.set_halign(gtk::Align::End);
         label.set_valign(gtk::Align::Start);
         label
@@ -93,22 +94,22 @@ impl ObjectImpl for ScrobblePage {
         grid.attach(&status_summary_label, 0, 0, 2, 1);
         *self.status_summary_label.borrow_mut() = status_summary_label;
 
-        grid.attach(&Self::make_label("Title"), 0, 1, 1, 1);
+        grid.attach(&Self::make_label(&gettext("Title:")), 0, 1, 1, 1);
         let title_label = Self::make_property_label();
         grid.attach(&title_label, 1, 1, 1, 1);
         *self.title_label.borrow_mut() = title_label;
 
-        grid.attach(&Self::make_label("Episode"), 0, 2, 1, 1);
+        grid.attach(&Self::make_label(&gettext("Episode:")), 0, 2, 1, 1);
         let episode_label = Self::make_property_label();
         grid.attach(&episode_label, 1, 2, 1, 1);
         *self.episode_label.borrow_mut() = episode_label;
 
-        grid.attach(&Self::make_label("Player"), 0, 3, 1, 1);
+        grid.attach(&Self::make_label(&gettext("Player:")), 0, 3, 1, 1);
         let player_label = Self::make_property_label();
         grid.attach(&player_label, 1, 3, 1, 1);
         *self.player_label.borrow_mut() = player_label;
 
-        grid.attach(&Self::make_label("Status"), 0, 4, 1, 1);
+        grid.attach(&Self::make_label(&gettext("Status:")), 0, 4, 1, 1);
         let status_label = Self::make_property_label();
         grid.attach(&status_label, 1, 4, 1, 1);
         *self.status_label.borrow_mut() = status_label;

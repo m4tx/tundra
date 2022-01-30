@@ -1,3 +1,4 @@
+use gettextrs::gettext;
 use glib::{Object, ObjectExt};
 use gtk::{gdk, glib};
 
@@ -34,7 +35,7 @@ impl ScrobblePage {
         website_url: &str,
         picture: Option<gdk::Texture>,
     ) {
-        self.set_status_summary("Scrobbling now");
+        self.set_status_summary(&gettext("Scrobbling now"));
         self.set_title(title);
         self.set_episode(episode_number);
         self.set_player(player_name);
@@ -46,11 +47,11 @@ impl ScrobblePage {
     }
 
     pub fn set_anime_info_none(&self) {
-        self.set_status_summary("Not scrobbling now");
-        self.set_title("N/A");
-        self.set_episode("N/A");
-        self.set_player("N/A");
-        self.set_status("N/A");
+        self.set_status_summary(&gettext("Not scrobbling now"));
+        self.set_title(&gettext("N/A"));
+        self.set_episode(&gettext("N/A"));
+        self.set_player(&gettext("N/A"));
+        self.set_status(&gettext("N/A"));
         self.set_website_url("");
         self.set_image(None);
     }

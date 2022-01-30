@@ -11,6 +11,8 @@ use reqwest::StatusCode;
 use serde::Deserialize;
 
 use async_trait::async_trait;
+use gettextrs::gettext;
+use lazy_static::lazy_static;
 use tokio::try_join;
 
 use crate::anime_relations::{AnimeDbs, AnimeRelations};
@@ -107,17 +109,25 @@ impl From<reqwest::Error> for MalClientError {
     }
 }
 
-const AUTHENTICATION_ERROR_STRING: &str = "Could not authenticate to MyAnimeList. \
-Make sure the username and password you entered is correct.";
+lazy_static! {
+    static ref AUTHENTICATION_ERROR_STRING: String = gettext(
+        "Could not authenticate to MyAnimeList. \
+        Make sure the username and password you entered is correct.",
+    );
+}
 
 impl fmt::Display for MalClientError {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         match self {
             MalClientError::HttpClientError(error) => {
-                write!(f, "Could not communicate with MAL: {}", error)
+                write!(
+                    f,
+                    "{}",
+                    gettext!("Could not communicate with MAL: {}", error)
+                )
             }
             MalClientError::AuthenticationError(_) => {
-                write!(f, "{}", AUTHENTICATION_ERROR_STRING)
+                write!(f, "{}", *AUTHENTICATION_ERROR_STRING)
             }
         }
     }

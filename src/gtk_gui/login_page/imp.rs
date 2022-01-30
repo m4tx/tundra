@@ -1,3 +1,4 @@
+use gettextrs::gettext;
 use std::cell::RefCell;
 use std::rc::Rc;
 
@@ -17,7 +18,7 @@ pub struct LoginPage {
 impl LoginPage {
     fn make_title() -> gtk::Label {
         let title = gtk::Label::new(None);
-        title.set_markup(&format!("<b>{}</b>", "Sign in to MyAnimeList"));
+        title.set_markup(&format!("<b>{}</b>", gettext("Sign in to MyAnimeList")));
         title.set_halign(gtk::Align::Center);
 
         title
@@ -25,7 +26,7 @@ impl LoginPage {
 
     fn make_entry_label(text: &str) -> gtk::Label {
         let label = gtk::Label::new(None);
-        label.set_markup(&format!("{}:", text));
+        label.set_markup(text);
         label.set_halign(gtk::Align::End);
 
         label
@@ -101,8 +102,8 @@ impl ObjectImpl for LoginPage {
 
         let title = Self::make_title();
         obj.attach(&title, 0, 0, 2, 1);
-        obj.attach(&Self::make_entry_label("Username"), 0, 1, 1, 1);
-        obj.attach(&Self::make_entry_label("Password"), 0, 2, 1, 1);
+        obj.attach(&Self::make_entry_label(&gettext("Username:")), 0, 1, 1, 1);
+        obj.attach(&Self::make_entry_label(&gettext("Password:")), 0, 2, 1, 1);
         let username_entry = self.make_username_entry(obj);
         obj.attach(&username_entry, 1, 1, 1, 1);
         let password_entry = self.make_password_entry(obj);
