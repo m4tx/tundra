@@ -5,7 +5,7 @@ use gettextrs::TextDomain;
 use log::info;
 
 use crate::app::TundraApp;
-use crate::constants::{APP_AUTHORS, APP_NAME, APP_VERSION};
+use crate::constants::{APP_AUTHORS, APP_NAME, APP_VERSION, GETTEXT_PACKAGE};
 use crate::logging::init_logging;
 
 mod anime_relations;
@@ -69,11 +69,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 }
 
 fn init_i18n() -> Result<(), Box<dyn std::error::Error>> {
-    let text_domain = TextDomain::new("tundra");
+    let text_domain = TextDomain::new(GETTEXT_PACKAGE);
     let text_domain = if cfg!(debug_assertions) {
         let exe_path = env::current_exe()?;
         let path = exe_path.parent().unwrap().parent().unwrap();
-        println!("{}", path.display());
         text_domain.push(path)
     } else {
         text_domain

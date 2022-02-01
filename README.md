@@ -20,7 +20,7 @@ The usage is very simple:
 
 1. First, you need to sign in to your MyAnimeList account with your MAL username and password.
 2. Make sure that the title you are about to watch is marked as "watching" or "plan to watch" on your MAL account.
-3. Then, you need to run an MPRIS-enabled (see the FAQ section below) media player and play a local anime video file. Its title, poster picture and episode number will appear after a few seconds in Tundra window.
+3. Then, you need to run an MPRIS-enabled media player and play a local anime video file. Its title, poster picture and episode number will appear after a few seconds in Tundra window.
 4. The episode will be scrobbled after you watch over half of the video. You will know once you see the notification!
 
 ### CLI
@@ -54,6 +54,14 @@ Make sure you have executed `git clone --recursive`, so the submodules are clone
 After you have installed [*Flatpak Builder*](https://docs.flatpak.org/en/latest/flatpak-builder.html) execute `flatpak-builder --install repo moe.tundra.Tundra.json --force-clean --user -y` in the project root directory to build and install the Flatpak package.
 
 Flathub repo can be found here: [flathub/moe.tundra.Tundra](https://github.com/flathub/moe.tundra.Tundra).
+
+## Localization
+
+Tundra translation is being done on the Transifex platform. See the [Tundra project on Transifex](https://www.transifex.com/tundra/tundra/) webpage if you would like to contribute a translation for a language you know.
+
+Currently offered languages:
+* English
+* Polish
 
 ## Related projects
 * [Taiga](https://github.com/erengy/taiga)
