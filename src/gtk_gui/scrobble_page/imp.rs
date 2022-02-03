@@ -180,7 +180,6 @@ impl ObjectImpl for ScrobblePage {
     }
 
     fn property(&self, _obj: &Self::Type, _id: usize, pspec: &ParamSpec) -> Value {
-        println!("{}", pspec.name());
         match pspec.name() {
             super::ScrobblePage::STATUS_SUMMARY_PROPERTY => {
                 self.status_summary_label.borrow().text().to_value()

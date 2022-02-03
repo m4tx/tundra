@@ -92,8 +92,8 @@ impl TundraApp {
                 let player_name = player.player_name()?;
                 let should_scrobble = player.position()? > 0.5;
                 info!(
-                    "Found an active player: {}, playing {} episode {}",
-                    player_name, title.title, title.episode_number
+                    "Found an active player: {}, playing {} season {} episode {}",
+                    player_name, title.title, title.season_number, title.episode_number
                 );
                 return Ok(Some((title, player_name, should_scrobble)));
             }

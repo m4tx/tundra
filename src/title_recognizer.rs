@@ -1,6 +1,7 @@
 use std::cell::RefCell;
 
 use anitomy::{Anitomy, ElementCategory};
+use log::debug;
 
 #[derive(Clone, Debug, Eq, Hash, PartialEq)]
 pub struct Title {
@@ -34,7 +35,7 @@ impl TitleRecognizer {
     pub fn recognize(&mut self, filename: &str) -> Option<Title> {
         ANITOMY.with(|anitomy| match anitomy.borrow_mut().parse(filename) {
             Ok(ref elements) => {
-                println!("{:?}", elements);
+                debug!("Found path elements: {:?}", elements);
                 let title = elements.get(ElementCategory::AnimeTitle)?.to_owned();
 
                 let episode_number: i32 = elements

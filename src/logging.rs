@@ -1,11 +1,18 @@
 use chrono::Local;
-use log::{Level, Metadata, Record};
 use log::{LevelFilter, SetLoggerError};
+use log::{Metadata, Record};
+
 struct Logger;
+
+const MAX_LEVEL_FILTER: LevelFilter = if cfg!(debug_assertions) {
+    LevelFilter::Debug
+} else {
+    LevelFilter::Info
+};
 
 impl log::Log for Logger {
     fn enabled(&self, metadata: &Metadata) -> bool {
-        metadata.level() <= Level::Info
+        metadata.level() <= MAX_LEVEL_FILTER.to_level().expect("Invalid level filter")
     }
 
     fn log(&self, record: &Record) {
@@ -26,5 +33,8 @@ impl log::Log for Logger {
 static LOGGER: Logger = Logger;
 
 pub fn init_logging() -> Result<(), SetLoggerError> {
-    log::set_logger(&LOGGER).map(|()| log::set_max_level(LevelFilter::Info))
+    log::set_logger(&LOGGER)?;
+    log::set_max_level(MAX_LEVEL_FILTER);
+
+    Ok(())
 }
