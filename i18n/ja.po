@@ -1,0 +1,101 @@
+# Tundra - anime scrobbler for Linux
+# Copyright (C) 2022 Mateusz Maćkowski
+# This file is distributed under the same license as the Tundra package.
+# Mateusz Maćkowski <mateusz@mackowski.org>, 2022.
+# 
+# Translators:
+# Mateusz Maćkowski, 2022
+# 
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: tundra 0.3.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2022-01-30 22:12+0000\n"
+"PO-Revision-Date: 2022-01-29 13:00+0000\n"
+"Last-Translator: Mateusz Maćkowski, 2022\n"
+"Language-Team: Japanese (https://www.transifex.com/tundra/teams/131324/ja/)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: ja\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+#: src/clients/mal_client.rs:114
+msgid ""
+"Could not authenticate to MyAnimeList. Make sure the username and password "
+"you entered is correct."
+msgstr "MyAnimeListに認証できなかった。ユーザ名とパスワードが正しいことを確認してください。"
+
+#: src/clients/mal_client.rs:126
+msgid "Could not communicate with MAL: {}"
+msgstr "MyAnimeListにコミュニケーションできなかった：{}"
+
+#: src/gtk_gui/login_page/imp.rs:21
+msgid "Sign in to MyAnimeList"
+msgstr "MyAnimeListにサインインする"
+
+#: src/gtk_gui/login_page/imp.rs:105
+msgid "Username:"
+msgstr "ユーザー名："
+
+#: src/gtk_gui/login_page/imp.rs:106
+msgid "Password:"
+msgstr "パスワード："
+
+#: src/gtk_gui/main_window.rs:52
+msgid "Tundra"
+msgstr "Tundra"
+
+#: src/gtk_gui/main_window.rs:118
+msgid "_Sign out"
+msgstr "_サインアウト"
+
+#: src/gtk_gui/main_window.rs:119
+msgid "_About Tundra"
+msgstr "_Tundraについて"
+
+#: src/gtk_gui/main_window.rs:130
+msgid "_Sign in"
+msgstr "_サインインする"
+
+#: src/gtk_gui/main_window.rs:139
+msgid "Enable scrobbling"
+msgstr "追跡を有効にして"
+
+#: src/gtk_gui/scrobble_page/imp.rs:97
+msgid "Title:"
+msgstr "タイトル："
+
+#: src/gtk_gui/scrobble_page/imp.rs:102
+msgid "Episode:"
+msgstr "エピソード番号："
+
+#: src/gtk_gui/scrobble_page/imp.rs:107
+msgid "Player:"
+msgstr "プレーヤー："
+
+#: src/gtk_gui/scrobble_page/imp.rs:112
+msgid "Status:"
+msgstr "状態："
+
+#: src/gtk_gui/scrobble_page/mod.rs:38
+msgid "Scrobbling now"
+msgstr "追跡している"
+
+#: src/gtk_gui/scrobble_page/mod.rs:50
+msgid "Not scrobbling now"
+msgstr "追跡していない"
+
+#: src/gtk_gui/scrobble_page/mod.rs:51 src/gtk_gui/scrobble_page/mod.rs:52
+#: src/gtk_gui/scrobble_page/mod.rs:53 src/gtk_gui/scrobble_page/mod.rs:54
+msgid "N/A"
+msgstr "なし"
+
+#: src/gtk_gui/mod.rs:241
+msgid "scrobbled"
+msgstr "見た"
+
+#: src/gtk_gui/mod.rs:243
+msgid "not yet scrobbled"
+msgstr "見たことがない"
