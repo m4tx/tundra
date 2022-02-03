@@ -8,3 +8,10 @@ Categories=Utility;GTK;
 Keywords=GTK;MyAnimeList;MAL;scrobble;automatic;
 Icon=moe.tundra.Tundra
 StartupNotify=true
+
+
+# Translations
+Name[ja]=Tundra
+Comment[ja]=MyAnimeList追跡アプリ
+Name[pl]=Tundra
+Comment[pl]=Scrobbler dla MyAnimeList

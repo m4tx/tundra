@@ -61,6 +61,7 @@ Tundra translation is being done on the Transifex platform. See the [Tundra proj
 
 Currently offered languages:
 * English
+* Japanese
 * Polish
 
 ## Related projects
