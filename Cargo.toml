@@ -28,7 +28,7 @@ toml = "0.5.8"
 regex = "1.5.4"
 lazy_static = "1.4.0"
 notify-rust = { version = "4.5.5", default-features = false, features = ["d"] }
-clap = "3.0.14"
+clap = "3.1.0"
 log = "0.4.14"
 chrono = "0.4.19"
 gtk = { package = "gtk4", version = "0.4.6" }
