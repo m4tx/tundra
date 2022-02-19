@@ -106,16 +106,14 @@ impl TundraApp {
         title_recognizer: &mut TitleRecognizer,
         player: &Player,
     ) -> Result<Option<Title>, Box<dyn std::error::Error>> {
-        let filename = player.filename_played();
-        if let Ok(filename_val) = filename {
-            if player.is_currently_playing()? {
-                let title = title_recognizer.recognize(&filename_val);
-                Ok(title)
-            } else {
-                Ok(None)
-            }
+        if player.is_currently_playing()? {
+            let title = player.title_played().ok();
+            let filename = player.filename_played().ok();
+            let title = title_recognizer.recognize(title.as_deref(), filename.as_deref());
+
+            Ok(title)
         } else {
-            Ok(None)
+            Ok(None)as_ref
         }
     }
 

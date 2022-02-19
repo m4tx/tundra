@@ -58,10 +58,18 @@ impl<'a> Player<'a> {
         Ok(self.dbus_proxy.playback_status()? == "Playing")
     }
 
+    pub fn title_played(&self) -> PlayerControllerResult<String> {
+        let metadata = self.dbus_proxy.metadata()?;
+        let title_value = metadata.get("xesam:title").ok_or("Title was not found")?;
+        let title: &str = title_value.0.as_str().ok_or("Title is not string")?;
+
+        Ok(title.to_owned())
+    }
+
     pub fn filename_played(&self) -> PlayerControllerResult<String> {
         let metadata = self.dbus_proxy.metadata()?;
-        let x = metadata.get("xesam:url").ok_or("URL was not found")?;
-        let url: &str = x.0.as_str().ok_or("URL is not string")?;
+        let url_value = metadata.get("xesam:url").ok_or("URL was not found")?;
+        let url: &str = url_value.0.as_str().ok_or("URL is not string")?;
         let url: String = if url.starts_with("file://") {
             percent_encoding::percent_decode_str(url)
                 .decode_utf8()?
