@@ -12,7 +12,7 @@ description = "MAL scrobbler for Linux"
 
 [profile.release]
 lto = true
-strip = true
+#strip = true
 panic = "abort"
 
 [dependencies]
