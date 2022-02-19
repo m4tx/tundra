@@ -113,7 +113,7 @@ impl TundraApp {
 
             Ok(title)
         } else {
-            Ok(None)as_ref
+            Ok(None)
         }
     }
 
