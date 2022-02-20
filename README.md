@@ -11,7 +11,9 @@ Tundra is an open-source MyAnimeList scrobbler application for Linux. It automat
 <a href="https://flathub.org/apps/details/moe.tundra.Tundra"><img width="240" alt="Download on Flathub" src="https://flathub.org/assets/badges/flathub-badge-en.svg"/></a>
 
 ### AUR
-For Arch Linux users, there is a package in AUR: [aur/tundra](https://aur.archlinux.org/packages/tundra/)
+For Arch Linux users, there are two packages in AUR to choose from:
+* [aur/tundra](https://aur.archlinux.org/packages/tundra/) - stable version
+* [aur/tundra-git](https://aur.archlinux.org/packages/tundra-git/) - latest git version
 
 ## Usage
 
