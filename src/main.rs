@@ -1,6 +1,6 @@
 use std::env;
 
-use clap::{App, Arg};
+use clap::{Arg, Command};
 use gettextrs::TextDomain;
 use log::info;
 
@@ -23,12 +23,12 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     init_logging().expect("Could not initialize logging");
     init_i18n()?;
 
-    let matches = App::new(APP_NAME)
+    let matches = Command::new(APP_NAME)
         .version(APP_VERSION)
         .author(APP_AUTHORS)
         .about("MyAnimeList scrobbler")
         .subcommand(
-            App::new("authenticate")
+            Command::new("authenticate")
                 .about("sign in to MyAnimeList")
                 .version(APP_VERSION)
                 .author(APP_AUTHORS)
@@ -44,7 +44,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 ),
         )
         .subcommand(
-            App::new("daemon")
+            Command::new("daemon")
                 .about("start Tundra daemon")
                 .version(APP_VERSION)
                 .author(APP_AUTHORS),
