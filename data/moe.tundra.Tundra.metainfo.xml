@@ -22,13 +22,32 @@
     </screenshots>
 
     <url type="homepage">https://tundra.moe/</url>
+    <url type="bugtracker">https://github.com/m4tx/tundra/issues/new</url>
 
     <!--
     Open Age Rating Service
     https://hughsie.github.io/oars/index.html
     -->
-    <content_rating type="oars-1.0" />
+    <content_rating type="oars-1.1"/>
     <releases>
+        <release version="0.3.0" date="2022-04-09">
+            <description>
+                <ul>
+                    <li>Add support for translations (with English, Polish, and Japanese initially supported)</li>
+                    <li>Better support for season numbers</li>
+                    <li>Add ani-cli support</li>
+                </ul>
+            </description>
+        </release>
+        <release version="0.2.0" date="2022-01-25">
+            <description>
+                <ul>
+                    <li>Migrate to GTK 4 and libadwaita</li>
+                    <li>Open MAL website on anime cover click</li>
+                    <li>Update anime relations to the latest version</li>
+                </ul>
+            </description>
+        </release>
         <release version="0.1.1" date="2021-05-31">
             <description>
                 <p>Anime season detection fixes</p>
@@ -40,15 +59,6 @@
             </description>
         </release>
     </releases>
-
-    <kudos>
-        <!--
-        GNOME Software kudos:
-        https://gitlab.gnome.org/GNOME/gnome-software/blob/master/doc/kudos.md
-        -->
-        <kudo>ModernToolkit</kudo>
-        <kudo>HiDpiIcon</kudo>
-    </kudos>
 
     <developer_name>Mateusz Maćkowski</developer_name>
     <update_contact>mateusz@mackowski.org</update_contact>
