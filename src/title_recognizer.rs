@@ -114,6 +114,11 @@ impl Recognizer for AniCliRecognizer {
                 let episode_number = i32::from_str(episode_number_str).ok()?;
 
                 return Some(Title::new(title.to_owned(), 1, episode_number));
+            } else if title.contains(" Episode ") {
+                let (title, episode_number_str) = title.split_once(" Episode ")?;
+                let episode_number = i32::from_str(episode_number_str).ok()?;
+
+                return Some(Title::new(title.to_owned(), 1, episode_number));
             }
         }
 
