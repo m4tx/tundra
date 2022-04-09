@@ -22,7 +22,7 @@ changelog=
 source=("$pkgname-$pkgver.tar.gz::https://github.com/m4tx/$pkgname/archive/v$pkgver.tar.gz"
         "https://raw.githubusercontent.com/erengy/anime-relations/fe525396c7495b84fc10faae33e997c3faf42701/anime-relations.txt")
 noextract=()
-md5sums=('01ee2f012fa21dc0606eaa28bb296303'
+md5sums=('e8d47a14579fd5b69d676be9dabc98d2'
          '712fbe4ccca3db0fd5346db526bd7e59')
 validpgpkeys=()
 
