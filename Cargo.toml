@@ -24,7 +24,7 @@ serde = { version = "1.0.136", features = ["derive"] }
 serde_json = "1.0.79"
 async-trait = "0.1.53"
 directories = "4.0.1"
-toml = "0.5.8"
+toml = "0.5.9"
 regex = "1.5.5"
 lazy_static = "1.4.0"
 notify-rust = { version = "4.5.8", default-features = false, features = ["d"] }
