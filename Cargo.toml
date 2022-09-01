@@ -21,7 +21,7 @@ anitomy = "0.1.2"
 reqwest = { version = "0.11.11", features = ["json"] }
 tokio = { version = "1.20.1", features = ["macros", "rt", "rt-multi-thread", "time"] }
 serde = { version = "1.0.140", features = ["derive"] }
-serde_json = "1.0.82"
+serde_json = "1.0.85"
 async-trait = "0.1.56"
 directories = "4.0.1"
 toml = "0.5.9"
