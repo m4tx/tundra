@@ -29,7 +29,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .about("MyAnimeList scrobbler")
         .subcommand(
             Command::new("authenticate")
-                .about("sign in to MyAnimeList")
+                .about("Sign in to MyAnimeList")
                 .version(APP_VERSION)
                 .author(APP_AUTHORS)
                 .arg(
@@ -45,7 +45,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         )
         .subcommand(
             Command::new("daemon")
-                .about("start Tundra daemon")
+                .about("Start Tundra daemon")
                 .version(APP_VERSION)
                 .author(APP_AUTHORS),
         )
@@ -54,8 +54,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut app = TundraApp::init()?;
 
     if let Some(matches) = matches.subcommand_matches("authenticate") {
-        let username = matches.value_of("username").unwrap();
-        let password = matches.value_of("password").unwrap();
+        let username = matches.get_one::<String>("username").unwrap();
+        let password = matches.get_one::<String>("password").unwrap();
 
         app.authenticate_mal(username, password).await?;
     } else if matches.subcommand_matches("daemon").is_some() {
