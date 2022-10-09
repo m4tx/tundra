@@ -10,6 +10,7 @@ use gettextrs::gettext;
 use glib::clone;
 use gtk::Application;
 use libadwaita::prelude::*;
+use log::error;
 use tokio::time;
 
 use about_dialog::AboutDialog;
@@ -185,7 +186,13 @@ impl GtkApp {
                 }
 
                 let result = Self::daemon_tick(&app, &images).await;
-                let new_result = result.map_err(|x| x.to_string());
+                let new_result = result.map_err(|error| {
+                    error!("{}", error);
+                    if let Some(source) = error.source() {
+                        error!("{}", source);
+                    }
+                    error.to_string()
+                });
                 tx.send(new_result).expect("Couldn't send data to channel");
             }
         });

@@ -223,6 +223,7 @@ impl MainWindow {
         self.sign_in_button.hide();
         self.enable_switch.show();
         self.overflow_button.show();
+        self.info_bar.set_revealed(false);
     }
 
     pub fn switch_to_sign_in_page(&self) {
@@ -231,6 +232,7 @@ impl MainWindow {
         self.enable_switch.hide();
         self.overflow_button.hide();
         self.login_page.reset();
+        self.info_bar.set_revealed(false);
     }
 
     pub fn set_anime_info(
