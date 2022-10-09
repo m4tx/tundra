@@ -116,6 +116,7 @@ impl MainWindow {
     fn make_overflow_button() -> MenuButton {
         let menu_model = Menu::new();
         menu_model.append(Some(&gettext("_Sign out")), Some("app.sign-out"));
+        menu_model.append(Some(&gettext("Show _logs")), Some("app.show-logs"));
         menu_model.append(Some(&gettext("_About Tundra")), Some("app.about"));
         let popover_menu = PopoverMenu::builder().menu_model(&menu_model).build();
 
@@ -160,6 +161,15 @@ impl MainWindow {
 
     pub fn connect_about<F: Fn() + 'static>(&self, f: F) {
         let action = SimpleAction::new("about", None);
+        action.connect_activate(clone!(@strong self as this => move |_, _| {
+            f();
+        }));
+
+        self.app.add_action(&action);
+    }
+
+    pub fn connect_show_logs<F: Fn() + 'static>(&self, f: F) {
+        let action = SimpleAction::new("show-logs", None);
         action.connect_activate(clone!(@strong self as this => move |_, _| {
             f();
         }));

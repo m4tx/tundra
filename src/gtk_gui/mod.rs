@@ -13,6 +13,7 @@ use libadwaita::prelude::*;
 use tokio::time;
 
 use about_dialog::AboutDialog;
+use logs_window::LogsWindow;
 
 use crate::app::PlayedTitle;
 use crate::clients::PictureUrl;
@@ -22,6 +23,7 @@ use crate::TundraApp;
 
 mod about_dialog;
 mod login_page;
+mod logs_window;
 mod main_window;
 mod scrobble_page;
 
@@ -87,6 +89,10 @@ impl GtkApp {
         self.main_window
             .connect_about(clone!(@strong app, @strong window => move || {
                 AboutDialog::new(&app, &window).run();
+            }));
+        self.main_window
+            .connect_show_logs(clone!(@strong app, @strong window => move || {
+                LogsWindow::new(&app, &window).show();
             }));
         self.main_window
             .connect_sign_out(clone!(@strong self as this => move || {

@@ -27,9 +27,8 @@ impl AboutDialog {
             .logo(&logo)
             .modal(true)
             .application(application)
+            .transient_for(window)
             .build();
-
-        dialog.set_transient_for(Some(window));
 
         Self { dialog }
     }
