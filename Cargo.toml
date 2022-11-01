@@ -34,7 +34,7 @@ chrono = "0.4.22"
 gtk = { package = "gtk4", version = "0.4.8" }
 libadwaita = "0.1.1"
 once_cell = "1.15.0"
-gio = "0.15.12"
+gio = "0.16.2"
 glib = "0.15.12"
 gdk-pixbuf = "0.15.11"
 async-std = "1.12.0"
