@@ -22,7 +22,7 @@ reqwest = { version = "0.11.12", features = ["json"] }
 tokio = { version = "1.21.2", features = ["macros", "rt", "rt-multi-thread", "time"] }
 serde = { version = "1.0.145", features = ["derive"] }
 serde_json = "1.0.85"
-async-trait = "0.1.57"
+async-trait = "0.1.64"
 directories = "4.0.1"
 toml = "0.5.9"
 regex = "1.6.0"
