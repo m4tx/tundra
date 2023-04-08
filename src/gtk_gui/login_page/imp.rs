@@ -121,27 +121,21 @@ impl ObjectImpl for LoginPage {
     fn properties() -> &'static [ParamSpec] {
         static PROPERTIES: Lazy<Vec<ParamSpec>> = Lazy::new(|| {
             vec![
-                ParamSpecBoolean::new(
-                    super::LoginPage::READY_PROPERTY,
-                    super::LoginPage::READY_PROPERTY,
-                    "Whether the login form has been filled out",
-                    false,
-                    glib::ParamFlags::READABLE,
-                ),
-                ParamSpecString::new(
-                    super::LoginPage::USERNAME_PROPERTY,
-                    super::LoginPage::USERNAME_PROPERTY,
-                    "Value of the username field",
-                    Some(""),
-                    glib::ParamFlags::READWRITE,
-                ),
-                ParamSpecString::new(
-                    super::LoginPage::PASSWORD_PROPERTY,
-                    super::LoginPage::PASSWORD_PROPERTY,
-                    "Value of the password field",
-                    Some(""),
-                    glib::ParamFlags::READWRITE,
-                ),
+                ParamSpecBoolean::builder(super::LoginPage::READY_PROPERTY)
+                    .blurb("Whether the login form has been filled out")
+                    .default_value(false)
+                    .flags(glib::ParamFlags::READABLE)
+                    .build(),
+                ParamSpecString::builder(super::LoginPage::USERNAME_PROPERTY)
+                    .blurb("Value of the username field")
+                    .default_value(Some(""))
+                    .flags(glib::ParamFlags::READWRITE)
+                    .build(),
+                ParamSpecString::builder(super::LoginPage::PASSWORD_PROPERTY)
+                    .blurb("Value of the password field")
+                    .default_value(Some(""))
+                    .flags(glib::ParamFlags::READWRITE)
+                    .build(),
             ]
         });
         PROPERTIES.as_ref()

@@ -45,7 +45,7 @@ impl GtkApp {
             .build();
 
         application.connect_startup(|_| {
-            libadwaita::init();
+            libadwaita::init().expect("Could not initialize libadwaita");
         });
 
         let rc_app = Arc::new(Mutex::new(app));

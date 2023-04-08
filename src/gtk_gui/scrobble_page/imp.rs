@@ -126,55 +126,40 @@ impl ObjectImpl for ScrobblePage {
     fn properties() -> &'static [ParamSpec] {
         static PROPERTIES: Lazy<Vec<ParamSpec>> = Lazy::new(|| {
             vec![
-                ParamSpecString::new(
-                    super::ScrobblePage::STATUS_SUMMARY_PROPERTY,
-                    super::ScrobblePage::STATUS_SUMMARY_PROPERTY,
-                    "Status summary",
-                    Some(""),
-                    glib::ParamFlags::READWRITE,
-                ),
-                ParamSpecString::new(
-                    super::ScrobblePage::TITLE_PROPERTY,
-                    super::ScrobblePage::TITLE_PROPERTY,
-                    "Anime title",
-                    Some(""),
-                    glib::ParamFlags::READWRITE,
-                ),
-                ParamSpecString::new(
-                    super::ScrobblePage::EPISODE_PROPERTY,
-                    super::ScrobblePage::EPISODE_PROPERTY,
-                    "Anime episode",
-                    Some(""),
-                    glib::ParamFlags::READWRITE,
-                ),
-                ParamSpecString::new(
-                    super::ScrobblePage::PLAYER_PROPERTY,
-                    super::ScrobblePage::PLAYER_PROPERTY,
-                    "Player being used",
-                    Some(""),
-                    glib::ParamFlags::READWRITE,
-                ),
-                ParamSpecString::new(
-                    super::ScrobblePage::STATUS_PROPERTY,
-                    super::ScrobblePage::STATUS_PROPERTY,
-                    "Scrobble status",
-                    Some(""),
-                    glib::ParamFlags::READWRITE,
-                ),
-                ParamSpecString::new(
-                    super::ScrobblePage::WEBSITE_URL_PROPERTY,
-                    super::ScrobblePage::WEBSITE_URL_PROPERTY,
-                    "Anime website URL",
-                    Some(""),
-                    glib::ParamFlags::READWRITE,
-                ),
-                ParamSpecObject::new(
-                    super::ScrobblePage::IMAGE_PROPERTY,
-                    super::ScrobblePage::IMAGE_PROPERTY,
-                    "Image paintable",
-                    gdk::Paintable::static_type(),
-                    glib::ParamFlags::READWRITE,
-                ),
+                ParamSpecString::builder(super::ScrobblePage::STATUS_SUMMARY_PROPERTY)
+                    .blurb("Status summary")
+                    .default_value(Some(""))
+                    .flags(glib::ParamFlags::READWRITE)
+                    .build(),
+                ParamSpecString::builder(super::ScrobblePage::TITLE_PROPERTY)
+                    .blurb("Anime title")
+                    .default_value(Some(""))
+                    .flags(glib::ParamFlags::READWRITE)
+                    .build(),
+                ParamSpecString::builder(super::ScrobblePage::EPISODE_PROPERTY)
+                    .blurb("Anime episode")
+                    .default_value(Some(""))
+                    .flags(glib::ParamFlags::READWRITE)
+                    .build(),
+                ParamSpecString::builder(super::ScrobblePage::PLAYER_PROPERTY)
+                    .blurb("Player being used")
+                    .default_value(Some(""))
+                    .flags(glib::ParamFlags::READWRITE)
+                    .build(),
+                ParamSpecString::builder(super::ScrobblePage::STATUS_PROPERTY)
+                    .blurb("Scrobble status")
+                    .default_value(Some(""))
+                    .flags(glib::ParamFlags::READWRITE)
+                    .build(),
+                ParamSpecString::builder(super::ScrobblePage::WEBSITE_URL_PROPERTY)
+                    .blurb("Anime website URL")
+                    .default_value(Some(""))
+                    .flags(glib::ParamFlags::READWRITE)
+                    .build(),
+                ParamSpecObject::builder::<gdk::Paintable>(super::ScrobblePage::IMAGE_PROPERTY)
+                    .blurb("Image paintable")
+                    .flags(glib::ParamFlags::READWRITE)
+                    .build(),
             ]
         });
         PROPERTIES.as_ref()
