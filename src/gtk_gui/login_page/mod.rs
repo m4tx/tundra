@@ -17,7 +17,7 @@ impl LoginPage {
     pub const PASSWORD_PROPERTY: &'static str = "password";
 
     pub fn new() -> Self {
-        Object::new(&[]).expect("Failed to create `LoginPage`.")
+        Object::new::<Self>()
     }
 
     pub fn username(&self) -> String {

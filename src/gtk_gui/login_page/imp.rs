@@ -9,7 +9,7 @@ use gtk::prelude::*;
 use gtk::subclass::prelude::*;
 use once_cell::sync::Lazy;
 
-#[derive(Clone, Default)]
+#[derive(Default)]
 pub struct LoginPage {
     username_entry: Rc<RefCell<gtk::Entry>>,
     password_entry: Rc<RefCell<gtk::Entry>>,
@@ -32,31 +32,35 @@ impl LoginPage {
         label
     }
 
-    fn make_username_entry(&self, obj: &super::LoginPage) -> gtk::Entry {
+    fn make_username_entry(&self) -> gtk::Entry {
         let entry = gtk::Entry::new();
         entry.set_hexpand(true);
-        entry.connect_changed(clone!(@strong obj as this => move |_| {
-            this.clone().notify(super::LoginPage::USERNAME_PROPERTY);
-            this.clone().notify(super::LoginPage::READY_PROPERTY);
+
+        let this = self.to_owned();
+        entry.connect_changed(clone!(@strong this => move |_| {
+            this.obj().clone().notify(super::LoginPage::PASSWORD_PROPERTY);
+            this.obj().clone().notify(super::LoginPage::READY_PROPERTY);
         }));
-        entry.connect_activate(clone!(@strong self as this, @strong obj => move |_| {
-            this.emit_activate(&obj);
+        entry.connect_activate(clone!(@strong this => move |_| {
+            this.emit_activate(&this.obj());
         }));
 
         entry
     }
 
-    fn make_password_entry(&self, obj: &super::LoginPage) -> gtk::Entry {
+    fn make_password_entry(&self) -> gtk::Entry {
         let entry = gtk::Entry::new();
         entry.set_hexpand(true);
         entry.set_visibility(false);
         entry.set_invisible_char(Some('•'));
-        entry.connect_changed(clone!(@strong obj as this => move |_| {
-            this.clone().notify(super::LoginPage::PASSWORD_PROPERTY);
-            this.clone().notify(super::LoginPage::READY_PROPERTY);
+
+        let this = self.to_owned();
+        entry.connect_changed(clone!(@strong this => move |_| {
+            this.obj().clone().notify(super::LoginPage::PASSWORD_PROPERTY);
+            this.obj().clone().notify(super::LoginPage::READY_PROPERTY);
         }));
-        entry.connect_activate(clone!(@strong self as this, @strong obj => move |_| {
-            this.emit_activate(&obj);
+        entry.connect_activate(clone!(@strong this => move |_| {
+            this.emit_activate(&this.obj());
         }));
 
         entry
@@ -89,9 +93,10 @@ impl ObjectSubclass for LoginPage {
 }
 
 impl ObjectImpl for LoginPage {
-    fn constructed(&self, obj: &Self::Type) {
-        self.parent_constructed(obj);
+    fn constructed(&self) {
+        self.parent_constructed();
 
+        let obj = self.obj();
         obj.set_column_spacing(10);
         obj.set_row_spacing(10);
         obj.set_margin_start(10);
@@ -104,9 +109,9 @@ impl ObjectImpl for LoginPage {
         obj.attach(&title, 0, 0, 2, 1);
         obj.attach(&Self::make_entry_label(&gettext("Username:")), 0, 1, 1, 1);
         obj.attach(&Self::make_entry_label(&gettext("Password:")), 0, 2, 1, 1);
-        let username_entry = self.make_username_entry(obj);
+        let username_entry = self.make_username_entry();
         obj.attach(&username_entry, 1, 1, 1, 1);
-        let password_entry = self.make_password_entry(obj);
+        let password_entry = self.make_password_entry();
         obj.attach(&password_entry, 1, 2, 1, 1);
 
         *self.username_entry.borrow_mut() = username_entry;
@@ -143,18 +148,12 @@ impl ObjectImpl for LoginPage {
     }
 
     fn signals() -> &'static [Signal] {
-        static SIGNALS: Lazy<Vec<Signal>> = Lazy::new(|| {
-            vec![Signal::builder(
-                super::LoginPage::ACTIVATE_PROPERTY,
-                &[],
-                <()>::static_type().into(),
-            )
-            .build()]
-        });
+        static SIGNALS: Lazy<Vec<Signal>> =
+            Lazy::new(|| vec![Signal::builder(super::LoginPage::ACTIVATE_PROPERTY).build()]);
         SIGNALS.as_ref()
     }
 
-    fn property(&self, _obj: &Self::Type, _id: usize, pspec: &ParamSpec) -> Value {
+    fn property(&self, _id: usize, pspec: &ParamSpec) -> Value {
         match pspec.name() {
             super::LoginPage::READY_PROPERTY => self.is_ready().to_value(),
             super::LoginPage::USERNAME_PROPERTY => self.username().to_value(),
@@ -163,7 +162,7 @@ impl ObjectImpl for LoginPage {
         }
     }
 
-    fn set_property(&self, _obj: &Self::Type, _id: usize, value: &Value, pspec: &ParamSpec) {
+    fn set_property(&self, _id: usize, value: &Value, pspec: &ParamSpec) {
         match pspec.name() {
             super::LoginPage::USERNAME_PROPERTY => {
                 self.username_entry.borrow().set_text(value.get().unwrap())

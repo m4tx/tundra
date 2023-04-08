@@ -21,7 +21,7 @@ impl ScrobblePage {
     pub const IMAGE_PROPERTY: &'static str = "image";
 
     pub fn new() -> Self {
-        let scrobble_page: Self = Object::new(&[]).expect("Failed to create `ScrobblePage`.");
+        let scrobble_page: Self = Object::new::<Self>();
         scrobble_page.set_anime_info_none();
         scrobble_page
     }

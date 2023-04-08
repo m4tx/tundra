@@ -8,7 +8,7 @@ use gtk::subclass::prelude::*;
 use gtk::{gdk, glib};
 use once_cell::sync::Lazy;
 
-#[derive(Clone, Default)]
+#[derive(Default)]
 pub struct ScrobblePage {
     status_summary_label: Rc<RefCell<gtk::Label>>,
     title_label: Rc<RefCell<gtk::Label>>,
@@ -59,7 +59,7 @@ impl ScrobblePage {
                 gtk::show_uri(gtk::Window::NONE, &url, gdk::CURRENT_TIME);
             }
         }));
-        picture.add_controller(&gesture);
+        picture.add_controller(gesture);
 
         *self.picture.borrow_mut() = picture.clone();
 
@@ -75,9 +75,10 @@ impl ObjectSubclass for ScrobblePage {
 }
 
 impl ObjectImpl for ScrobblePage {
-    fn constructed(&self, obj: &Self::Type) {
-        self.parent_constructed(obj);
+    fn constructed(&self) {
+        self.parent_constructed();
 
+        let obj = self.obj();
         obj.set_orientation(gtk::Orientation::Horizontal);
         obj.set_homogeneous(true);
         obj.set_spacing(15);
@@ -179,7 +180,7 @@ impl ObjectImpl for ScrobblePage {
         PROPERTIES.as_ref()
     }
 
-    fn property(&self, _obj: &Self::Type, _id: usize, pspec: &ParamSpec) -> Value {
+    fn property(&self, _id: usize, pspec: &ParamSpec) -> Value {
         match pspec.name() {
             super::ScrobblePage::STATUS_SUMMARY_PROPERTY => {
                 self.status_summary_label.borrow().text().to_value()
@@ -194,7 +195,7 @@ impl ObjectImpl for ScrobblePage {
         }
     }
 
-    fn set_property(&self, _obj: &Self::Type, _id: usize, value: &Value, pspec: &ParamSpec) {
+    fn set_property(&self, _id: usize, value: &Value, pspec: &ParamSpec) {
         match pspec.name() {
             super::ScrobblePage::STATUS_SUMMARY_PROPERTY => self
                 .status_summary_label
