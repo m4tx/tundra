@@ -11,3 +11,4 @@
 # Flatpak
 .flatpak-builder/
 repo/
+/flatpak-cargo-generator.py
