@@ -43,7 +43,7 @@ fn generate_mo(src_path: &Path, dest_path: &Path) {
     );
     let res = Command::new("msgfmt")
         .arg(format!("--output-file={}", file_dest_path.display()))
-        .arg(format!("{}", &src_path.to_str().unwrap()))
+        .arg(src_path.to_str().unwrap())
         .output()
         .expect("Could not execute msgfmt");
 
