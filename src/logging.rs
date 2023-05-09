@@ -1,8 +1,8 @@
+use std::sync::Mutex;
+
 use chrono::Local;
 use lazy_static::lazy_static;
-use log::{LevelFilter, SetLoggerError};
-use log::{Metadata, Record};
-use std::sync::Mutex;
+use log::{LevelFilter, Metadata, Record, SetLoggerError};
 
 struct Logger;
 

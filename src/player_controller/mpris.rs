@@ -1,5 +1,4 @@
-use dbus::arg;
-use dbus::blocking;
+use dbus::{arg, blocking};
 
 pub trait OrgMprisMediaPlayer2 {
     fn identity(&self) -> Result<String, dbus::Error>;

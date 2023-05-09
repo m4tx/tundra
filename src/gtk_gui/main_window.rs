@@ -1,7 +1,5 @@
-use crate::clients::WebsiteUrl;
 use gettextrs::gettext;
-use gio::Menu;
-use gio::SimpleAction;
+use gio::{Menu, SimpleAction};
 use glib::clone;
 use gtk::{
     gdk, Application, Button, InfoBar, Label, MenuButton, MessageType, Orientation, PopoverMenu,
@@ -10,6 +8,7 @@ use gtk::{
 use libadwaita::prelude::*;
 use libadwaita::{ApplicationWindow, HeaderBar};
 
+use crate::clients::WebsiteUrl;
 use crate::gtk_gui::login_page::LoginPage;
 use crate::gtk_gui::scrobble_page::ScrobblePage;
 

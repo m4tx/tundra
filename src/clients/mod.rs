@@ -1,5 +1,6 @@
-use async_trait::async_trait;
 use std::fmt::{Display, Formatter};
+
+use async_trait::async_trait;
 
 use crate::title_recognizer::Title;
 

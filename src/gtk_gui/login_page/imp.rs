@@ -1,7 +1,7 @@
-use gettextrs::gettext;
 use std::cell::RefCell;
 use std::rc::Rc;
 
+use gettextrs::gettext;
 use glib::subclass::Signal;
 use glib::{clone, ParamSpec, ParamSpecBoolean, ParamSpecString, Value};
 use gtk::glib;
@@ -87,9 +87,10 @@ impl LoginPage {
 
 #[glib::object_subclass]
 impl ObjectSubclass for LoginPage {
-    const NAME: &'static str = "TundraLoginPage";
-    type Type = super::LoginPage;
     type ParentType = gtk::Grid;
+    type Type = super::LoginPage;
+
+    const NAME: &'static str = "TundraLoginPage";
 }
 
 impl ObjectImpl for LoginPage {

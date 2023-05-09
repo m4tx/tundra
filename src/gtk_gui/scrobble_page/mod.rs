@@ -12,13 +12,13 @@ glib::wrapper! {
 
 #[allow(clippy::new_without_default)]
 impl ScrobblePage {
-    pub const STATUS_SUMMARY_PROPERTY: &'static str = "status-summary";
-    pub const TITLE_PROPERTY: &'static str = "title";
     pub const EPISODE_PROPERTY: &'static str = "episode";
+    pub const IMAGE_PROPERTY: &'static str = "image";
     pub const PLAYER_PROPERTY: &'static str = "player";
     pub const STATUS_PROPERTY: &'static str = "status";
+    pub const STATUS_SUMMARY_PROPERTY: &'static str = "status-summary";
+    pub const TITLE_PROPERTY: &'static str = "title";
     pub const WEBSITE_URL_PROPERTY: &'static str = "website-url";
-    pub const IMAGE_PROPERTY: &'static str = "image";
 
     pub fn new() -> Self {
         let scrobble_page: Self = Object::new::<Self>();

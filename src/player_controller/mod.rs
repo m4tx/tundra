@@ -1,11 +1,9 @@
-use anyhow::anyhow;
 use std::path::Path;
 use std::time::Duration;
 
-use dbus::blocking::Connection;
-use dbus::blocking::Proxy;
-use mpris::OrgMprisMediaPlayer2;
-use mpris::OrgMprisMediaPlayer2Player;
+use anyhow::anyhow;
+use dbus::blocking::{Connection, Proxy};
+use mpris::{OrgMprisMediaPlayer2, OrgMprisMediaPlayer2Player};
 
 mod mpris;
 

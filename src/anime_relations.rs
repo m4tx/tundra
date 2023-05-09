@@ -2,9 +2,8 @@ use std::collections::HashMap;
 use std::ops::Range;
 use std::str::FromStr;
 
-use regex::Regex;
-
 use lazy_static::lazy_static;
+use regex::Regex;
 
 #[derive(Debug, PartialEq, Eq, Hash)]
 pub enum AnimeDbs {

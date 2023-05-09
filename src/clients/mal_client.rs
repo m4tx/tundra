@@ -6,13 +6,12 @@ use std::fmt::Formatter;
 use std::str::FromStr;
 use std::sync::{Arc, RwLock};
 
-use log::info;
-use reqwest::StatusCode;
-use serde::Deserialize;
-
 use async_trait::async_trait;
 use gettextrs::gettext;
 use lazy_static::lazy_static;
+use log::info;
+use reqwest::StatusCode;
+use serde::Deserialize;
 use tokio::try_join;
 
 use crate::anime_relations::{AnimeDbs, AnimeRelations};

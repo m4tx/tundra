@@ -1,7 +1,7 @@
-use gettextrs::gettext;
 use std::cell::RefCell;
 use std::rc::Rc;
 
+use gettextrs::gettext;
 use glib::{clone, ParamSpec, ParamSpecObject, ParamSpecString, Value};
 use gtk::prelude::*;
 use gtk::subclass::prelude::*;
@@ -69,9 +69,10 @@ impl ScrobblePage {
 
 #[glib::object_subclass]
 impl ObjectSubclass for ScrobblePage {
-    const NAME: &'static str = "TundraScrobblePage";
-    type Type = super::ScrobblePage;
     type ParentType = gtk::Box;
+    type Type = super::ScrobblePage;
+
+    const NAME: &'static str = "TundraScrobblePage";
 }
 
 impl ObjectImpl for ScrobblePage {

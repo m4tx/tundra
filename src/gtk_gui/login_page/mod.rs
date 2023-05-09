@@ -12,9 +12,9 @@ glib::wrapper! {
 #[allow(clippy::new_without_default)]
 impl LoginPage {
     pub const ACTIVATE_PROPERTY: &'static str = "activate";
+    pub const PASSWORD_PROPERTY: &'static str = "password";
     pub const READY_PROPERTY: &'static str = "ready";
     pub const USERNAME_PROPERTY: &'static str = "username";
-    pub const PASSWORD_PROPERTY: &'static str = "password";
 
     pub fn new() -> Self {
         Object::new::<Self>()

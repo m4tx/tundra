@@ -5,16 +5,15 @@ use std::rc::Rc;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Arc, RwLock};
 
+use about_dialog::AboutDialog;
 use async_std::sync::Mutex;
 use gettextrs::gettext;
 use glib::clone;
 use gtk::Application;
 use libadwaita::prelude::*;
 use log::error;
-use tokio::time;
-
-use about_dialog::AboutDialog;
 use logs_window::LogsWindow;
+use tokio::time;
 
 use crate::app::PlayedTitle;
 use crate::clients::PictureUrl;
