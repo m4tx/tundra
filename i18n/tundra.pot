@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: tundra 0.3.0\n"
+"Project-Id-Version: tundra 0.4.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-01-30 22:12+0000\n"
+"POT-Creation-Date: 2023-05-09 01:07+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,11 +17,11 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: src/clients/mal_client.rs:114
+#: src/clients/mal_client.rs:113
 msgid "Could not authenticate to MyAnimeList. Make sure the username and password you entered is correct."
 msgstr ""
 
-#: src/clients/mal_client.rs:126
+#: src/clients/mal_client.rs:125
 msgid "Could not communicate with MAL: {}"
 msgstr ""
 
@@ -29,20 +29,28 @@ msgstr ""
 msgid "Sign in to MyAnimeList"
 msgstr ""
 
-#: src/gtk_gui/login_page/imp.rs:105
+#: src/gtk_gui/login_page/imp.rs:111
 msgid "Username:"
 msgstr ""
 
-#: src/gtk_gui/login_page/imp.rs:106
+#: src/gtk_gui/login_page/imp.rs:112
 msgid "Password:"
 msgstr ""
 
-#: src/gtk_gui/main_window.rs:52
+#: src/gtk_gui/logs_window.rs:22
+msgid "Tundra Logs"
+msgstr ""
+
+#: src/gtk_gui/main_window.rs:51
 msgid "Tundra"
 msgstr ""
 
-#: src/gtk_gui/main_window.rs:118
+#: src/gtk_gui/main_window.rs:117
 msgid "_Sign out"
+msgstr ""
+
+#: src/gtk_gui/main_window.rs:118
+msgid "Show _logs"
 msgstr ""
 
 #: src/gtk_gui/main_window.rs:119
@@ -57,19 +65,19 @@ msgstr ""
 msgid "Enable scrobbling"
 msgstr ""
 
-#: src/gtk_gui/scrobble_page/imp.rs:97
+#: src/gtk_gui/scrobble_page/imp.rs:99
 msgid "Title:"
 msgstr ""
 
-#: src/gtk_gui/scrobble_page/imp.rs:102
+#: src/gtk_gui/scrobble_page/imp.rs:104
 msgid "Episode:"
 msgstr ""
 
-#: src/gtk_gui/scrobble_page/imp.rs:107
+#: src/gtk_gui/scrobble_page/imp.rs:109
 msgid "Player:"
 msgstr ""
 
-#: src/gtk_gui/scrobble_page/imp.rs:112
+#: src/gtk_gui/scrobble_page/imp.rs:114
 msgid "Status:"
 msgstr ""
 
@@ -85,10 +93,10 @@ msgstr ""
 msgid "N/A"
 msgstr ""
 
-#: src/gtk_gui/mod.rs:241
+#: src/gtk_gui/mod.rs:253
 msgid "scrobbled"
 msgstr ""
 
-#: src/gtk_gui/mod.rs:243
+#: src/gtk_gui/mod.rs:255
 msgid "not yet scrobbled"
 msgstr ""
