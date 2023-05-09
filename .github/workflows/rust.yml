@@ -9,52 +9,102 @@ on:
 env:
   CARGO_TERM_COLOR: always
 
+# See: https://docs.github.com/en/actions/reference/workflow-syntax-for-github-actions#concurrency.
+# This will ensure that only one commit will be running tests at a time on each PR.
+concurrency:
+  group: ${{ github.ref }}-${{ github.workflow }}
+  cancel-in-progress: true
+
 jobs:
   build:
-    runs-on: ubuntu-22.04
-
+    strategy:
+      matrix:
+        rust: ["stable", "beta", "nightly"]
+        os: [ubuntu-latest]
+    runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v2
+      - name: Checkout source
+        uses: actions/checkout@v3
         with:
           submodules: recursive
+
       - name: Install dependencies
         run: |
           sudo apt update
           sudo apt upgrade -y
           sudo apt install -y pkg-config libdbus-1-dev libgtk-4-dev libadwaita-1-dev libnotify-dev gettext
+
+      - name: Cache Cargo registry
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+          key: ${{ runner.os }}-cargo-debug-${{ hashFiles('**/Cargo.toml') }}
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: ${{ matrix.rust }}
+
       - name: Build
-        run: cargo build --verbose
-      - name: Run tests
-        run: cargo test --verbose
+        run: cargo +${{ matrix.rust }} build
+
+      - name: Test
+        run: cargo +${{ matrix.rust }} test
 
   clippy:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
+    needs: ['build']
     steps:
-      - uses: actions/checkout@v2
+      - name: Checkout source
+        uses: actions/checkout@v3
         with:
           submodules: recursive
+
       - name: Install dependencies
         run: |
           sudo apt update
           sudo apt upgrade -y
           sudo apt install -y pkg-config libdbus-1-dev libgtk-4-dev libadwaita-1-dev libnotify-dev gettext
-      - run: rustup component add clippy
-      - uses: actions-rs/clippy-check@v1
+
+      - name: Cache Cargo registry
+        uses: actions/cache@v3
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          args: --all-features
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+          key: ${{ runner.os }}-cargo-debug-${{ hashFiles('**/Cargo.toml') }}
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@beta
+        with:
+          components: clippy
+
+      - name: Run clippy
+        run: cargo clippy -- -Dclippy::all
 
   rustfmt:
     runs-on: ubuntu-latest
+    needs: ['build']
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions-rs/toolchain@v1
+      - name: Checkout source
+        uses: actions/checkout@v3
         with:
-          toolchain: stable
-          override: true
+          submodules: recursive
+
+      - name: Cache Cargo registry
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+          key: ${{ runner.os }}-cargo-debug-${{ hashFiles('**/Cargo.toml') }}
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@nightly
+        with:
           components: rustfmt
-      - name: Run rustfmt check
-        uses: actions-rs/cargo@v1
-        with:
-          command: fmt
-          args: -- --check
+
+      - name: Run fmt
+        run: cargo fmt --all -- --check
