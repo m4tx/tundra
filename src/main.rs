@@ -60,7 +60,7 @@ async fn main() -> anyhow::Result<()> {
         app.authenticate_mal(username, password).await?;
     } else if matches.subcommand_matches("daemon").is_some() {
         app.check_mal_authenticated();
-        app.run_daemon().await?;
+        app.run_daemon().await;
     } else {
         gtk_gui::GtkApp::start(app);
     }

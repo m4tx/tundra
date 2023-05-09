@@ -2,7 +2,7 @@ use std::collections::{HashMap, HashSet};
 use std::sync::{Arc, RwLock};
 
 use anyhow::Context;
-use log::info;
+use log::{error, info};
 use notify_rust::Notification;
 use tokio::time;
 
@@ -69,12 +69,15 @@ impl TundraApp {
         }
     }
 
-    pub async fn run_daemon(&mut self) -> anyhow::Result<()> {
+    pub async fn run_daemon(&mut self) {
         let mut interval = time::interval(REFRESH_INTERVAL);
 
         loop {
             interval.tick().await;
-            self.try_scrobble().await?;
+            let scrobble_result = self.try_scrobble().await;
+            if let Err(err) = scrobble_result {
+                error!("{:?}", err);
+            }
         }
     }
 
