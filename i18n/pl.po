@@ -4,24 +4,24 @@
 # Mateusz Maćkowski <mateusz@mackowski.org>, 2022.
 # 
 # Translators:
-# Mateusz Maćkowski, 2022
+# Mateusz Maćkowski, 2023
 # 
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: tundra 0.3.0\n"
+"Project-Id-Version: tundra 0.4.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-01-30 22:12+0000\n"
+"POT-Creation-Date: 2023-05-09 01:07+0000\n"
 "PO-Revision-Date: 2022-01-29 13:00+0000\n"
-"Last-Translator: Mateusz Maćkowski, 2022\n"
-"Language-Team: Polish (https://www.transifex.com/tundra/teams/131324/pl/)\n"
+"Last-Translator: Mateusz Maćkowski, 2023\n"
+"Language-Team: Polish (https://app.transifex.com/tundra/teams/131324/pl/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Language: pl\n"
 "Plural-Forms: nplurals=4; plural=(n==1 ? 0 : (n%10>=2 && n%10<=4) && (n%100<12 || n%100>14) ? 1 : n!=1 && (n%10>=0 && n%10<=1) || (n%10>=5 && n%10<=9) || (n%100>=12 && n%100<=14) ? 2 : 3);\n"
 
-#: src/clients/mal_client.rs:114
+#: src/clients/mal_client.rs:113
 msgid ""
 "Could not authenticate to MyAnimeList. Make sure the username and password "
 "you entered is correct."
@@ -29,7 +29,7 @@ msgstr ""
 "Nie można było uwierzytelnić się z MyAnimeList. Upewnij się, że nazwa "
 "użytkownika i hasło jest poprawne."
 
-#: src/clients/mal_client.rs:126
+#: src/clients/mal_client.rs:125
 msgid "Could not communicate with MAL: {}"
 msgstr "Błąd przy komunikacji z MAL: {}"
 
@@ -37,21 +37,29 @@ msgstr "Błąd przy komunikacji z MAL: {}"
 msgid "Sign in to MyAnimeList"
 msgstr "Zaloguj się do MyAnimeList"
 
-#: src/gtk_gui/login_page/imp.rs:105
+#: src/gtk_gui/login_page/imp.rs:111
 msgid "Username:"
 msgstr "Login:"
 
-#: src/gtk_gui/login_page/imp.rs:106
+#: src/gtk_gui/login_page/imp.rs:112
 msgid "Password:"
 msgstr "Hasło:"
 
-#: src/gtk_gui/main_window.rs:52
+#: src/gtk_gui/logs_window.rs:22
+msgid "Tundra Logs"
+msgstr "Logi Tundry"
+
+#: src/gtk_gui/main_window.rs:51
 msgid "Tundra"
 msgstr "Tundra"
 
-#: src/gtk_gui/main_window.rs:118
+#: src/gtk_gui/main_window.rs:117
 msgid "_Sign out"
 msgstr "_Wyloguj"
+
+#: src/gtk_gui/main_window.rs:118
+msgid "Show _logs"
+msgstr "Pokaż _logi"
 
 #: src/gtk_gui/main_window.rs:119
 msgid "_About Tundra"
@@ -65,19 +73,19 @@ msgstr "_Zaloguj"
 msgid "Enable scrobbling"
 msgstr "Włącz scrobblowanie"
 
-#: src/gtk_gui/scrobble_page/imp.rs:97
+#: src/gtk_gui/scrobble_page/imp.rs:99
 msgid "Title:"
 msgstr "Tytuł:"
 
-#: src/gtk_gui/scrobble_page/imp.rs:102
+#: src/gtk_gui/scrobble_page/imp.rs:104
 msgid "Episode:"
 msgstr "Odcinek:"
 
-#: src/gtk_gui/scrobble_page/imp.rs:107
+#: src/gtk_gui/scrobble_page/imp.rs:109
 msgid "Player:"
 msgstr "Odtwarzacz:"
 
-#: src/gtk_gui/scrobble_page/imp.rs:112
+#: src/gtk_gui/scrobble_page/imp.rs:114
 msgid "Status:"
 msgstr "Status:"
 
@@ -94,10 +102,10 @@ msgstr "Nie scrobbluję"
 msgid "N/A"
 msgstr "N/D"
 
-#: src/gtk_gui/mod.rs:241
+#: src/gtk_gui/mod.rs:253
 msgid "scrobbled"
 msgstr "przescrobblowane"
 
-#: src/gtk_gui/mod.rs:243
+#: src/gtk_gui/mod.rs:255
 msgid "not yet scrobbled"
 msgstr "nieprzescrobblowane"
