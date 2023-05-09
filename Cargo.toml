@@ -42,3 +42,4 @@ bytes = "1.4.0"
 percent-encoding = "2.2.0"
 edit-distance = "2.1.0"
 gettext-rs = { version = "0.7.0", features = ["gettext-system"] }
+anyhow = "1.0.71"

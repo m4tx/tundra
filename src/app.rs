@@ -1,6 +1,7 @@
 use std::collections::{HashMap, HashSet};
 use std::sync::{Arc, RwLock};
 
+use anyhow::Context;
 use log::info;
 use notify_rust::Notification;
 use tokio::time;
@@ -31,7 +32,7 @@ pub struct TundraApp {
 }
 
 impl TundraApp {
-    pub fn init() -> Result<Self, Box<dyn std::error::Error>> {
+    pub fn init() -> anyhow::Result<Self> {
         let config = Arc::new(RwLock::new(Config::load()));
         let anime_relations = Arc::new(AnimeRelations::new());
         let player_controller = PlayerController::new()?;
@@ -49,11 +50,7 @@ impl TundraApp {
         })
     }
 
-    pub async fn authenticate_mal(
-        &mut self,
-        username: &str,
-        password: &str,
-    ) -> Result<(), Box<dyn std::error::Error>> {
+    pub async fn authenticate_mal(&mut self, username: &str, password: &str) -> anyhow::Result<()> {
         self.mal_client.authenticate(username, password).await?;
         self.scrobbled_titles.clear();
         Ok(())
@@ -72,7 +69,7 @@ impl TundraApp {
         }
     }
 
-    pub async fn run_daemon(&mut self) -> Result<(), Box<dyn std::error::Error>> {
+    pub async fn run_daemon(&mut self) -> anyhow::Result<()> {
         let mut interval = time::interval(REFRESH_INTERVAL);
 
         loop {
@@ -81,9 +78,7 @@ impl TundraApp {
         }
     }
 
-    async fn get_scrobblable_title(
-        &mut self,
-    ) -> Result<Option<(Title, String, bool)>, Box<dyn std::error::Error>> {
+    async fn get_scrobblable_title(&mut self) -> anyhow::Result<Option<(Title, String, bool)>> {
         info!("Checking active players");
 
         let players = self.player_controller.get_players()?;
@@ -105,7 +100,7 @@ impl TundraApp {
     fn check_player(
         title_recognizer: &mut TitleRecognizer,
         player: &Player,
-    ) -> Result<Option<Title>, Box<dyn std::error::Error>> {
+    ) -> anyhow::Result<Option<Title>> {
         if player.is_currently_playing()? {
             let title = player.title_played().ok();
             let filename = player.filename_played().ok();
@@ -117,9 +112,7 @@ impl TundraApp {
         }
     }
 
-    pub async fn get_played_title(
-        &mut self,
-    ) -> Result<Option<PlayedTitle>, Box<dyn std::error::Error>> {
+    pub async fn get_played_title(&mut self) -> anyhow::Result<Option<PlayedTitle>> {
         let result = self.get_scrobblable_title().await?;
 
         if let Some((title, player_name, should_scrobble)) = result {
@@ -141,10 +134,7 @@ impl TundraApp {
         }
     }
 
-    async fn anime_info_for_title(
-        &mut self,
-        title: Title,
-    ) -> Result<Option<AnimeInfo>, Box<dyn std::error::Error>> {
+    async fn anime_info_for_title(&mut self, title: Title) -> anyhow::Result<Option<AnimeInfo>> {
         if self.anime_info_cache.contains_key(&title) {
             return Ok(self.anime_info_cache[&title].clone());
         }
@@ -155,7 +145,7 @@ impl TundraApp {
         Ok(anime_info)
     }
 
-    pub async fn try_scrobble(&mut self) -> Result<(), Box<dyn std::error::Error>> {
+    pub async fn try_scrobble(&mut self) -> anyhow::Result<()> {
         let title = self.get_played_title().await?;
 
         if let Some(title) = title {
@@ -171,10 +161,7 @@ impl TundraApp {
         Ok(())
     }
 
-    async fn scrobble_title(
-        &mut self,
-        anime_info: &AnimeInfo,
-    ) -> Result<(), Box<dyn std::error::Error>> {
+    async fn scrobble_title(&mut self, anime_info: &AnimeInfo) -> anyhow::Result<()> {
         info!(
             "Scrobbling {} episode {} / {}",
             anime_info.title, anime_info.episode_watched, anime_info.total_episodes
@@ -192,7 +179,10 @@ impl TundraApp {
                 ))
                 .icon("dialog-information-symbolic")
                 .timeout(6000)
-                .show()?;
+                .show()
+                .with_context(|| {
+                    format!("Failed to send the notification. Is the notification daemon running?")
+                })?;
         }
 
         Ok(())

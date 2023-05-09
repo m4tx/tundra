@@ -43,13 +43,7 @@ pub struct AnimeInfo {
 
 #[async_trait]
 pub trait AnimeDbClient {
-    async fn get_anime_info(
-        &mut self,
-        title: &Title,
-    ) -> Result<Option<AnimeInfo>, Box<dyn std::error::Error>>;
+    async fn get_anime_info(&mut self, title: &Title) -> anyhow::Result<Option<AnimeInfo>>;
 
-    async fn set_title_watched(
-        &mut self,
-        anime_info: &AnimeInfo,
-    ) -> Result<bool, Box<dyn std::error::Error>>;
+    async fn set_title_watched(&mut self, anime_info: &AnimeInfo) -> anyhow::Result<bool>;
 }

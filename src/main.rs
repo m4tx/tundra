@@ -19,7 +19,7 @@ mod player_controller;
 mod title_recognizer;
 
 #[tokio::main]
-async fn main() -> Result<(), Box<dyn std::error::Error>> {
+async fn main() -> anyhow::Result<()> {
     init_logging().expect("Could not initialize logging");
     init_i18n()?;
 
@@ -68,7 +68,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     Ok(())
 }
 
-fn init_i18n() -> Result<(), Box<dyn std::error::Error>> {
+fn init_i18n() -> anyhow::Result<()> {
     let text_domain = TextDomain::new(GETTEXT_PACKAGE);
     let text_domain = if cfg!(debug_assertions) {
         let exe_path = env::current_exe()?;

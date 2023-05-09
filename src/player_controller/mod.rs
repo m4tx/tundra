@@ -1,3 +1,4 @@
+use anyhow::anyhow;
 use std::path::Path;
 use std::time::Duration;
 
@@ -8,7 +9,7 @@ use mpris::OrgMprisMediaPlayer2Player;
 
 mod mpris;
 
-type PlayerControllerResult<T> = Result<T, Box<dyn std::error::Error>>;
+type PlayerControllerResult<T> = anyhow::Result<T>;
 
 pub struct PlayerController {
     connection: Connection,
@@ -20,7 +21,7 @@ impl PlayerController {
         Ok(Self { connection })
     }
 
-    pub fn get_players(&self) -> Result<Vec<Player>, Box<dyn std::error::Error>> {
+    pub fn get_players(&self) -> anyhow::Result<Vec<Player>> {
         let proxy =
             self.connection
                 .with_proxy("org.freedesktop.DBus", "/", Duration::from_millis(5000));
@@ -60,16 +61,23 @@ impl<'a> Player<'a> {
 
     pub fn title_played(&self) -> PlayerControllerResult<String> {
         let metadata = self.dbus_proxy.metadata()?;
-        let title_value = metadata.get("xesam:title").ok_or("Title was not found")?;
-        let title: &str = title_value.0.as_str().ok_or("Title is not string")?;
+        let title_value = metadata
+            .get("xesam:title")
+            .ok_or(anyhow!("Title was not found"))?;
+        let title: &str = title_value
+            .0
+            .as_str()
+            .ok_or(anyhow!("Title is not string"))?;
 
         Ok(title.to_owned())
     }
 
     pub fn filename_played(&self) -> PlayerControllerResult<String> {
         let metadata = self.dbus_proxy.metadata()?;
-        let url_value = metadata.get("xesam:url").ok_or("URL was not found")?;
-        let url: &str = url_value.0.as_str().ok_or("URL is not string")?;
+        let url_value = metadata
+            .get("xesam:url")
+            .ok_or(anyhow!("URL was not found"))?;
+        let url: &str = url_value.0.as_str().ok_or(anyhow!("URL is not string"))?;
         let url: String = if url.starts_with("file://") {
             percent_encoding::percent_decode_str(url)
                 .decode_utf8()?
@@ -82,9 +90,9 @@ impl<'a> Player<'a> {
 
         Ok(path
             .file_name()
-            .ok_or("URL does not have a filename")?
+            .ok_or(anyhow!("URL does not have a filename"))?
             .to_str()
-            .ok_or("filename is not string")?
+            .ok_or(anyhow!("filename is not string"))?
             .to_owned())
     }
 
@@ -92,7 +100,7 @@ impl<'a> Player<'a> {
         let metadata = self.dbus_proxy.metadata()?;
         let x = metadata
             .get("mpris:length")
-            .ok_or("duration was not found")?;
+            .ok_or(anyhow!("duration was not found"))?;
         let duration_any = x.0.as_any();
 
         if let Some(duration) = duration_any.downcast_ref::<i64>() {
@@ -102,7 +110,7 @@ impl<'a> Player<'a> {
         } else if let Some(duration) = duration_any.downcast_ref::<f64>() {
             Ok(Duration::from_micros(*duration as u64))
         } else {
-            Err("duration is not integer".into())
+            Err(anyhow!("duration is not integer"))
         }
     }
 

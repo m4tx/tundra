@@ -210,7 +210,7 @@ impl GtkApp {
     async fn daemon_tick(
         app: &Arc<Mutex<TundraApp>>,
         images: &Arc<RwLock<HashMap<PictureUrl, glib::Bytes>>>,
-    ) -> Result<Option<PlayedTitle>, Box<dyn std::error::Error>> {
+    ) -> anyhow::Result<Option<PlayedTitle>> {
         let mut app = app.lock().await;
         app.try_scrobble().await?;
         let played_title = app.get_played_title().await?;
@@ -232,7 +232,7 @@ impl GtkApp {
         Ok(played_title)
     }
 
-    async fn get_picture(url: &PictureUrl) -> Result<bytes::Bytes, Box<dyn std::error::Error>> {
+    async fn get_picture(url: &PictureUrl) -> anyhow::Result<bytes::Bytes> {
         let client: reqwest::Client = reqwest::Client::builder().user_agent(USER_AGENT).build()?;
         Ok(client.get(&url.0).send().await?.bytes().await?)
     }

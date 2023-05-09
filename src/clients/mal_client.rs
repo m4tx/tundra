@@ -453,7 +453,7 @@ impl MalClient {
 
 #[async_trait]
 impl AnimeDbClient for MalClient {
-    async fn get_anime_info(&mut self, title: &Title) -> Result<Option<AnimeInfo>, Box<dyn Error>> {
+    async fn get_anime_info(&mut self, title: &Title) -> anyhow::Result<Option<AnimeInfo>> {
         if self.title_cache.contains_key(title) {
             return Ok(Some(self.title_cache[title].clone()));
         }
@@ -481,10 +481,7 @@ impl AnimeDbClient for MalClient {
         Ok(anime_info)
     }
 
-    async fn set_title_watched(
-        &mut self,
-        anime_info: &AnimeInfo,
-    ) -> Result<bool, Box<dyn std::error::Error>> {
+    async fn set_title_watched(&mut self, anime_info: &AnimeInfo) -> anyhow::Result<bool> {
         let anime_object = self.get_by_id(i64::from_str(&anime_info.id.0)?).await?;
 
         let episodes_watched = anime_object
