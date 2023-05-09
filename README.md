@@ -59,7 +59,7 @@ Flathub repo can be found here: [flathub/moe.tundra.Tundra](https://github.com/f
 
 ## Localization
 
-Tundra translation is being done on the Transifex platform. See the [Tundra project on Transifex](https://www.transifex.com/tundra/tundra/) webpage if you would like to contribute a translation for a language you know.
+Tundra translation is being done on the Transifex platform. See the [Tundra project on Transifex](https://app.transifex.com/tundra/) webpage if you would like to contribute a translation for a language you know.
 
 Currently offered languages:
 * English
