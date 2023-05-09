@@ -35,8 +35,6 @@ impl LogsWindow {
             .transient_for(application_window)
             .build();
 
-        
-
         Self { window }
     }
 

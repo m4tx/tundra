@@ -181,8 +181,7 @@ impl MalClient {
             ("password", password),
         ];
 
-        self
-            .make_auth_request(&format!("{}/auth/token", MAL_URL), &params)
+        self.make_auth_request(&format!("{}/auth/token", MAL_URL), &params)
             .await
     }
 
@@ -204,8 +203,7 @@ impl MalClient {
             ("refresh_token", &refresh_token),
         ];
 
-        self
-            .make_auth_request("https://myanimelist.net/v1/oauth2/token", &params)
+        self.make_auth_request("https://myanimelist.net/v1/oauth2/token", &params)
             .await
     }
 
