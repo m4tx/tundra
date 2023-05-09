@@ -184,7 +184,7 @@ impl TundraApp {
                 .timeout(6000)
                 .show()
                 .with_context(|| {
-                    format!("Failed to send the notification. Is the notification daemon running?")
+                    "Failed to send the notification. Is the notification daemon running?"
                 })?;
         }
 
