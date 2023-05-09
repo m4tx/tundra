@@ -181,9 +181,9 @@ impl MalClient {
             ("password", password),
         ];
 
-        Ok(self
+        self
             .make_auth_request(&format!("{}/auth/token", MAL_URL), &params)
-            .await?)
+            .await
     }
 
     fn access_token(&self) -> String {
@@ -204,9 +204,9 @@ impl MalClient {
             ("refresh_token", &refresh_token),
         ];
 
-        Ok(self
+        self
             .make_auth_request("https://myanimelist.net/v1/oauth2/token", &params)
-            .await?)
+            .await
     }
 
     pub async fn make_auth_request(
@@ -246,11 +246,11 @@ impl MalClient {
 
         if response.status() == StatusCode::UNAUTHORIZED {
             self.refresh_auth().await?;
-            return Ok(request_copy
+            Ok(request_copy
                 .header("Authorization", format!("Bearer {}", self.access_token()))
                 .send()
                 .await?
-                .error_for_status()?);
+                .error_for_status()?)
         } else {
             Ok(response.error_for_status()?)
         }

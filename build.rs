@@ -25,7 +25,7 @@ fn generate_translation_files() {
 
     for existing_file in existing_iter {
         let file = existing_file.unwrap();
-        generate_mo(&file.path(), &mut dest_path)
+        generate_mo(&file.path(), &dest_path)
     }
 }
 

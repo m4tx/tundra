@@ -43,8 +43,7 @@ impl TitleRecognizer {
     pub fn recognize(&mut self, title: Option<&str>, filename: Option<&str>) -> Option<Title> {
         self.recognizers
             .iter_mut()
-            .map(|x| x.recognize(title, filename))
-            .filter_map(|x| x)
+            .filter_map(|x| x.recognize(title, filename))
             .next()
     }
 }

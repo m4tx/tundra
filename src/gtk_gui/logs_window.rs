@@ -35,9 +35,9 @@ impl LogsWindow {
             .transient_for(application_window)
             .build();
 
-        let logs_window = Self { window };
+        
 
-        logs_window
+        Self { window }
     }
 
     fn make_text_view() -> ScrolledWindow {
@@ -48,7 +48,7 @@ impl LogsWindow {
 
         let text_view = TextView::new();
 
-        let buffer = TextBuffer::builder().text(&logs_str).build();
+        let buffer = TextBuffer::builder().text(logs_str).build();
 
         text_view.set_buffer(Some(&buffer));
         text_view.set_editable(false);

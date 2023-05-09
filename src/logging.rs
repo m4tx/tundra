@@ -49,5 +49,5 @@ pub fn init_logging() -> Result<(), SetLoggerError> {
 }
 
 pub fn get_logs() -> &'static Mutex<Vec<String>> {
-    &*LOGS
+    &LOGS
 }
