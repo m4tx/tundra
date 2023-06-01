@@ -26,7 +26,7 @@ serde_json = "1.0.96"
 async-trait = "0.1.68"
 directories = "5.0.1"
 toml = "0.7.3"
-regex = "1.8.1"
+regex = "1.8.3"
 lazy_static = "1.4.0"
 notify-rust = { version = "4.8.0", default-features = false, features = ["d"] }
 clap = "4.2.7"
