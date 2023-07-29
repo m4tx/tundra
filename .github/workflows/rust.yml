@@ -77,9 +77,10 @@ jobs:
           key: ${{ runner.os }}-cargo-debug-${{ hashFiles('**/Cargo.toml') }}
 
       - name: Install Rust toolchain
-        uses: dtolnay/rust-toolchain@beta
+        uses: dtolnay/rust-toolchain@master
         with:
           components: clippy
+          toolchain: nightly
 
       - name: Run clippy
         run: cargo clippy -- -Dclippy::all
