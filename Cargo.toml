@@ -22,7 +22,7 @@ anitomy = "0.1.2"
 reqwest = { version = "0.11.18", features = ["json"] }
 tokio = { version = "1.29.1", features = ["macros", "rt", "rt-multi-thread", "time"] }
 serde = { version = "1.0.188", features = ["derive"] }
-serde_json = "1.0.104"
+serde_json = "1.0.105"
 async-trait = "0.1.72"
 directories = "5.0.1"
 toml = "0.7.6"
