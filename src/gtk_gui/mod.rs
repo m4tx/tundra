@@ -105,7 +105,7 @@ impl GtkApp {
     fn start_main(&mut self) {
         self.run_daemon();
 
-        let (tx, rx) = glib::MainContext::channel(glib::PRIORITY_DEFAULT);
+        let (tx, rx) = glib::MainContext::channel(glib::Priority::DEFAULT);
         let app = self.app.clone();
         tokio::spawn(async move {
             let app = app.lock().await;
@@ -120,7 +120,7 @@ impl GtkApp {
             }
             this.main_window.show();
 
-            glib::Continue(true)
+            glib::ControlFlow::Continue
         });
     }
 
@@ -146,7 +146,7 @@ impl GtkApp {
 
         self.main_window.set_sign_in_page_loading(true);
 
-        let (tx, rx) = glib::MainContext::channel(glib::PRIORITY_DEFAULT);
+        let (tx, rx) = glib::MainContext::channel(glib::Priority::DEFAULT);
         let app = self.app.clone();
         tokio::spawn(async move {
             let mut app = app.lock().await;
@@ -166,7 +166,7 @@ impl GtkApp {
                 this.switch_to_scrobble_page();
             }
 
-            glib::Continue(true)
+            glib::ControlFlow::Continue
         });
     }
 
@@ -174,7 +174,7 @@ impl GtkApp {
         let app = self.app.clone();
         let images = self.images.clone();
         let scrobbling_enabled = self.scrobbling_enabled.clone();
-        let (tx, rx) = glib::MainContext::channel(glib::PRIORITY_DEFAULT);
+        let (tx, rx) = glib::MainContext::channel(glib::Priority::DEFAULT);
         tokio::spawn(async move {
             let mut interval = time::interval(REFRESH_INTERVAL);
 
@@ -202,7 +202,7 @@ impl GtkApp {
         rx.attach(None, move |result| {
             Self::handle_ui_daemon_tick(&result, &main_window, &images, &current_image_url);
 
-            glib::Continue(true)
+            glib::ControlFlow::Continue
         });
     }
 

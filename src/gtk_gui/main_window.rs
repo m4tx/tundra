@@ -199,7 +199,7 @@ impl MainWindow {
         self.enable_switch.connect_state_set(move |_, state| {
             f(state);
 
-            gtk::Inhibit(false)
+            glib::Propagation::Proceed
         });
     }
 
