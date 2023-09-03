@@ -137,7 +137,7 @@ impl MainWindow {
     fn make_enable_switch() -> Switch {
         let enable_switch = Switch::new();
         enable_switch.set_tooltip_text(Some(&gettext("Enable scrobbling")));
-        enable_switch.set_state(true);
+        enable_switch.set_active(true);
         enable_switch
     }
 
