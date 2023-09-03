@@ -30,6 +30,14 @@
     -->
     <content_rating type="oars-1.1"/>
     <releases>
+        <release version="0.4.2" date="2023-09-03">
+            <description>
+                <ul>
+                    <li>Fix enable switch initial state</li>
+                    <li>Bump dependencies</li>
+                </ul>
+            </description>
+        </release>
         <release version="0.4.1" date="2023-07-29">
             <description>
                 <ul>
