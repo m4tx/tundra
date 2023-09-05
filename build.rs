@@ -16,7 +16,7 @@ fn generate_translation_files() {
 
     println!("Creating directory: {:?}", &dest_path);
     let _ = fs::remove_dir_all(&dest_path);
-    fs::create_dir(&dest_path).expect("Could not create translations directory");
+    fs::create_dir_all(&dest_path).expect("Could not create translations directory");
 
     println!("cargo:rerun-if-changed={}", I18N_DIR);
     let existing_iter = fs::read_dir(I18N_DIR)
