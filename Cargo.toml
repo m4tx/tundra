@@ -1,6 +1,6 @@
 [package]
 name = "tundra"
-version = "0.4.2"
+version = "0.4.3"
 authors = ["Mateusz Maćkowski <mateusz@mackowski.org>"]
 edition = "2021"
 
