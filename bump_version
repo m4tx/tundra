@@ -1,0 +1,18 @@
+#!/bin/bash
+
+if [ "$#" -ne 1 ]; then
+    echo "Usage: $0 <new_version>"
+    exit 1
+fi
+
+NEW_VERSION=$1
+shift
+
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+cd "${SCRIPT_DIR}" || exit
+
+sed -i "s/^version = \".*\"/version = \"${NEW_VERSION}\"/" Cargo.toml
+cargo update
+# Add flatpak-cargo-generator.py to your $PATH if you don't have it already
+# https://github.com/flatpak/flatpak-builder-tools/blob/master/cargo/flatpak-cargo-generator.py
+flatpak-cargo-generator.py ./Cargo.lock -o cargo-sources.json
