@@ -31,7 +31,7 @@ lazy_static = "1.4.0"
 notify-rust = { version = "4.9.0", default-features = false, features = ["d"] }
 clap = "4.4.2"
 log = "0.4.20"
-chrono = "0.4.28"
+chrono = "0.4.30"
 gtk = { package = "gtk4", version = "0.7.2" }
 libadwaita = "0.5.2"
 once_cell = "1.18.0"
