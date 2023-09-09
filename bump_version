@@ -1,18 +1,42 @@
 #!/bin/bash
 
-if [ "$#" -ne 1 ]; then
-    echo "Usage: $0 <new_version>"
+set -e
+
+function check_prog {
+  if ! hash "$1" >/dev/null 2>&1; then
+    echo "Command not found: $1.$2 Aborting..."
     exit 1
+  fi
+}
+
+function check_git_clean {
+  if [ -n "$(git status --porcelain)" ]; then
+    echo "git working directory not clean. Aborting..."
+    exit 1
+  fi
+}
+
+if [ "$#" -ne 1 ]; then
+  echo "Usage: $0 <new_version>"
+  exit 1
 fi
+
+check_prog flatpak-cargo-generator.py " Please get it from https://github.com/flatpak/flatpak-builder-tools/blob/master/cargo/flatpak-cargo-generator.py and put it in your \$PATH."
+check_git_clean
 
 NEW_VERSION=$1
 shift
 
-SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
-cd "${SCRIPT_DIR}" || exit
+SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)
+cd "${SCRIPT_DIR}"
 
 sed -i "s/^version = \".*\"/version = \"${NEW_VERSION}\"/" Cargo.toml
 cargo update
-# Add flatpak-cargo-generator.py to your $PATH if you don't have it already
-# https://github.com/flatpak/flatpak-builder-tools/blob/master/cargo/flatpak-cargo-generator.py
 flatpak-cargo-generator.py ./Cargo.lock -o cargo-sources.json
+
+TAG_NAME="v${NEW_VERSION}"
+git add Cargo.toml Cargo.lock cargo-sources.json
+git commit -m "chore: bump version to ${NEW_VERSION}"
+git tag "$TAG_NAME"
+git push origin
+git push origin "$TAG_NAME"
