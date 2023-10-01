@@ -470,9 +470,9 @@ impl AnimeDbClient for MalClient {
             }
         });
 
-        if anime_info.is_some() {
+        if let Some(anime_info_val) = &anime_info {
             self.title_cache
-                .insert(title.clone(), anime_info.as_ref().unwrap().clone());
+                .insert(title.clone(), anime_info_val.clone());
         }
 
         Ok(anime_info)
