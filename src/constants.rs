@@ -11,7 +11,11 @@ pub const APP_COPYRIGHT: &str = "© 2020-2023 Mateusz Maćkowski";
 pub const GETTEXT_PACKAGE: &str = "tundra";
 
 pub const USER_AGENT: &str = concat!(env!("CARGO_PKG_NAME"), "/", env!("CARGO_PKG_VERSION"));
-pub const MAL_CLIENT_ID: &str = "6114d00ca681b7701d1e15fe11a4987e";
+
+pub const MAL_URL: &str = "https://api.myanimelist.net/v2";
+pub const MAL_CLIENT_ID: &str = "61c9c7ae268592c2bbe6196c4c1d8aea";
+pub const MAL_AUTH_URL: &str = "https://myanimelist.net/v1/oauth2/authorize";
+pub const MAL_TOKEN_URL: &str = "https://myanimelist.net/v1/oauth2/token";
 
 // Check players every REFRESH_INTERVAL seconds
 pub const REFRESH_INTERVAL: Duration = if cfg!(debug_assertions) {

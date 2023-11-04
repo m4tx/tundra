@@ -29,10 +29,10 @@ The usage is very simple:
 Tundra has CLI interface as well. First, you need to authenticate:
 
 ```
-tundra authenticate <username> <password>
+tundra authenticate
 ```
 
-Then, you can run Tundra as a daemon:
+This will display a URL which you will need to open and then sign in to your MyAnimeList account. Then, you can run Tundra as a daemon:
 
 ```
 tundra daemon

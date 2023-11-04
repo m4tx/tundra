@@ -5,6 +5,7 @@ use async_trait::async_trait;
 use crate::title_recognizer::Title;
 
 pub mod mal_client;
+pub mod oauth2_helper;
 
 #[derive(Clone, Debug, Default, Eq, Hash, PartialEq)]
 pub struct AnimeId(pub String);

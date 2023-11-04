@@ -7,7 +7,7 @@ use notify_rust::Notification;
 use tokio::time;
 
 use crate::anime_relations::AnimeRelations;
-use crate::clients::mal_client::MalClient;
+use crate::clients::mal_client::{MalAuthenticator, MalClient, MalClientResult};
 use crate::clients::{AnimeDbClient, AnimeInfo};
 use crate::config::Config;
 use crate::constants::REFRESH_INTERVAL;
@@ -50,10 +50,21 @@ impl TundraApp {
         })
     }
 
-    pub async fn authenticate_mal(&mut self, username: &str, password: &str) -> anyhow::Result<()> {
-        self.mal_client.authenticate(username, password).await?;
-        self.scrobbled_titles.clear();
+    pub async fn authenticate_mal_cli(&mut self) -> anyhow::Result<()> {
+        let authenticator = self.start_mal_authentication().await?;
+        info!(
+            "Visit this website to authenticate: {}",
+            authenticator.get_auth_url()
+        );
+        authenticator.wait_for_auth().await?;
+        info!("Successfully authenticated!");
+
         Ok(())
+    }
+
+    pub async fn start_mal_authentication(&mut self) -> MalClientResult<MalAuthenticator> {
+        self.scrobbled_titles.clear();
+        self.mal_client.start_authentication().await
     }
 
     pub fn is_mal_authenticated(&self) -> bool {

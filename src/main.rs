@@ -1,6 +1,6 @@
 use std::env;
 
-use clap::{Arg, Command};
+use clap::Command;
 use gettextrs::TextDomain;
 use log::info;
 
@@ -31,17 +31,7 @@ async fn main() -> anyhow::Result<()> {
             Command::new("authenticate")
                 .about("Sign in to MyAnimeList")
                 .version(APP_VERSION)
-                .author(APP_AUTHORS)
-                .arg(
-                    Arg::new("username")
-                        .required(true)
-                        .help("MyAnimeList username"),
-                )
-                .arg(
-                    Arg::new("password")
-                        .required(true)
-                        .help("MyAnimeList password"),
-                ),
+                .author(APP_AUTHORS),
         )
         .subcommand(
             Command::new("daemon")
@@ -53,11 +43,8 @@ async fn main() -> anyhow::Result<()> {
 
     let mut app = TundraApp::init()?;
 
-    if let Some(matches) = matches.subcommand_matches("authenticate") {
-        let username = matches.get_one::<String>("username").unwrap();
-        let password = matches.get_one::<String>("password").unwrap();
-
-        app.authenticate_mal(username, password).await?;
+    if matches.subcommand_matches("authenticate").is_some() {
+        app.authenticate_mal_cli().await?;
     } else if matches.subcommand_matches("daemon").is_some() {
         app.check_mal_authenticated();
         app.run_daemon().await;

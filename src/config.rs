@@ -5,12 +5,12 @@ use directories::ProjectDirs;
 use log::warn;
 use serde::{Deserialize, Serialize};
 
-#[derive(Deserialize, Default, Serialize)]
+#[derive(Debug, Deserialize, Default, Serialize)]
 pub struct Config {
     pub mal: MALConfig,
 }
 
-#[derive(Deserialize, Default, Serialize)]
+#[derive(Debug, Deserialize, Default, Serialize)]
 pub struct MALConfig {
     pub access_token: String,
     pub refresh_token: String,

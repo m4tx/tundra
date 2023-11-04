@@ -15,12 +15,14 @@ use serde::Deserialize;
 use tokio::try_join;
 
 use crate::anime_relations::{AnimeDbs, AnimeRelations};
+use crate::clients::oauth2_helper::{
+    OAuth2CodeReceiver, OAuth2FlowError, OAuth2Helper, PkceCodeChallengeType,
+};
 use crate::clients::{AnimeDbClient, AnimeId, AnimeInfo, PictureUrl, WebsiteUrl};
 use crate::config::Config;
-use crate::constants::{MAL_CLIENT_ID, USER_AGENT};
+use crate::constants::{MAL_AUTH_URL, MAL_CLIENT_ID, MAL_TOKEN_URL, MAL_URL, USER_AGENT};
 use crate::title_recognizer::Title;
 
-static MAL_URL: &str = "https://api.myanimelist.net/v2";
 static CLIENT_ID_HEADER: &str = "X-MAL-Client-ID";
 
 #[derive(Clone, Debug, Deserialize)]
@@ -98,13 +100,20 @@ pub struct MalClient {
 
 #[derive(Debug)]
 pub enum MalClientError {
-    HttpClientError(reqwest::Error),
-    AuthenticationError(reqwest::Error),
+    OAuth2Authentication(OAuth2FlowError),
+    HttpClient(reqwest::Error),
+    Authentication(reqwest::Error),
 }
 
 impl From<reqwest::Error> for MalClientError {
     fn from(e: reqwest::Error) -> Self {
-        MalClientError::HttpClientError(e)
+        MalClientError::HttpClient(e)
+    }
+}
+
+impl From<OAuth2FlowError> for MalClientError {
+    fn from(e: OAuth2FlowError) -> Self {
+        MalClientError::OAuth2Authentication(e)
     }
 }
 
@@ -118,14 +127,17 @@ lazy_static! {
 impl fmt::Display for MalClientError {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         match self {
-            MalClientError::HttpClientError(error) => {
+            MalClientError::OAuth2Authentication(_) => {
+                write!(f, "{}", *AUTHENTICATION_ERROR_STRING)
+            }
+            MalClientError::HttpClient(error) => {
                 write!(
                     f,
                     "{}",
                     gettext!("Could not communicate with MAL: {}", error)
                 )
             }
-            MalClientError::AuthenticationError(_) => {
+            MalClientError::Authentication(_) => {
                 write!(f, "{}", *AUTHENTICATION_ERROR_STRING)
             }
         }
@@ -135,8 +147,9 @@ impl fmt::Display for MalClientError {
 impl std::error::Error for MalClientError {
     fn source(&self) -> Option<&(dyn Error + 'static)> {
         match self {
-            MalClientError::HttpClientError(error) => Some(error),
-            MalClientError::AuthenticationError(error) => Some(error),
+            MalClientError::OAuth2Authentication(error) => Some(error),
+            MalClientError::HttpClient(error) => Some(error),
+            MalClientError::Authentication(error) => Some(error),
         }
     }
 }
@@ -170,18 +183,8 @@ impl MalClient {
         })
     }
 
-    pub async fn authenticate(&self, username: &str, password: &str) -> MalClientResult<()> {
-        info!("Authenticating with MAL");
-
-        let params = vec![
-            ("client_id", MAL_CLIENT_ID),
-            ("grant_type", "password"),
-            ("username", username),
-            ("password", password),
-        ];
-
-        self.make_auth_request(&format!("{}/auth/token", MAL_URL), &params)
-            .await
+    pub async fn start_authentication(&self) -> MalClientResult<MalAuthenticator> {
+        MalAuthenticator::start_authentication(self.config.clone()).await
     }
 
     fn access_token(&self) -> String {
@@ -216,7 +219,7 @@ impl MalClient {
             .send()
             .await?
             .error_for_status()
-            .map_err(MalClientError::AuthenticationError)?;
+            .map_err(MalClientError::Authentication)?;
 
         let response_data: AuthenticationResponse = response
             .error_for_status()?
@@ -494,5 +497,48 @@ impl AnimeDbClient for MalClient {
         } else {
             Ok(false)
         }
+    }
+}
+
+#[derive(Debug)]
+pub struct MalAuthenticator {
+    oauth2_receiver: OAuth2CodeReceiver,
+    config: Arc<RwLock<Config>>,
+}
+
+impl MalAuthenticator {
+    pub async fn start_authentication(config: Arc<RwLock<Config>>) -> MalClientResult<Self> {
+        let oauth2_receiver = Self::create_oauth2_helper().start_auth().await?;
+        Ok(Self {
+            oauth2_receiver,
+            config,
+        })
+    }
+
+    pub fn get_auth_url(&self) -> String {
+        self.oauth2_receiver.auth_url().to_string()
+    }
+
+    pub async fn wait_for_auth(self) -> MalClientResult<()> {
+        let token = self.oauth2_receiver.wait_for_code().await?;
+
+        let mut config = self.config.write().unwrap();
+        config.mal.access_token = token.access_token.secret().to_owned();
+        config.mal.refresh_token = token
+            .refresh_token
+            .expect("Refresh token not provided by the MAL server")
+            .secret()
+            .to_owned();
+        config.save();
+
+        Ok(())
+    }
+
+    fn create_oauth2_helper() -> OAuth2Helper {
+        OAuth2Helper::new()
+            .set_client_id(MAL_CLIENT_ID.to_string())
+            .set_auth_url(MAL_AUTH_URL.to_string())
+            .set_token_url(MAL_TOKEN_URL.to_string())
+            .set_pkce_code_challenge_type(PkceCodeChallengeType::Plain)
     }
 }

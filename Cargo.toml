@@ -44,3 +44,7 @@ percent-encoding = "2.3.0"
 edit-distance = "2.1.0"
 gettext-rs = { version = "0.7.0", features = ["gettext-system"] }
 anyhow = "1.0.75"
+oauth2 = { version = "4.4.2", features = ["pkce-plain"] }
+axum = "0.6.20"
+hyper = "0.14.27"
+url = "2.4.1"

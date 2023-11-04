@@ -9,9 +9,9 @@ use about_dialog::AboutDialog;
 use async_std::sync::Mutex;
 use gettextrs::gettext;
 use glib::clone;
-use gtk::Application;
+use gtk::{gdk, Application};
 use libadwaita::prelude::*;
-use log::error;
+use log::{error, info};
 use logs_window::LogsWindow;
 use tokio::time;
 
@@ -26,6 +26,19 @@ mod login_page;
 mod logs_window;
 mod main_window;
 mod scrobble_page;
+
+macro_rules! try_tx {
+    ($tx:ident, $expr:expr $(,)?) => {
+        match $expr {
+            std::result::Result::Ok(val) => val,
+            std::result::Result::Err(err) => {
+                $tx.send(std::result::Result::Err(err))
+                    .expect("Couldn't send data to channel");
+                return;
+            }
+        }
+    };
+}
 
 #[derive(Clone)]
 pub struct GtkApp {
@@ -117,6 +130,8 @@ impl GtkApp {
         rx.attach(None, move |is_mal_authenticated| {
             if is_mal_authenticated {
                 this.switch_to_scrobble_page();
+            } else {
+                this.switch_to_sign_in_page();
             }
             this.main_window.show();
 
@@ -129,7 +144,7 @@ impl GtkApp {
     }
 
     fn switch_to_sign_in_page(&self) {
-        self.main_window.switch_to_sign_in_page();
+        self.main_window.switch_to_login_page();
         self.set_scrobbling_enabled(false);
     }
 
@@ -139,31 +154,39 @@ impl GtkApp {
     }
 
     fn sign_in(&mut self) {
-        let (username, password) = self.main_window.login_data();
-        if username.is_empty() || password.is_empty() {
-            return;
-        }
-
-        self.main_window.set_sign_in_page_loading(true);
+        self.main_window.set_login_page_loading(true);
 
         let (tx, rx) = glib::MainContext::channel(glib::Priority::DEFAULT);
         let app = self.app.clone();
         tokio::spawn(async move {
             let mut app = app.lock().await;
-            let result = app.authenticate_mal(&username, &password).await;
+            let authenticator = try_tx!(tx, app.start_mal_authentication().await);
+            tx.send(Ok(LoginAction::OpenBrowser(authenticator.get_auth_url())))
+                .expect("Couldn't send data to channel");
+            try_tx!(tx, authenticator.wait_for_auth().await);
 
-            let new_result = result.map_err(|x| x.to_string());
-
-            tx.send(new_result).expect("Couldn't send data to channel");
+            tx.send(Ok(LoginAction::LoggedIn))
+                .expect("Couldn't send data to channel");
         });
 
         let this = self.clone();
         rx.attach(None, move |result| {
-            this.main_window.set_sign_in_page_loading(false);
-            if let Err(error_string) = result {
-                this.main_window.show_error(&error_string);
-            } else {
-                this.switch_to_scrobble_page();
+            match result {
+                Ok(login_action) => match login_action {
+                    LoginAction::LoggedIn => {
+                        this.main_window.set_login_page_loading(false);
+                        this.switch_to_scrobble_page()
+                    }
+                    LoginAction::OpenBrowser(url) => {
+                        info!("Authentication URL: {}", url);
+                        this.main_window.show_info(&gettext("Your web browser has been launched. Please sign in to MyAnimeList and then return to Tundra."));
+                        gtk::show_uri(gtk::Window::NONE, &url, gdk::CURRENT_TIME)
+                    }
+                },
+                Err(error_string) => {
+                    this.main_window.set_login_page_loading(false);
+                    this.main_window.show_error(&error_string.to_string());
+                }
             }
 
             glib::ControlFlow::Continue
@@ -276,4 +299,10 @@ impl GtkApp {
             current_image_url.replace(PictureUrl::default());
         }
     }
+}
+
+#[derive(Debug, Clone)]
+enum LoginAction {
+    LoggedIn,
+    OpenBrowser(String),
 }

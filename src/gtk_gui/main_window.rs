@@ -2,8 +2,8 @@ use gettextrs::gettext;
 use gio::{Menu, SimpleAction};
 use glib::clone;
 use gtk::{
-    gdk, Application, Button, InfoBar, Label, MenuButton, MessageType, Orientation, PopoverMenu,
-    Stack, StackTransitionType, Switch,
+    gdk, Application, InfoBar, Label, MenuButton, MessageType, Orientation, PopoverMenu, Stack,
+    StackTransitionType, Switch,
 };
 use libadwaita::prelude::*;
 use libadwaita::{ApplicationWindow, HeaderBar};
@@ -16,7 +16,6 @@ pub struct MainWindow {
     app: Application,
     window: ApplicationWindow,
     enable_switch: gtk::Switch,
-    sign_in_button: gtk::Button,
     overflow_button: gtk::MenuButton,
     info_bar: gtk::InfoBar,
     info_bar_text: gtk::Label,
@@ -45,14 +44,12 @@ impl MainWindow {
 
         let enable_switch = Self::make_enable_switch();
         let overflow_button = Self::make_overflow_button();
-        let sign_in_button = Self::make_sign_in_button();
 
         let header_bar = HeaderBar::builder()
             .title_widget(&libadwaita::WindowTitle::new(&gettext("Tundra"), ""))
             .build();
         header_bar.pack_start(&enable_switch);
         header_bar.pack_end(&overflow_button);
-        header_bar.pack_end(&sign_in_button);
 
         let window_content = gtk::Box::new(Orientation::Vertical, 0);
         window_content.append(&header_bar);
@@ -71,14 +68,12 @@ impl MainWindow {
             info_bar,
             info_bar_text,
             enable_switch,
-            sign_in_button,
             overflow_button,
             main_stack,
             login_page,
             scrobble_page,
         };
 
-        main_window.connect_signals();
         main_window.set_anime_info_none();
 
         main_window
@@ -93,7 +88,6 @@ impl MainWindow {
     fn make_info_bar() -> (InfoBar, Label) {
         let info_bar = InfoBar::new();
         info_bar.set_show_close_button(true);
-        info_bar.set_message_type(MessageType::Error);
         info_bar.set_revealed(false);
         info_bar.connect_response(|bar, response| {
             if response == gtk::ResponseType::Close {
@@ -126,26 +120,11 @@ impl MainWindow {
         overflow_button
     }
 
-    fn make_sign_in_button() -> Button {
-        let sign_in_button = Button::with_mnemonic(&gettext("_Sign in"));
-        sign_in_button.set_receives_default(true);
-        sign_in_button.style_context().add_class("suggested-action");
-
-        sign_in_button
-    }
-
     fn make_enable_switch() -> Switch {
         let enable_switch = Switch::new();
         enable_switch.set_tooltip_text(Some(&gettext("Enable scrobbling")));
         enable_switch.set_active(true);
         enable_switch
-    }
-
-    fn connect_signals(&self) {
-        self.login_page
-            .bind_property(LoginPage::READY_PROPERTY, &self.sign_in_button, "sensitive")
-            .flags(glib::BindingFlags::SYNC_CREATE)
-            .build();
     }
 
     pub fn connect_quit<F: Fn() + 'static>(&self, f: F) {
@@ -186,10 +165,6 @@ impl MainWindow {
     }
 
     pub fn connect_sign_in<F: Fn() + Clone + 'static>(&self, f: F) {
-        self.sign_in_button
-            .connect_clicked(clone!(@strong f => move |_| {
-                f();
-            }));
         self.login_page.connect_activate(move || {
             f();
         });
@@ -207,30 +182,33 @@ impl MainWindow {
         self.enable_switch.state()
     }
 
-    pub fn set_sign_in_page_loading(&self, loading: bool) {
+    pub fn set_login_page_loading(&self, loading: bool) {
         self.login_page.set_sensitive(!loading);
-        self.sign_in_button.set_sensitive(!loading);
+    }
+
+    pub fn show_info(&self, error_string: &str) {
+        self.info_bar_text.set_text(error_string);
+        self.info_bar.set_message_type(MessageType::Info);
+        self.info_bar.set_revealed(true);
     }
 
     pub fn show_error(&self, error_string: &str) {
         self.info_bar_text.set_text(error_string);
+        self.info_bar.set_message_type(MessageType::Error);
         self.info_bar.set_revealed(true);
     }
 
     pub fn switch_to_scrobble_page(&self) {
         self.main_stack.set_visible_child(&self.scrobble_page);
-        self.sign_in_button.hide();
         self.enable_switch.show();
         self.overflow_button.show();
         self.info_bar.set_revealed(false);
     }
 
-    pub fn switch_to_sign_in_page(&self) {
+    pub fn switch_to_login_page(&self) {
         self.main_stack.set_visible_child(&self.login_page);
-        self.sign_in_button.show();
         self.enable_switch.hide();
         self.overflow_button.hide();
-        self.login_page.reset();
         self.info_bar.set_revealed(false);
     }
 
@@ -261,10 +239,6 @@ impl MainWindow {
 
     pub fn set_anime_info_none(&self) {
         self.scrobble_page.set_anime_info_none();
-    }
-
-    pub fn login_data(&self) -> (String, String) {
-        (self.login_page.username(), self.login_page.password())
     }
 
     pub fn show(&self) {
