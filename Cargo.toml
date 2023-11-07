@@ -21,7 +21,7 @@ dbus = "0.9.7"
 anitomy = "0.1.2"
 reqwest = { version = "0.11.22", features = ["json"] }
 tokio = { version = "1.33.0", features = ["macros", "rt", "rt-multi-thread", "time"] }
-serde = { version = "1.0.190", features = ["derive"] }
+serde = { version = "1.0.192", features = ["derive"] }
 serde_json = "1.0.108"
 async-trait = "0.1.74"
 directories = "5.0.1"
