@@ -30,6 +30,15 @@
     -->
     <content_rating type="oars-1.1"/>
     <releases>
+        <release version="0.5.0" date="2023-11-07">
+            <description>
+                <ul>
+                    <li>Use OAuth2 to sign into MyAnimeList</li>
+                    <li>Bump dependencies</li>
+                    <li>Update anime relations to the latest version</li>
+                </ul>
+            </description>
+        </release>
         <release version="0.4.3" date="2023-09-07">
             <description>
                 <ul>
