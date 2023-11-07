@@ -17,19 +17,19 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: src/clients/mal_client.rs:122 src/clients/mal_client.rs:122 src/clients/mal_client.rs:122
-msgid "Could not authenticate to MyAnimeList. Make sure the username and password you entered is correct."
+#: src/clients/mal_client.rs:120 src/clients/mal_client.rs:120 src/clients/mal_client.rs:120
+msgid "Could not authenticate to MyAnimeList: {}"
 msgstr ""
 
-#: src/clients/mal_client.rs:137 src/clients/mal_client.rs:137 src/clients/mal_client.rs:137
+#: src/clients/mal_client.rs:127 src/clients/mal_client.rs:127 src/clients/mal_client.rs:127
 msgid "Could not communicate with MAL: {}"
 msgstr ""
 
-#: src/clients/oauth2_helper.rs:429 src/clients/oauth2_helper.rs:429 src/clients/oauth2_helper.rs:429
+#: src/clients/oauth2_helper.rs:463 src/clients/oauth2_helper.rs:463 src/clients/oauth2_helper.rs:463
 msgid "Tundra authentication"
 msgstr ""
 
-#: src/clients/oauth2_helper.rs:432 src/clients/oauth2_helper.rs:432 src/clients/oauth2_helper.rs:432
+#: src/clients/oauth2_helper.rs:466 src/clients/oauth2_helper.rs:466 src/clients/oauth2_helper.rs:466
 msgid "The authentication has succeeded; you may now close this tab."
 msgstr ""
 
