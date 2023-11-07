@@ -9,7 +9,7 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: tundra 0.4.2\n"
+"Project-Id-Version: tundra 0.4.3\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2023-05-09 01:07+0000\n"
 "PO-Revision-Date: 2022-01-29 13:00+0000\n"
@@ -21,91 +21,117 @@ msgstr ""
 "Language: pl\n"
 "Plural-Forms: nplurals=4; plural=(n==1 ? 0 : (n%10>=2 && n%10<=4) && (n%100<12 || n%100>14) ? 1 : n!=1 && (n%10>=0 && n%10<=1) || (n%10>=5 && n%10<=9) || (n%100>=12 && n%100<=14) ? 2 : 3);\n"
 
-#: src/clients/mal_client.rs:113
-msgid ""
-"Could not authenticate to MyAnimeList. Make sure the username and password "
-"you entered is correct."
-msgstr ""
-"Nie można było uwierzytelnić się z MyAnimeList. Upewnij się, że nazwa "
-"użytkownika i hasło jest poprawne."
+#: src/clients/mal_client.rs:120 src/clients/mal_client.rs:120
+#: src/clients/mal_client.rs:120
+msgid "Could not authenticate to MyAnimeList: {}"
+msgstr "Nie można było uwierzytelnić się z MyAnimeList: {}"
 
-#: src/clients/mal_client.rs:125
+#: src/clients/mal_client.rs:127 src/clients/mal_client.rs:127
+#: src/clients/mal_client.rs:127
 msgid "Could not communicate with MAL: {}"
 msgstr "Błąd przy komunikacji z MAL: {}"
 
-#: src/gtk_gui/login_page/imp.rs:21
+#: src/clients/oauth2_helper.rs:463 src/clients/oauth2_helper.rs:463
+#: src/clients/oauth2_helper.rs:463
+msgid "Tundra authentication"
+msgstr "Logowanie - Tundra"
+
+#: src/clients/oauth2_helper.rs:466 src/clients/oauth2_helper.rs:466
+#: src/clients/oauth2_helper.rs:466
+msgid "The authentication has succeeded; you may now close this tab."
+msgstr "Uwierzytelnianie powiodło się; możesz teraz zamknąć tę kartę."
+
+#: src/gtk_gui/login_page/imp.rs:15 src/gtk_gui/login_page/imp.rs:15
+#: src/gtk_gui/login_page/imp.rs:15 src/gtk_gui/login_page/imp.rs:15
 msgid "Sign in to MyAnimeList"
 msgstr "Zaloguj się do MyAnimeList"
 
-#: src/gtk_gui/login_page/imp.rs:111
-msgid "Username:"
-msgstr "Login:"
+#: src/gtk_gui/login_page/imp.rs:22 src/gtk_gui/login_page/imp.rs:22
+#: src/gtk_gui/login_page/imp.rs:22 src/gtk_gui/login_page/imp.rs:22
+msgid "_Sign in"
+msgstr "_Zaloguj"
 
-#: src/gtk_gui/login_page/imp.rs:112
-msgid "Password:"
-msgstr "Hasło:"
-
+#: src/gtk_gui/logs_window.rs:22 src/gtk_gui/logs_window.rs:22
 #: src/gtk_gui/logs_window.rs:22
 msgid "Tundra Logs"
 msgstr "Logi Tundry"
 
-#: src/gtk_gui/main_window.rs:51
+#: src/gtk_gui/main_window.rs:49 src/gtk_gui/main_window.rs:49
+#: src/gtk_gui/main_window.rs:49
 msgid "Tundra"
 msgstr "Tundra"
 
-#: src/gtk_gui/main_window.rs:117
+#: src/gtk_gui/main_window.rs:111 src/gtk_gui/main_window.rs:111
+#: src/gtk_gui/main_window.rs:111
 msgid "_Sign out"
 msgstr "_Wyloguj"
 
-#: src/gtk_gui/main_window.rs:118
+#: src/gtk_gui/main_window.rs:112 src/gtk_gui/main_window.rs:112
+#: src/gtk_gui/main_window.rs:112
 msgid "Show _logs"
 msgstr "Pokaż _logi"
 
-#: src/gtk_gui/main_window.rs:119
+#: src/gtk_gui/main_window.rs:113 src/gtk_gui/main_window.rs:113
+#: src/gtk_gui/main_window.rs:113
 msgid "_About Tundra"
 msgstr "_O Tundrze"
 
-#: src/gtk_gui/main_window.rs:130
-msgid "_Sign in"
-msgstr "_Zaloguj"
-
-#: src/gtk_gui/main_window.rs:139
+#: src/gtk_gui/main_window.rs:125 src/gtk_gui/main_window.rs:125
+#: src/gtk_gui/main_window.rs:125
 msgid "Enable scrobbling"
 msgstr "Włącz scrobblowanie"
 
-#: src/gtk_gui/scrobble_page/imp.rs:99
+#: src/gtk_gui/scrobble_page/imp.rs:99 src/gtk_gui/scrobble_page/imp.rs:99
+#: src/gtk_gui/scrobble_page/imp.rs:99 src/gtk_gui/scrobble_page/imp.rs:99
 msgid "Title:"
 msgstr "Tytuł:"
 
-#: src/gtk_gui/scrobble_page/imp.rs:104
+#: src/gtk_gui/scrobble_page/imp.rs:104 src/gtk_gui/scrobble_page/imp.rs:104
+#: src/gtk_gui/scrobble_page/imp.rs:104 src/gtk_gui/scrobble_page/imp.rs:104
 msgid "Episode:"
 msgstr "Odcinek:"
 
-#: src/gtk_gui/scrobble_page/imp.rs:109
+#: src/gtk_gui/scrobble_page/imp.rs:109 src/gtk_gui/scrobble_page/imp.rs:109
+#: src/gtk_gui/scrobble_page/imp.rs:109 src/gtk_gui/scrobble_page/imp.rs:109
 msgid "Player:"
 msgstr "Odtwarzacz:"
 
-#: src/gtk_gui/scrobble_page/imp.rs:114
+#: src/gtk_gui/scrobble_page/imp.rs:114 src/gtk_gui/scrobble_page/imp.rs:114
+#: src/gtk_gui/scrobble_page/imp.rs:114 src/gtk_gui/scrobble_page/imp.rs:114
 msgid "Status:"
 msgstr "Status:"
 
+#: src/gtk_gui/scrobble_page/mod.rs:38 src/gtk_gui/scrobble_page/mod.rs:38
 #: src/gtk_gui/scrobble_page/mod.rs:38
 msgid "Scrobbling now"
 msgstr "Scrobbluję teraz"
 
+#: src/gtk_gui/scrobble_page/mod.rs:50 src/gtk_gui/scrobble_page/mod.rs:50
 #: src/gtk_gui/scrobble_page/mod.rs:50
 msgid "Not scrobbling now"
 msgstr "Nie scrobbluję"
 
 #: src/gtk_gui/scrobble_page/mod.rs:51 src/gtk_gui/scrobble_page/mod.rs:52
 #: src/gtk_gui/scrobble_page/mod.rs:53 src/gtk_gui/scrobble_page/mod.rs:54
+#: src/gtk_gui/scrobble_page/mod.rs:51 src/gtk_gui/scrobble_page/mod.rs:52
+#: src/gtk_gui/scrobble_page/mod.rs:53 src/gtk_gui/scrobble_page/mod.rs:54
+#: src/gtk_gui/scrobble_page/mod.rs:51 src/gtk_gui/scrobble_page/mod.rs:52
+#: src/gtk_gui/scrobble_page/mod.rs:53 src/gtk_gui/scrobble_page/mod.rs:54
 msgid "N/A"
 msgstr "N/D"
 
-#: src/gtk_gui/mod.rs:253
+#: src/gtk_gui/mod.rs:182 src/gtk_gui/mod.rs:182
+msgid ""
+"Your web browser has been launched. Please sign in to MyAnimeList and then "
+"return to Tundra."
+msgstr ""
+"Przeglądarka internetowa została uruchomiona. Zaloguj się do MyAnimeList, a "
+"następnie wróć do Tundry."
+
+#: src/gtk_gui/mod.rs:276 src/gtk_gui/mod.rs:276
 msgid "scrobbled"
 msgstr "przescrobblowane"
 
-#: src/gtk_gui/mod.rs:255
+#: src/gtk_gui/mod.rs:278 src/gtk_gui/mod.rs:278
 msgid "not yet scrobbled"
 msgstr "nieprzescrobblowane"
