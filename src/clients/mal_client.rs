@@ -8,7 +8,6 @@ use std::sync::{Arc, RwLock};
 
 use async_trait::async_trait;
 use gettextrs::gettext;
-use lazy_static::lazy_static;
 use log::{debug, info};
 use reqwest::StatusCode;
 use serde::Deserialize;
@@ -111,18 +110,15 @@ impl From<OAuth2FlowError> for MalClientError {
     }
 }
 
-lazy_static! {
-    static ref AUTHENTICATION_ERROR_STRING: String = gettext(
-        "Could not authenticate to MyAnimeList. \
-        Make sure the username and password you entered is correct.",
-    );
-}
-
 impl fmt::Display for MalClientError {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         match self {
-            MalClientError::OAuth2Authentication(_) => {
-                write!(f, "{}", *AUTHENTICATION_ERROR_STRING)
+            MalClientError::OAuth2Authentication(error) => {
+                write!(
+                    f,
+                    "{}",
+                    gettext!("Could not authenticate to MyAnimeList: {}", error)
+                )
             }
             MalClientError::HttpClient(error) => {
                 write!(
