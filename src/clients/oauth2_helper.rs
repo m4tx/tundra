@@ -10,7 +10,7 @@ use axum::routing::get;
 use axum::Router;
 use gettextrs::gettext;
 use log::info;
-use oauth2::basic::BasicClient;
+use oauth2::basic::{BasicClient, BasicTokenResponse};
 use oauth2::reqwest::async_http_client;
 use oauth2::{
     AuthUrl, AuthorizationCode, ClientId, CsrfToken, PkceCodeChallenge, PkceCodeVerifier,
@@ -86,6 +86,12 @@ pub enum PkceCodeChallengeType {
 pub struct AccessToken(String);
 
 impl AccessToken {
+    #[must_use]
+    pub fn new(secret: String) -> Self {
+        Self(secret)
+    }
+
+    #[must_use]
     pub fn secret(&self) -> &str {
         &self.0
     }
@@ -119,6 +125,12 @@ impl From<&AccessToken> for oauth2::AccessToken {
 pub struct RefreshToken(String);
 
 impl RefreshToken {
+    #[must_use]
+    pub fn new(secret: String) -> Self {
+        Self(secret)
+    }
+
+    #[must_use]
     pub fn secret(&self) -> &str {
         &self.0
     }
@@ -154,6 +166,16 @@ pub struct OAuth2Token {
     pub access_token: AccessToken,
     pub expires_in: Option<Duration>,
     pub refresh_token: Option<RefreshToken>,
+}
+
+impl From<BasicTokenResponse> for OAuth2Token {
+    fn from(token_result: BasicTokenResponse) -> Self {
+        OAuth2Token {
+            access_token: token_result.access_token().into(),
+            expires_in: token_result.expires_in(),
+            refresh_token: token_result.refresh_token().map(|x| x.into()),
+        }
+    }
 }
 
 #[derive(Debug)]
@@ -233,6 +255,21 @@ impl OAuth2Helper {
         })
     }
 
+    pub async fn refresh_token(
+        mut self,
+        refresh_token: &RefreshToken,
+    ) -> OAuth2Result<OAuth2Token> {
+        let client = self.construct_client();
+
+        let token_result = client
+            .exchange_refresh_token(&refresh_token.into())
+            .request_async(async_http_client)
+            .await
+            .map_err(OAuth2FlowError::OAuth2RequestError)?;
+
+        Ok(token_result.into())
+    }
+
     #[must_use]
     fn construct_client(&mut self) -> BasicClient {
         BasicClient::new(
@@ -274,11 +311,7 @@ impl OAuth2CodeReceiver {
             .await
             .map_err(OAuth2FlowError::OAuth2RequestError)?;
 
-        Ok(OAuth2Token {
-            access_token: token_result.access_token().into(),
-            expires_in: token_result.expires_in(),
-            refresh_token: token_result.refresh_token().map(|x| x.into()),
-        })
+        Ok(token_result.into())
     }
 }
 
@@ -424,6 +457,7 @@ async fn root(
     Html(build_html_response())
 }
 
+#[must_use]
 fn build_html_response() -> String {
     include_str!("oauth2_response.html")
         .replace("{{ title }}", &gettext("Tundra authentication"))

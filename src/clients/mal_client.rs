@@ -9,14 +9,16 @@ use std::sync::{Arc, RwLock};
 use async_trait::async_trait;
 use gettextrs::gettext;
 use lazy_static::lazy_static;
-use log::info;
+use log::{debug, info};
 use reqwest::StatusCode;
 use serde::Deserialize;
+use tokio::sync::Semaphore;
 use tokio::try_join;
 
 use crate::anime_relations::{AnimeDbs, AnimeRelations};
 use crate::clients::oauth2_helper::{
-    OAuth2CodeReceiver, OAuth2FlowError, OAuth2Helper, PkceCodeChallengeType,
+    OAuth2CodeReceiver, OAuth2FlowError, OAuth2Helper, OAuth2Token, PkceCodeChallengeType,
+    RefreshToken,
 };
 use crate::clients::{AnimeDbClient, AnimeId, AnimeInfo, PictureUrl, WebsiteUrl};
 use crate::config::Config;
@@ -24,14 +26,6 @@ use crate::constants::{MAL_AUTH_URL, MAL_CLIENT_ID, MAL_TOKEN_URL, MAL_URL, USER
 use crate::title_recognizer::Title;
 
 static CLIENT_ID_HEADER: &str = "X-MAL-Client-ID";
-
-#[derive(Clone, Debug, Deserialize)]
-struct AuthenticationResponse {
-    access_token: String,
-    // expires_in: i64,
-    refresh_token: String,
-    // token_type: String,
-}
 
 #[derive(Clone, Debug, Deserialize)]
 struct SearchResponse {
@@ -96,13 +90,13 @@ pub struct MalClient {
     client: reqwest::Client,
     anime_relations: Arc<AnimeRelations>,
     title_cache: HashMap<Title, AnimeInfo>,
+    request_permit: Semaphore,
 }
 
 #[derive(Debug)]
 pub enum MalClientError {
     OAuth2Authentication(OAuth2FlowError),
     HttpClient(reqwest::Error),
-    Authentication(reqwest::Error),
 }
 
 impl From<reqwest::Error> for MalClientError {
@@ -137,9 +131,6 @@ impl fmt::Display for MalClientError {
                     gettext!("Could not communicate with MAL: {}", error)
                 )
             }
-            MalClientError::Authentication(_) => {
-                write!(f, "{}", *AUTHENTICATION_ERROR_STRING)
-            }
         }
     }
 }
@@ -149,7 +140,6 @@ impl std::error::Error for MalClientError {
         match self {
             MalClientError::OAuth2Authentication(error) => Some(error),
             MalClientError::HttpClient(error) => Some(error),
-            MalClientError::Authentication(error) => Some(error),
         }
     }
 }
@@ -180,6 +170,7 @@ impl MalClient {
             client,
             anime_relations,
             title_cache: HashMap::new(),
+            request_permit: Semaphore::const_new(1),
         })
     }
 
@@ -191,47 +182,10 @@ impl MalClient {
         return self.config.read().unwrap().mal.access_token.clone();
     }
 
-    fn refresh_token(&self) -> String {
-        return self.config.read().unwrap().mal.refresh_token.clone();
-    }
-
     async fn refresh_auth(&self) -> MalClientResult<()> {
         info!("Refreshing MAL authentication token");
 
-        let refresh_token = self.refresh_token();
-        let params = vec![
-            ("client_id", MAL_CLIENT_ID),
-            ("grant_type", "refresh_token"),
-            ("refresh_token", &refresh_token),
-        ];
-
-        self.make_auth_request("https://myanimelist.net/v1/oauth2/token", &params)
-            .await
-    }
-
-    pub async fn make_auth_request(
-        &self,
-        url: &str,
-        params: &[(&str, &str)],
-    ) -> MalClientResult<()> {
-        let req = self.client.post(url).form(&params);
-        let response = req
-            .send()
-            .await?
-            .error_for_status()
-            .map_err(MalClientError::Authentication)?;
-
-        let response_data: AuthenticationResponse = response
-            .error_for_status()?
-            .json::<AuthenticationResponse>()
-            .await?;
-
-        let mut config = self.config.write().unwrap();
-        config.mal.access_token = response_data.access_token;
-        config.mal.refresh_token = response_data.refresh_token;
-        config.save();
-
-        Ok(())
+        MalAuthenticator::refresh_token(self.config.clone()).await
     }
 
     async fn make_request(
@@ -239,6 +193,8 @@ impl MalClient {
         request: reqwest::RequestBuilder,
     ) -> MalClientResult<reqwest::Response> {
         let request_copy = request.try_clone().expect("Request could not be cloned");
+        let _permit = self.request_permit.acquire().await.unwrap();
+
         let response = request
             .header("Authorization", format!("Bearer {}", self.access_token()))
             .send()
@@ -257,6 +213,8 @@ impl MalClient {
     }
 
     async fn search(&self, query: &str) -> MalClientResult<SearchResponse> {
+        debug!("Searching for {}", query);
+
         let params = [
             ("q", query),
             (
@@ -277,6 +235,8 @@ impl MalClient {
     }
 
     async fn get_by_id(&self, id: i64) -> MalClientResult<AnimeObject> {
+        debug!("Getting by ID {}", id);
+
         let params = [(
             "fields",
             "title,main_picture,alternative_titles,average_episode_duration,num_episodes,my_list_status,media_type,related_anime,popularity",
@@ -299,6 +259,8 @@ impl MalClient {
         status: &str,
         num_episodes_watched: i32,
     ) -> MalClientResult<MyListStatus> {
+        info!("Setting status to {} for anime {}", status, id);
+
         let params = [
             ("status", status),
             ("num_watched_episodes", &num_episodes_watched.to_string()),
@@ -523,15 +485,31 @@ impl MalAuthenticator {
         let token = self.oauth2_receiver.wait_for_code().await?;
 
         let mut config = self.config.write().unwrap();
+        Self::store_token(&mut config, token);
+
+        Ok(())
+    }
+
+    pub async fn refresh_token(config: Arc<RwLock<Config>>) -> MalClientResult<()> {
+        let refresh_token = config.read().unwrap().mal.refresh_token.clone();
+
+        let token = Self::create_oauth2_helper()
+            .refresh_token(&RefreshToken::new(refresh_token))
+            .await?;
+        Self::store_token(&mut config.write().unwrap(), token);
+
+        Ok(())
+    }
+
+    fn store_token(config: &mut Config, token: OAuth2Token) {
         config.mal.access_token = token.access_token.secret().to_owned();
         config.mal.refresh_token = token
             .refresh_token
             .expect("Refresh token not provided by the MAL server")
             .secret()
             .to_owned();
-        config.save();
 
-        Ok(())
+        config.save();
     }
 
     fn create_oauth2_helper() -> OAuth2Helper {
