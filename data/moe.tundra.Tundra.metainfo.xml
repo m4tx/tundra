@@ -5,7 +5,7 @@
     <project_license>GPL-3.0+</project_license>
 
     <name>Tundra</name>
-    <summary>MyAnimeList scrobbler</summary>
+    <summary>Update your anime lists automatically</summary>
     <description>
         <p>Tundra is an open-source MyAnimeList scrobbler application for Linux. It automatically detects media players running on your computer, checks for any anime videos playing, and marks them as watched on your MAL profile.</p>
     </description>
@@ -23,6 +23,18 @@
 
     <url type="homepage">https://tundra.moe/</url>
     <url type="bugtracker">https://github.com/m4tx/tundra/issues/new</url>
+    <url type="donation">https://github.com/sponsors/m4tx</url>
+    <url type="translate">https://app.transifex.com/tundra/</url>
+
+    <requires>
+        <internet>always</internet>
+        <display_length compare="ge">360</display_length>
+    </requires>
+    <supports>
+        <control>pointing</control>
+        <control>keyboard</control>
+        <control>touch</control>
+    </supports>
 
     <!--
     Open Age Rating Service
