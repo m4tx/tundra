@@ -23,8 +23,14 @@ impl AnimeRelations {
         }
     }
 
-    pub fn get_rule(&self, db: &AnimeDbs, src_id: i64) -> Option<&AnimeRelationRule> {
-        self.rules.iter().find(|x| x.has_rule_for(db, src_id))
+    pub fn get_rule<'a>(
+        &'a self,
+        db: &'a AnimeDbs,
+        src_id: i64,
+    ) -> impl Iterator<Item = &AnimeRelationRule> + 'a {
+        self.rules
+            .iter()
+            .filter(move |x| x.has_rule_for(db, src_id))
     }
 
     fn build_rules() -> Vec<AnimeRelationRule> {

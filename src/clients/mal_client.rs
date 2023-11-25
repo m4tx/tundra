@@ -393,19 +393,24 @@ impl MalClient {
         title: &Title,
         anime_object: AnimeObject,
     ) -> MalClientResult<(AnimeObject, i32)> {
+        debug!("Applying anime relation for {}", title.title);
         let relation_rule = self
             .anime_relations
             .get_rule(&AnimeDbs::Mal, anime_object.id);
 
-        if let Some(rule) = relation_rule {
+        for rule in relation_rule {
+            debug!("Applying rule {:?}", rule);
+
             let (new_id, new_ep) =
                 rule.convert_episode_number(&AnimeDbs::Mal, anime_object.id, title.episode_number);
-            let new_anime_object = self.get_by_id(new_id).await?;
 
-            Ok((new_anime_object, new_ep))
-        } else {
-            Ok((anime_object, title.episode_number))
+            if (anime_object.id, title.episode_number) != (new_id, new_ep) {
+                let new_anime_object = self.get_by_id(new_id).await?;
+                return Ok((new_anime_object, new_ep));
+            }
         }
+
+        Ok((anime_object, title.episode_number))
     }
 }
 
