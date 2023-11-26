@@ -32,7 +32,7 @@ cd "${SCRIPT_DIR}"
 
 sed -i "s/^version = \".*\"/version = \"${NEW_VERSION}\"/" Cargo.toml
 cargo update
-flatpak-cargo-generator.py ./Cargo.lock -o cargo-sources.json
+flatpak-cargo-generator.py ./Cargo.lock -o cargo-sources.json && printf '\n' >> cargo-sources.json
 
 TAG_NAME="v${NEW_VERSION}"
 git add Cargo.toml Cargo.lock cargo-sources.json
