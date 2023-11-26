@@ -2,10 +2,10 @@
 # Copyright (C) 2022 Mateusz Maćkowski
 # This file is distributed under the same license as the Tundra package.
 # Mateusz Maćkowski <mateusz@mackowski.org>, 2022.
-# 
+#
 # Translators:
 # Mateusz Maćkowski, 2023
-# 
+#
 #, fuzzy
 msgid ""
 msgstr ""

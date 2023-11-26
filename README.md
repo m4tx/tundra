@@ -1,4 +1,6 @@
-# Tundra
+Tundra
+======
+
 [![Build Status](https://github.com/m4tx/tundra/workflows/Rust%20CI/badge.svg)](https://github.com/m4tx/tundra/actions)
 [![GitHub](https://img.shields.io/github/license/m4tx/tundra)](https://github.com/m4tx/tundra/blob/master/LICENSE)
 
@@ -7,10 +9,13 @@ Tundra is an open-source MyAnimeList scrobbler application for Linux. It automat
 ![Screenshot of Tundra](data/screenshot1.png)
 
 ## Download
+
 ### Flatpak
+
 <a href="https://flathub.org/apps/details/moe.tundra.Tundra"><img width="240" alt="Download on Flathub" src="https://flathub.org/assets/badges/flathub-badge-en.svg"/></a>
 
 ### AUR
+
 For Arch Linux users, there are two packages in AUR to choose from:
 * [aur/tundra](https://aur.archlinux.org/packages/tundra/) - stable version
 * [aur/tundra-git](https://aur.archlinux.org/packages/tundra-git/) - latest git version
@@ -18,6 +23,7 @@ For Arch Linux users, there are two packages in AUR to choose from:
 ## Usage
 
 ### GUI
+
 The usage is very simple:
 
 1. First, you need to sign in to your MyAnimeList account with your MAL username and password.
@@ -26,6 +32,7 @@ The usage is very simple:
 4. The episode will be scrobbled after you watch over half of the video. You will know once you see the notification!
 
 ### CLI
+
 Tundra has CLI interface as well. First, you need to authenticate:
 
 ```
@@ -38,10 +45,12 @@ This will display a URL which you will need to open and then sign in to your MyA
 tundra daemon
 ```
 
-This way, Tundra will periodically check for players running and scrobble any anime videos to your MAL account, just like the GUI version. 
+This way, Tundra will periodically check for players running and scrobble any anime videos to your MAL account, just like the GUI version.
 
 ## Building
+
 ### Requirements
+
 * [Rust stable](https://www.rust-lang.org/)
 * D-Bus
 * libnotify
@@ -50,12 +59,18 @@ This way, Tundra will periodically check for players running and scrobble any an
 * gettext
 
 ### How to build
+
 Make sure you have executed `git clone --recursive`, so the submodules are cloned as well. Tundra uses [*Cargo*](https://doc.rust-lang.org/cargo/) as its package manager and build system. It can be built by executing `cargo build` in the project root directory. For the release version, execute `cargo build --release`.
 
 ### Flatpak
+
 After you have installed [*Flatpak Builder*](https://docs.flatpak.org/en/latest/flatpak-builder.html) execute `flatpak-builder --install repo moe.tundra.Tundra.json --force-clean --user -y` in the project root directory to build and install the Flatpak package.
 
 Flathub repo can be found here: [flathub/moe.tundra.Tundra](https://github.com/flathub/moe.tundra.Tundra).
+
+### `pre-commit`
+
+We encourage contributors to use predefined [`pre-commit`](https://pre-commit.com/) hooks — to install them in your local repo, make sure you have `pre-commit` installed and run:
 
 ## Localization
 
@@ -66,7 +81,12 @@ Currently offered languages:
 * Japanese
 * Polish
 
+```shell
+pre-commit install
+```
+
 ## Related projects
+
 * [Taiga](https://github.com/erengy/taiga)
 * [Anime Relations](https://github.com/erengy/anime-relations)
 * [Anitomy](https://github.com/erengy/anitomy)
