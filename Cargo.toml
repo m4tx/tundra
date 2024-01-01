@@ -46,5 +46,5 @@ gettext-rs = { version = "0.7.0", features = ["gettext-system"] }
 anyhow = "1.0.75"
 oauth2 = { version = "4.4.2", features = ["pkce-plain"] }
 axum = "0.6.20"
-hyper = "0.14.27"
+hyper = "1.1.0"
 url = "2.5.0"
