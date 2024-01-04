@@ -1,6 +1,6 @@
 use std::error::Error;
 use std::fmt::{Debug, Display, Formatter};
-use std::net::SocketAddr;
+use std::net::{IpAddr, Ipv4Addr, SocketAddr};
 use std::sync::Arc;
 use std::time::Duration;
 
@@ -28,8 +28,8 @@ const REDIRECT_PORTS: [u16; 10] = [
 
 #[derive(Debug)]
 pub enum OAuth2FlowError {
-    ServerStartFailed(hyper::Error),
-    ServerError(hyper::Error),
+    ServerStartFailed(std::io::Error),
+    ServerError(std::io::Error),
     OAuth2RequestError(
         oauth2::basic::BasicRequestTokenError<oauth2::reqwest::AsyncHttpClientError>,
     ),
@@ -346,33 +346,34 @@ impl StateData {
 #[derive(Debug)]
 struct CodeReceiverServerBuilder {
     port: u16,
-    server: hyper::server::Builder<hyper::server::conn::AddrIncoming>,
+    listener: tokio::net::TcpListener,
 }
 
 impl CodeReceiverServerBuilder {
     pub async fn start() -> OAuth2Result<Self> {
-        for &port in &REDIRECT_PORTS[0..REDIRECT_PORTS.len() - 1] {
-            if let Ok(result) = Self::start_server_on_port(port).await {
-                return Ok(result);
-            }
-        }
+        let addresses: Vec<SocketAddr> = REDIRECT_PORTS
+            .iter()
+            .map(|port| SocketAddr::new(IpAddr::V4(Ipv4Addr::new(127, 0, 0, 1)), *port))
+            .collect();
 
-        Self::start_server_on_port(*REDIRECT_PORTS.last().unwrap())
+        info!("Trying to start listening on addresses: {:?}", addresses);
+        let listener = tokio::net::TcpListener::bind(addresses.as_slice())
             .await
-            .map_err(OAuth2FlowError::ServerStartFailed)
+            .map_err(OAuth2FlowError::ServerStartFailed)?;
+
+        let port = listener
+            .local_addr()
+            .expect("Could not retrieve the listener port")
+            .port();
+
+        info!("Server running on port {}", port);
+
+        Ok(Self { port, listener })
     }
 
     #[must_use]
     pub fn get_port(&self) -> u16 {
         self.port
-    }
-
-    async fn start_server_on_port(port: u16) -> Result<Self, hyper::Error> {
-        info!("Trying to start listening on port {}", port);
-        let addr = SocketAddr::from(([127, 0, 0, 1], port));
-        let server = axum::Server::try_bind(&addr)?;
-
-        Ok(Self { port, server })
     }
 
     async fn run(self) -> OAuth2Result<CodeReceiverServer> {
@@ -383,7 +384,7 @@ impl CodeReceiverServerBuilder {
 #[derive(Debug)]
 struct CodeReceiverServer {
     state: Arc<Mutex<StateData>>,
-    join_handle: JoinHandle<Result<(), hyper::Error>>,
+    join_handle: JoinHandle<Result<(), std::io::Error>>,
 }
 
 impl CodeReceiverServer {
@@ -396,9 +397,7 @@ impl CodeReceiverServer {
             .with_state(state.clone());
 
         let join_handle = tokio::spawn(async {
-            builder
-                .server
-                .serve(app.into_make_service())
+            axum::serve(builder.listener, app.into_make_service())
                 .with_graceful_shutdown(async {
                     rx.await.ok();
                     info!("OAuth2 code receiver server has been stopped");

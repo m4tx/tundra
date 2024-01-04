@@ -33,12 +33,15 @@ macro_rules! try_tx {
             std::result::Result::Ok(val) => val,
             std::result::Result::Err(err) => {
                 $tx.send(std::result::Result::Err(err))
+                    .await
                     .expect("Couldn't send data to channel");
                 return;
             }
         }
     };
 }
+
+const DEFAULT_CHANNEL_SIZE: usize = 1;
 
 #[derive(Clone)]
 pub struct GtkApp {
@@ -118,24 +121,25 @@ impl GtkApp {
     fn start_main(&mut self) {
         self.run_daemon();
 
-        let (tx, rx) = glib::MainContext::channel(glib::Priority::DEFAULT);
+        let (tx, rx) = async_channel::bounded(DEFAULT_CHANNEL_SIZE);
         let app = self.app.clone();
         tokio::spawn(async move {
             let app = app.lock().await;
             let result = app.is_mal_authenticated();
-            tx.send(result).expect("Couldn't send data to channel");
+            tx.send(result)
+                .await
+                .expect("Couldn't send data to channel");
         });
 
         let this = self.clone();
-        rx.attach(None, move |is_mal_authenticated| {
+        glib::spawn_future_local(async move {
+            let is_mal_authenticated = rx.recv().await.expect("Couldn't receive data from channel");
             if is_mal_authenticated {
                 this.switch_to_scrobble_page();
             } else {
                 this.switch_to_sign_in_page();
             }
             this.main_window.show();
-
-            glib::ControlFlow::Continue
         });
     }
 
@@ -156,40 +160,42 @@ impl GtkApp {
     fn sign_in(&mut self) {
         self.main_window.set_login_page_loading(true);
 
-        let (tx, rx) = glib::MainContext::channel(glib::Priority::DEFAULT);
+        let (tx, rx) = async_channel::bounded(DEFAULT_CHANNEL_SIZE);
         let app = self.app.clone();
         tokio::spawn(async move {
             let mut app = app.lock().await;
             let authenticator = try_tx!(tx, app.start_mal_authentication().await);
             tx.send(Ok(LoginAction::OpenBrowser(authenticator.get_auth_url())))
+                .await
                 .expect("Couldn't send data to channel");
             try_tx!(tx, authenticator.wait_for_auth().await);
 
             tx.send(Ok(LoginAction::LoggedIn))
+                .await
                 .expect("Couldn't send data to channel");
         });
 
         let this = self.clone();
-        rx.attach(None, move |result| {
-            match result {
-                Ok(login_action) => match login_action {
-                    LoginAction::LoggedIn => {
+        glib::spawn_future_local(async move {
+            while let Ok(result) = rx.recv().await {
+                match result {
+                    Ok(login_action) => match login_action {
+                        LoginAction::LoggedIn => {
+                            this.main_window.set_login_page_loading(false);
+                            this.switch_to_scrobble_page()
+                        }
+                        LoginAction::OpenBrowser(url) => {
+                            info!("Authentication URL: {}", url);
+                            this.main_window.show_info(&gettext("Your web browser has been launched. Please sign in to MyAnimeList and then return to Tundra."));
+                            gtk::show_uri(gtk::Window::NONE, &url, gdk::CURRENT_TIME)
+                        }
+                    },
+                    Err(error_string) => {
                         this.main_window.set_login_page_loading(false);
-                        this.switch_to_scrobble_page()
+                        this.main_window.show_error(&error_string.to_string());
                     }
-                    LoginAction::OpenBrowser(url) => {
-                        info!("Authentication URL: {}", url);
-                        this.main_window.show_info(&gettext("Your web browser has been launched. Please sign in to MyAnimeList and then return to Tundra."));
-                        gtk::show_uri(gtk::Window::NONE, &url, gdk::CURRENT_TIME)
-                    }
-                },
-                Err(error_string) => {
-                    this.main_window.set_login_page_loading(false);
-                    this.main_window.show_error(&error_string.to_string());
                 }
             }
-
-            glib::ControlFlow::Continue
         });
     }
 
@@ -197,7 +203,7 @@ impl GtkApp {
         let app = self.app.clone();
         let images = self.images.clone();
         let scrobbling_enabled = self.scrobbling_enabled.clone();
-        let (tx, rx) = glib::MainContext::channel(glib::Priority::DEFAULT);
+        let (tx, rx) = async_channel::bounded(DEFAULT_CHANNEL_SIZE);
         tokio::spawn(async move {
             let mut interval = time::interval(REFRESH_INTERVAL);
 
@@ -215,17 +221,19 @@ impl GtkApp {
                     }
                     error.to_string()
                 });
-                tx.send(new_result).expect("Couldn't send data to channel");
+                tx.send(new_result)
+                    .await
+                    .expect("Couldn't send data to channel");
             }
         });
 
         let main_window = self.main_window.clone();
         let images = self.images.clone();
         let current_image_url = self.current_image_url.clone();
-        rx.attach(None, move |result| {
-            Self::handle_ui_daemon_tick(&result, &main_window, &images, &current_image_url);
-
-            glib::ControlFlow::Continue
+        glib::spawn_future_local(async move {
+            while let Ok(result) = rx.recv().await {
+                Self::handle_ui_daemon_tick(&result, &main_window, &images, &current_image_url);
+            }
         });
     }
 
