@@ -56,6 +56,7 @@ enum MediaType {
     Special,
     Ona,
     Music,
+    Cm,
     Unknown,
 }
 
