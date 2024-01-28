@@ -3,22 +3,22 @@
 set -e
 
 function check_prog {
-  if ! hash "$1" >/dev/null 2>&1; then
-    echo "Command not found: $1.$2 Aborting..."
-    exit 1
-  fi
+	if ! hash "$1" >/dev/null 2>&1; then
+		echo "Command not found: $1.$2 Aborting..."
+		exit 1
+	fi
 }
 
 function check_git_clean {
-  if [ -n "$(git status --porcelain)" ]; then
-    echo "git working directory not clean. Aborting..."
-    exit 1
-  fi
+	if [ -n "$(git status --porcelain)" ]; then
+		echo "git working directory not clean. Aborting..."
+		exit 1
+	fi
 }
 
 if [ "$#" -ne 1 ]; then
-  echo "Usage: $0 <new_version>"
-  exit 1
+	echo "Usage: $0 <new_version>"
+	exit 1
 fi
 
 check_prog flatpak-cargo-generator.py " Please get it from https://github.com/flatpak/flatpak-builder-tools/blob/master/cargo/flatpak-cargo-generator.py and put it in your \$PATH."
