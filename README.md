@@ -1,11 +1,9 @@
 Tundra
 ======
 
-[![Rust Build Status](https://github.com/m4tx/tundra/workflows/Rust%20CI/badge.svg)](https://github.com/m4tx/tundra/actions/workflows/rust.yml)
-[![crates.io](https://img.shields.io/crates/v/tundra.svg)](https://crates.io/crates/tundra)
-[![Documentation](https://docs.rs/tundra/badge.svg)](https://docs.rs/tundra)
-[![GNU GPL v3 licensed](https://img.shields.io/github/license/m4tx/tundra)](https://github.com/m4tx/tundra/blob/master/LICENSE)
-[![codecov](https://codecov.io/gh/m4tx/tundra/branch/master/graph/badge.svg)](https://codecov.io/gh/m4tx/tundra)
+[![Build Status](https://github.com/m4tx/tundra/workflows/Rust%20CI/badge.svg)](https://github.com/m4tx/tundra/actions)
+[![GitHub](https://img.shields.io/github/license/m4tx/tundra)](https://github.com/m4tx/tundra/blob/master/LICENSE)
+
 Tundra is an open-source MyAnimeList scrobbler application for Linux. It automatically detects media players running on your computer, checks for any anime videos playing, and marks them as watched on you MAL profile.
 
 ![Screenshot of Tundra](data/screenshot1.png)
