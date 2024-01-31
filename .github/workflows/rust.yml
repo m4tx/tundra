@@ -2,9 +2,9 @@ name: Rust CI
 
 on:
   push:
-    branches: [ '**' ]
   pull_request:
-    branches: [ '**' ]
+  schedule:
+    - cron: "0 0 * * *"
 
 env:
   CARGO_TERM_COLOR: always
@@ -19,8 +19,9 @@ jobs:
   build:
     strategy:
       matrix:
-        rust: ["stable", "beta", "nightly"]
+        rust: [stable, nightly]
         os: [ubuntu-latest]
+
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout source
@@ -35,7 +36,7 @@ jobs:
           sudo apt install -y pkg-config libdbus-1-dev libgtk-4-dev libadwaita-1-dev libnotify-dev gettext
 
       - name: Cache Cargo registry
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: |
             ~/.cargo/registry
@@ -48,14 +49,14 @@ jobs:
           toolchain: ${{ matrix.rust }}
 
       - name: Build
-        run: cargo +${{ matrix.rust }} build
+        run: cargo +${{ matrix.rust }} build --features=${{ matrix.features }}
 
       - name: Test
-        run: cargo +${{ matrix.rust }} test
+        run: cargo +${{ matrix.rust }} test --features=${{ matrix.features }}
 
   clippy:
     runs-on: ubuntu-latest
-    needs: ['build']
+    needs: ["build"]
     steps:
       - name: Checkout source
         uses: actions/checkout@v4
@@ -69,7 +70,7 @@ jobs:
           sudo apt install -y pkg-config libdbus-1-dev libgtk-4-dev libadwaita-1-dev libnotify-dev gettext
 
       - name: Cache Cargo registry
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: |
             ~/.cargo/registry
@@ -79,23 +80,21 @@ jobs:
       - name: Install Rust toolchain
         uses: dtolnay/rust-toolchain@master
         with:
+          toolchain: stable
           components: clippy
-          toolchain: nightly
 
       - name: Run clippy
         run: cargo clippy -- -Dclippy::all
 
   rustfmt:
     runs-on: ubuntu-latest
-    needs: ['build']
+    needs: ["build"]
     steps:
       - name: Checkout source
         uses: actions/checkout@v4
-        with:
-          submodules: recursive
 
       - name: Cache Cargo registry
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: |
             ~/.cargo/registry
@@ -103,8 +102,9 @@ jobs:
           key: ${{ runner.os }}-cargo-debug-${{ hashFiles('**/Cargo.toml') }}
 
       - name: Install Rust toolchain
-        uses: dtolnay/rust-toolchain@nightly
+        uses: dtolnay/rust-toolchain@master
         with:
+          toolchain: nightly
           components: rustfmt
 
       - name: Run fmt
