@@ -56,7 +56,7 @@ enum MediaType {
     Special,
     Ona,
     Music,
-    Cm,
+    #[serde(other)]
     Unknown,
 }
 
