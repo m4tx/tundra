@@ -35,6 +35,8 @@ cargo update
 flatpak-cargo-generator.py ./Cargo.lock -o cargo-sources.json && printf '\n' >> cargo-sources.json
 
 TAG_NAME="v${NEW_VERSION}"
+# Run twice to ignore the changes made by the first run (and its possible non-zero exit code)
+pre-commit run --all-files || pre-commit run --all-files
 git add Cargo.toml Cargo.lock cargo-sources.json
 git commit -m "chore: bump version to ${NEW_VERSION}"
 git tag "$TAG_NAME"
