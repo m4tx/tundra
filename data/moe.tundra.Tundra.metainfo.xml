@@ -42,6 +42,22 @@
     -->
     <content_rating type="oars-1.1"/>
     <releases>
+        <release version="0.5.3" date="2024-02-01">
+            <description>
+                <ul>
+                    <li>Fix the "unknown variant `pv`" error for some titles</li>
+                    <li>Bump dependencies</li>
+                </ul>
+            </description>
+        </release>
+        <release version="0.5.2" date="2024-01-28">
+            <description>
+                <ul>
+                    <li>Fix the "unknown variant `cm`" error for some titles</li>
+                    <li>Bump dependencies</li>
+                </ul>
+            </description>
+        </release>
         <release version="0.5.1" date="2023-11-26">
             <description>
                 <ul>
