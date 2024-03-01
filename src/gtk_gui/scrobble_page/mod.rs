@@ -1,5 +1,6 @@
 use gettextrs::gettext;
-use glib::{Object, ObjectExt};
+use glib::object::ObjectExt;
+use glib::Object;
 use gtk::{gdk, glib};
 
 mod imp;

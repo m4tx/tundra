@@ -18,34 +18,34 @@ panic = "abort"
 
 [dependencies]
 anitomy = "0.2.0"
-anyhow = "1.0.79"
-async-channel = "2.1.1"
+anyhow = "1.0.80"
+async-channel = "2.2.0"
 async-std = "1.12.0"
 async-trait = "0.1.77"
 axum = "0.7.3"
 bytes = "1.5.0"
-chrono = "0.4.31"
-clap = "4.4.12"
+chrono = "0.4.34"
+clap = "4.5.1"
 dbus = "0.9.7"
 directories = "5.0.1"
 edit-distance = "2.1.0"
-gdk-pixbuf = "0.18.5"
+gdk-pixbuf = "0.19.2"
 gettext-rs = { version = "0.7.0", features = ["gettext-system"] }
-gio = "0.18.4"
-glib = "0.18.5"
-gtk = { package = "gtk4", version = "0.7.3" }
-hyper = "1.1.0"
+gio = "0.19.2"
+glib = "0.19.2"
+gtk = { package = "gtk4", version = "0.8.0" }
+hyper = "1.2.0"
 lazy_static = "1.4.0"
-libadwaita = "0.5.3"
-log = "0.4.20"
+libadwaita = "0.6.0"
+log = "0.4.21"
 notify-rust = { version = "4.10.0", default-features = false, features = ["d"] }
 oauth2 = { version = "4.4.2", features = ["pkce-plain"] }
 once_cell = "1.19.0"
 percent-encoding = "2.3.1"
 regex = "1.10.2"
 reqwest = { version = "0.11.24", features = ["json"] }
-serde = { version = "1.0.194", features = ["derive"] }
-serde_json = "1.0.113"
-tokio = { version = "1.35.1", features = ["macros", "rt", "rt-multi-thread", "time"] }
-toml = "0.8.9"
+serde = { version = "1.0.197", features = ["derive"] }
+serde_json = "1.0.114"
+tokio = { version = "1.36.0", features = ["macros", "rt", "rt-multi-thread", "time"] }
+toml = "0.8.10"
 url = "2.5.0"

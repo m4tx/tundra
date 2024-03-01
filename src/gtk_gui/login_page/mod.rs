@@ -1,4 +1,5 @@
-use glib::{Object, ObjectExt};
+use glib::object::ObjectExt;
+use glib::Object;
 use gtk::glib;
 
 mod imp;
