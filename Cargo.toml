@@ -33,10 +33,10 @@ gdk-pixbuf = "0.19.2"
 gettext-rs = { version = "0.7.0", features = ["gettext-system"] }
 gio = "0.19.2"
 glib = "0.19.2"
-gtk = { package = "gtk4", version = "0.7.3" }
+gtk = { package = "gtk4", version = "0.8.0" }
 hyper = "1.2.0"
 lazy_static = "1.4.0"
-libadwaita = "0.5.3"
+libadwaita = "0.6.0"
 log = "0.4.21"
 notify-rust = { version = "4.10.0", default-features = false, features = ["d"] }
 oauth2 = { version = "4.4.2", features = ["pkce-plain"] }
