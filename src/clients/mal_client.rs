@@ -504,12 +504,15 @@ impl MalAuthenticator {
     }
 
     fn store_token(config: &mut Config, token: OAuth2Token) {
-        config.mal.access_token = token.access_token.secret().to_owned();
-        config.mal.refresh_token = token
+        token
+            .access_token
+            .secret()
+            .clone_into(&mut config.mal.access_token);
+        token
             .refresh_token
             .expect("Refresh token not provided by the MAL server")
             .secret()
-            .to_owned();
+            .clone_into(&mut config.mal.refresh_token);
 
         config.save();
     }
