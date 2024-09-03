@@ -52,13 +52,17 @@ impl ScrobblePage {
 
         let gesture = gtk::GestureClick::new();
         let website_url = self.website_url.clone();
-        gesture.connect_released(clone!(@strong website_url => move |gesture, _, _, _| {
-            gesture.set_state(gtk::EventSequenceState::Claimed);
-            let url = website_url.borrow();
-            if !url.is_empty() {
-                gtk::show_uri(gtk::Window::NONE, &url, gdk::CURRENT_TIME);
+        gesture.connect_released(clone!(
+            #[strong]
+            website_url,
+            move |gesture, _, _, _| {
+                gesture.set_state(gtk::EventSequenceState::Claimed);
+                let url = website_url.borrow();
+                if !url.is_empty() {
+                    gtk::show_uri(gtk::Window::NONE, &url, gdk::CURRENT_TIME);
+                }
             }
-        }));
+        ));
         picture.add_controller(gesture);
 
         *self.picture.borrow_mut() = picture.clone();

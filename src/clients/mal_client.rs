@@ -118,14 +118,15 @@ impl fmt::Display for MalClientError {
                 write!(
                     f,
                     "{}",
-                    gettext!("Could not authenticate to MyAnimeList: {}", error)
+                    gettext("Could not authenticate to MyAnimeList: {}")
+                        .replace("{}", &error.to_string())
                 )
             }
             MalClientError::HttpClient(error) => {
                 write!(
                     f,
                     "{}",
-                    gettext!("Could not communicate with MAL: {}", error)
+                    gettext("Could not communicate with MAL: {}").replace("{}", &error.to_string())
                 )
             }
         }

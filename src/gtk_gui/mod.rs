@@ -81,39 +81,61 @@ impl GtkApp {
     }
 
     fn build_ui(&mut self) {
-        self.main_window
-            .connect_sign_in(clone!(@strong self as this => move || {
+        self.main_window.connect_sign_in(clone!(
+            #[strong(rename_to = this)]
+            self,
+            move || {
                 this.clone().sign_in();
-            }));
+            }
+        ));
 
-        self.main_window
-            .connect_enable_switch(clone!(@strong self as this => move |state| {
+        self.main_window.connect_enable_switch(clone!(
+            #[strong(rename_to = this)]
+            self,
+            move |state| {
                 this.set_scrobbling_enabled(state);
                 if !state {
                     this.main_window.set_anime_info_none();
                     this.current_image_url.replace(PictureUrl::default());
                 }
-            }));
+            }
+        ));
 
         let app = self.gtk_application.clone();
         let window = self.main_window.window();
 
-        self.main_window
-            .connect_quit(clone!(@strong app => move || {
+        self.main_window.connect_quit(clone!(
+            #[strong]
+            app,
+            move || {
                 app.quit();
-            }));
-        self.main_window
-            .connect_about(clone!(@strong app, @strong window => move || {
+            }
+        ));
+        self.main_window.connect_about(clone!(
+            #[strong]
+            app,
+            #[strong]
+            window,
+            move || {
                 AboutDialog::new(&app, &window).run();
-            }));
-        self.main_window
-            .connect_show_logs(clone!(@strong app, @strong window => move || {
+            }
+        ));
+        self.main_window.connect_show_logs(clone!(
+            #[strong]
+            app,
+            #[strong]
+            window,
+            move || {
                 LogsWindow::new(&app, &window).show();
-            }));
-        self.main_window
-            .connect_sign_out(clone!(@strong self as this => move || {
+            }
+        ));
+        self.main_window.connect_sign_out(clone!(
+            #[strong(rename_to = this)]
+            self,
+            move || {
                 this.switch_to_sign_in_page();
-            }));
+            }
+        ));
 
         self.start_main();
     }
