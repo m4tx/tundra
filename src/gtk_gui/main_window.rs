@@ -129,7 +129,7 @@ impl MainWindow {
 
     pub fn connect_quit<F: Fn() + 'static>(&self, f: F) {
         let action = SimpleAction::new("quit", None);
-        action.connect_activate(clone!(@strong self as this => move |_, _| {
+        action.connect_activate(clone!(move |_, _| {
             f();
         }));
 
@@ -139,7 +139,7 @@ impl MainWindow {
 
     pub fn connect_about<F: Fn() + 'static>(&self, f: F) {
         let action = SimpleAction::new("about", None);
-        action.connect_activate(clone!(@strong self as this => move |_, _| {
+        action.connect_activate(clone!(move |_, _| {
             f();
         }));
 
@@ -148,7 +148,7 @@ impl MainWindow {
 
     pub fn connect_show_logs<F: Fn() + 'static>(&self, f: F) {
         let action = SimpleAction::new("show-logs", None);
-        action.connect_activate(clone!(@strong self as this => move |_, _| {
+        action.connect_activate(clone!(move |_, _| {
             f();
         }));
 
@@ -157,7 +157,7 @@ impl MainWindow {
 
     pub fn connect_sign_out<F: Fn() + 'static>(&self, f: F) {
         let action = SimpleAction::new("sign-out", None);
-        action.connect_activate(clone!(@strong self as this => move |_, _| {
+        action.connect_activate(clone!(move |_, _| {
             f();
         }));
 

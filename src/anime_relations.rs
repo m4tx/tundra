@@ -27,7 +27,7 @@ impl AnimeRelations {
         &'a self,
         db: &'a AnimeDbs,
         src_id: i64,
-    ) -> impl Iterator<Item = &AnimeRelationRule> + 'a {
+    ) -> impl Iterator<Item = &'a AnimeRelationRule> + 'a {
         self.rules
             .iter()
             .filter(move |x| x.has_rule_for(db, src_id))

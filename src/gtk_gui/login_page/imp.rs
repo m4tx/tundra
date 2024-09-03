@@ -25,9 +25,13 @@ impl LoginPage {
         sign_in_button.style_context().add_class("suggested-action");
 
         let this = self.to_owned();
-        sign_in_button.connect_clicked(clone!(@strong this => move |_| {
-            this.emit_activate(&this.obj());
-        }));
+        sign_in_button.connect_clicked(clone!(
+            #[strong]
+            this,
+            move |_| {
+                this.emit_activate(&this.obj());
+            }
+        ));
 
         sign_in_button
     }
