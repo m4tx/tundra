@@ -100,6 +100,7 @@ impl AnimeRelations {
         }
     }
 
+    #[allow(clippy::range_plus_one)]
     fn convert_range(s: &str) -> Range<i32> {
         let s = s.replace('?', "99999");
         if s.contains('-') {

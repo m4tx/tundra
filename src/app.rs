@@ -72,12 +72,11 @@ impl TundraApp {
     }
 
     pub fn check_mal_authenticated(&self) {
-        if !self.is_mal_authenticated() {
-            panic!(
-                "You are not authenticated to MyAnimeList. \
+        assert!(
+            self.is_mal_authenticated(),
+            "You are not authenticated to MyAnimeList. \
             Please execute `tundra authenticate <username> <password>` first."
-            );
-        }
+        );
     }
 
     pub async fn run_daemon(&mut self) {

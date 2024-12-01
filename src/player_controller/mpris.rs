@@ -7,8 +7,8 @@ pub trait OrgMprisMediaPlayer2 {
     fn supported_mime_types(&self) -> Result<Vec<String>, dbus::Error>;
 }
 
-impl<'a, C: ::std::ops::Deref<Target = blocking::Connection>> OrgMprisMediaPlayer2
-    for blocking::Proxy<'a, C>
+impl<C: ::std::ops::Deref<Target = blocking::Connection>> OrgMprisMediaPlayer2
+    for blocking::Proxy<'_, C>
 {
     fn identity(&self) -> Result<String, dbus::Error> {
         <Self as blocking::stdintf::org_freedesktop_dbus::Properties>::get(
@@ -54,8 +54,8 @@ pub trait OrgMprisMediaPlayer2Player {
     fn position(&self) -> Result<i64, dbus::Error>;
 }
 
-impl<'a, C: ::std::ops::Deref<Target = blocking::Connection>> OrgMprisMediaPlayer2Player
-    for blocking::Proxy<'a, C>
+impl<C: ::std::ops::Deref<Target = blocking::Connection>> OrgMprisMediaPlayer2Player
+    for blocking::Proxy<'_, C>
 {
     fn playback_status(&self) -> Result<String, dbus::Error> {
         <Self as blocking::stdintf::org_freedesktop_dbus::Properties>::get(

@@ -222,7 +222,7 @@ impl MalClient {
         ];
 
         let req = self
-            .make_request(self.client.get(format!("{}/anime", MAL_URL)).query(&params))
+            .make_request(self.client.get(format!("{MAL_URL}/anime")).query(&params))
             .await?;
 
         Ok(req.json::<SearchResponse>().await?)
@@ -239,7 +239,7 @@ impl MalClient {
         let req = self
             .make_request(
                 self.client
-                    .get(format!("{}/anime/{}", MAL_URL, id))
+                    .get(format!("{MAL_URL}/anime/{id}"))
                     .query(&params),
             )
             .await?;
@@ -263,7 +263,7 @@ impl MalClient {
         let req = self
             .make_request(
                 self.client
-                    .patch(format!("{}/anime/{}/my_list_status", MAL_URL, id))
+                    .patch(format!("{MAL_URL}/anime/{id}/my_list_status"))
                     .form(&params),
             )
             .await?;

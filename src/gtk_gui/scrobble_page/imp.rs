@@ -22,7 +22,7 @@ pub struct ScrobblePage {
 impl ScrobblePage {
     fn make_label(text: &str) -> gtk::Label {
         let label = gtk::Label::new(None);
-        label.set_markup(&format!("<i>{}</i>", text));
+        label.set_markup(&format!("<i>{text}</i>"));
         label.set_halign(gtk::Align::End);
         label.set_valign(gtk::Align::Start);
         label
@@ -192,16 +192,16 @@ impl ObjectImpl for ScrobblePage {
                 .borrow()
                 .set_markup(&Self::get_status_summary_label_markup(value)),
             super::ScrobblePage::TITLE_PROPERTY => {
-                self.title_label.borrow().set_text(value.get().unwrap())
+                self.title_label.borrow().set_text(value.get().unwrap());
             }
             super::ScrobblePage::EPISODE_PROPERTY => {
-                self.episode_label.borrow().set_text(value.get().unwrap())
+                self.episode_label.borrow().set_text(value.get().unwrap());
             }
             super::ScrobblePage::PLAYER_PROPERTY => {
-                self.player_label.borrow().set_text(value.get().unwrap())
+                self.player_label.borrow().set_text(value.get().unwrap());
             }
             super::ScrobblePage::STATUS_PROPERTY => {
-                self.status_label.borrow().set_text(value.get().unwrap())
+                self.status_label.borrow().set_text(value.get().unwrap());
             }
             super::ScrobblePage::WEBSITE_URL_PROPERTY => {
                 let website_url: String = value.get().unwrap();
@@ -217,7 +217,7 @@ impl ObjectImpl for ScrobblePage {
             }
             super::ScrobblePage::IMAGE_PROPERTY => {
                 let x: Option<&gdk::Paintable> = value.get().ok();
-                self.picture.borrow().set_paintable(x)
+                self.picture.borrow().set_paintable(x);
             }
             _ => unimplemented!(),
         }

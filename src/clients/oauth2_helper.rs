@@ -41,13 +41,13 @@ impl Display for OAuth2FlowError {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         match self {
             OAuth2FlowError::ServerStartFailed(e) => {
-                write!(f, "Could not start OAuth2 code receiver server: {}", e)
+                write!(f, "Could not start OAuth2 code receiver server: {e}")
             }
             OAuth2FlowError::ServerError(e) => {
-                write!(f, "OAuth2 code receiver server error: {}", e)
+                write!(f, "OAuth2 code receiver server error: {e}")
             }
             OAuth2FlowError::OAuth2RequestError(e) => {
-                write!(f, "OAuth2 request error: {}", e)
+                write!(f, "OAuth2 request error: {e}")
             }
             OAuth2FlowError::VerificationFailed => {
                 write!(f, "OAuth2 code verification failed")
@@ -55,8 +55,7 @@ impl Display for OAuth2FlowError {
             OAuth2FlowError::WaitingForServerStopFailed(e) => {
                 write!(
                     f,
-                    "Failed waiting for OAuth2 code receiver server to stop: {}",
-                    e
+                    "Failed waiting for OAuth2 code receiver server to stop: {e}"
                 )
             }
         }
@@ -117,7 +116,7 @@ impl From<&oauth2::AccessToken> for AccessToken {
 
 impl From<&AccessToken> for oauth2::AccessToken {
     fn from(value: &AccessToken) -> Self {
-        Self::new(value.0.to_owned())
+        Self::new(value.0.clone())
     }
 }
 
@@ -156,7 +155,7 @@ impl From<&oauth2::RefreshToken> for RefreshToken {
 
 impl From<&RefreshToken> for oauth2::RefreshToken {
     fn from(value: &RefreshToken) -> Self {
-        Self::new(value.0.to_owned())
+        Self::new(value.0.clone())
     }
 }
 
@@ -173,7 +172,7 @@ impl From<BasicTokenResponse> for OAuth2Token {
         OAuth2Token {
             access_token: token_result.access_token().into(),
             expires_in: token_result.expires_in(),
-            refresh_token: token_result.refresh_token().map(|x| x.into()),
+            refresh_token: token_result.refresh_token().map(std::convert::Into::into),
         }
     }
 }

@@ -134,7 +134,7 @@ impl MainWindow {
         }));
 
         self.app.add_action(&action);
-        self.app.set_accels_for_action("app.quit", &["<primary>Q"])
+        self.app.set_accels_for_action("app.quit", &["<primary>Q"]);
     }
 
     pub fn connect_about<F: Fn() + 'static>(&self, f: F) {

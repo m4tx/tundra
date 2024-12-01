@@ -204,12 +204,12 @@ impl GtkApp {
                     Ok(login_action) => match login_action {
                         LoginAction::LoggedIn => {
                             this.main_window.set_login_page_loading(false);
-                            this.switch_to_scrobble_page()
+                            this.switch_to_scrobble_page();
                         }
                         LoginAction::OpenBrowser(url) => {
                             info!("Authentication URL: {}", url);
                             this.main_window.show_info(&gettext("Your web browser has been launched. Please sign in to MyAnimeList and then return to Tundra."));
-                            gtk::show_uri(gtk::Window::NONE, &url, gdk::CURRENT_TIME)
+                            gtk::show_uri(gtk::Window::NONE, &url, gdk::CURRENT_TIME);
                         }
                     },
                     Err(error_string) => {
