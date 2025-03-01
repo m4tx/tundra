@@ -39,7 +39,7 @@ lazy_static = "1.5.0"
 libadwaita = "0.7.1"
 log = "0.4.26"
 notify-rust = { version = "4.11.4", default-features = false, features = ["d"] }
-oauth2 = { version = "4.4.2", features = ["pkce-plain"] }
+oauth2 = { version = "5.0.0", features = ["pkce-plain"] }
 once_cell = "1.20.3"
 percent-encoding = "2.3.1"
 regex = "1.11.1"
