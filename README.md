@@ -17,6 +17,7 @@ Tundra is an open-source MyAnimeList scrobbler application for Linux. It automat
 ### AUR
 
 For Arch Linux users, there are two packages in AUR to choose from:
+
 * [aur/tundra](https://aur.archlinux.org/packages/tundra/) - stable version
 * [aur/tundra-git](https://aur.archlinux.org/packages/tundra-git/) - latest git version
 
@@ -72,18 +73,19 @@ Flathub repo can be found here: [flathub/moe.tundra.Tundra](https://github.com/f
 
 We encourage contributors to use predefined [`pre-commit`](https://pre-commit.com/) hooks — to install them in your local repo, make sure you have `pre-commit` installed and run:
 
+```shell
+pre-commit install
+```
+
 ## Localization
 
 Tundra translation is being done on the Transifex platform. See the [Tundra project on Transifex](https://app.transifex.com/tundra/) webpage if you would like to contribute a translation for a language you know.
 
 Currently offered languages:
+
 * English
 * Japanese
 * Polish
-
-```shell
-pre-commit install
-```
 
 ## Related projects
 
