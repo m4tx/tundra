@@ -8,9 +8,7 @@ jobs:
   pre-commit:
     # Run on external PRs and pushes to branches on the repo
     # This is to avoid double running on PRs from internal branches
-    if:
-      github.event_name == 'push' || github.event.pull_request.head.repo.full_name !=
-      github.repository
+    if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name != github.repository
 
     name: Linting Checks
     runs-on: ubuntu-latest
