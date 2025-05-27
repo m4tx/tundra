@@ -6,7 +6,7 @@ pub const APP_VERSION: &str = env!("CARGO_PKG_VERSION");
 pub const APP_HOMEPAGE: &str = env!("CARGO_PKG_HOMEPAGE");
 pub const APP_HOMEPAGE_NAME: &str = "tundra.moe";
 pub const APP_AUTHORS: &str = env!("CARGO_PKG_AUTHORS");
-pub const APP_COPYRIGHT: &str = "© 2020-2023 Mateusz Maćkowski";
+pub const APP_COPYRIGHT: &str = "© 2020-2025 Mateusz Maćkowski";
 
 pub const GETTEXT_PACKAGE: &str = "tundra";
 
