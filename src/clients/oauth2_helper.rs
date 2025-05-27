@@ -11,10 +11,9 @@ use axum::Router;
 use gettextrs::gettext;
 use log::info;
 use oauth2::basic::{BasicClient, BasicTokenResponse};
-use oauth2::reqwest::async_http_client;
 use oauth2::{
-    AuthUrl, AuthorizationCode, ClientId, CsrfToken, PkceCodeChallenge, PkceCodeVerifier,
-    RedirectUrl, TokenResponse, TokenUrl,
+    reqwest, AuthUrl, AuthorizationCode, ClientId, CsrfToken, EndpointNotSet, EndpointSet,
+    HttpClientError, PkceCodeChallenge, PkceCodeVerifier, RedirectUrl, TokenResponse, TokenUrl,
 };
 use serde::{Deserialize, Serialize};
 use tokio::sync::Mutex;
@@ -26,13 +25,14 @@ const REDIRECT_PORTS: [u16; 10] = [
     12177, 13326, 16474, 22626, 22823, 29728, 32600, 41100, 45186, 63355,
 ];
 
+type OAuth2Client =
+    BasicClient<EndpointSet, EndpointNotSet, EndpointNotSet, EndpointNotSet, EndpointSet>;
+
 #[derive(Debug)]
 pub enum OAuth2FlowError {
     ServerStartFailed(std::io::Error),
     ServerError(std::io::Error),
-    OAuth2RequestError(
-        oauth2::basic::BasicRequestTokenError<oauth2::reqwest::AsyncHttpClientError>,
-    ),
+    OAuth2RequestError(oauth2::basic::BasicRequestTokenError<HttpClientError<reqwest::Error>>),
     VerificationFailed,
     WaitingForServerStopFailed(tokio::task::JoinError),
 }
@@ -262,7 +262,7 @@ impl OAuth2Helper {
 
         let token_result = client
             .exchange_refresh_token(&refresh_token.into())
-            .request_async(async_http_client)
+            .request_async(&async_http_client())
             .await
             .map_err(OAuth2FlowError::OAuth2RequestError)?;
 
@@ -270,20 +270,17 @@ impl OAuth2Helper {
     }
 
     #[must_use]
-    fn construct_client(&mut self) -> BasicClient {
-        BasicClient::new(
-            self.client_id.take().expect("Client ID not set"),
-            None,
-            self.auth_url.take().expect("Auth URL not set"),
-            Some(self.token_url.take().expect("Token URL not set")),
-        )
+    fn construct_client(&mut self) -> OAuth2Client {
+        BasicClient::new(self.client_id.take().expect("Client ID not set"))
+            .set_auth_uri(self.auth_url.take().expect("Auth URL not set"))
+            .set_token_uri(self.token_url.take().expect("Token URL not set"))
     }
 }
 
 #[must_use]
 #[derive(Debug)]
 pub struct OAuth2CodeReceiver {
-    client: BasicClient,
+    client: OAuth2Client,
     pkce_verifier: PkceCodeVerifier,
     auth_url: Url,
     csrf_token: CsrfToken,
@@ -306,12 +303,20 @@ impl OAuth2CodeReceiver {
             .client
             .exchange_code(authorization_code)
             .set_pkce_verifier(self.pkce_verifier)
-            .request_async(async_http_client)
+            .request_async(&async_http_client())
             .await
             .map_err(OAuth2FlowError::OAuth2RequestError)?;
 
         Ok(token_result.into())
     }
+}
+
+fn async_http_client() -> reqwest::Client {
+    reqwest::ClientBuilder::new()
+        // Following redirects opens the client up to SSRF vulnerabilities.
+        .redirect(reqwest::redirect::Policy::none())
+        .build()
+        .expect("Client should build")
 }
 
 #[derive(Debug)]
