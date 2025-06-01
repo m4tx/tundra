@@ -25,7 +25,7 @@ async-trait = "0.1.88"
 axum = "0.8.4"
 bytes = "1.10.1"
 chrono = "0.4.41"
-clap = "4.5.38"
+clap = "4.5.39"
 dbus = "0.9.7"
 directories = "6.0.0"
 edit-distance = "2.1.3"
@@ -43,7 +43,7 @@ oauth2 = { version = "5.0.0", features = ["pkce-plain"] }
 once_cell = "1.21.3"
 percent-encoding = "2.3.1"
 regex = "1.11.1"
-reqwest = { version = "0.12.15", features = ["json"] }
+reqwest = { version = "0.12.18", features = ["json"] }
 serde = { version = "1.0.219", features = ["derive"] }
 serde_json = "1.0.140"
 tokio = { version = "1.45.1", features = ["macros", "rt", "rt-multi-thread", "time"] }
