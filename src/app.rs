@@ -86,7 +86,7 @@ impl TundraApp {
             interval.tick().await;
             let scrobble_result = self.try_scrobble().await;
             if let Err(err) = scrobble_result {
-                error!("{:?}", err);
+                error!("{err:?}");
             }
         }
     }

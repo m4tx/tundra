@@ -65,7 +65,7 @@ fn init_i18n() -> anyhow::Result<()> {
         text_domain
     };
     text_domain.init().unwrap_or_else(|e| {
-        info!("Did not initialize i18n: {}", e);
+        info!("Did not initialize i18n: {e}");
         None
     });
 

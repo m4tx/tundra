@@ -360,7 +360,7 @@ impl CodeReceiverServerBuilder {
             .map(|port| SocketAddr::new(IpAddr::V4(Ipv4Addr::new(127, 0, 0, 1)), *port))
             .collect();
 
-        info!("Trying to start listening on addresses: {:?}", addresses);
+        info!("Trying to start listening on addresses: {addresses:?}");
         let listener = tokio::net::TcpListener::bind(addresses.as_slice())
             .await
             .map_err(OAuth2FlowError::ServerStartFailed)?;
@@ -370,7 +370,7 @@ impl CodeReceiverServerBuilder {
             .expect("Could not retrieve the listener port")
             .port();
 
-        info!("Server running on port {}", port);
+        info!("Server running on port {port}");
 
         Ok(Self { port, listener })
     }

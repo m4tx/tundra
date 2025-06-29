@@ -60,7 +60,7 @@ impl AnitomyRecognizer {
     }
 
     fn elements_to_title(elements: &Elements) -> Option<Title> {
-        debug!("Found path elements: {:?}", elements);
+        debug!("Found path elements: {elements:?}");
         let title = elements.get(ElementCategory::AnimeTitle)?.to_owned();
 
         let episode_number: i32 = elements

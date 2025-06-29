@@ -211,7 +211,7 @@ impl MalClient {
     }
 
     async fn search(&self, query: &str) -> MalClientResult<SearchResponse> {
-        debug!("Searching for {}", query);
+        debug!("Searching for {query}");
 
         let params = [
             ("q", query),
@@ -229,7 +229,7 @@ impl MalClient {
     }
 
     async fn get_by_id(&self, id: i64) -> MalClientResult<AnimeObject> {
-        debug!("Getting by ID {}", id);
+        debug!("Getting by ID {id}");
 
         let params = [(
             "fields",
@@ -253,7 +253,7 @@ impl MalClient {
         status: &str,
         num_episodes_watched: i32,
     ) -> MalClientResult<MyListStatus> {
-        info!("Setting status to {} for anime {}", status, id);
+        info!("Setting status to {status} for anime {id}");
 
         let params = [
             ("status", status),
@@ -397,7 +397,7 @@ impl MalClient {
             .get_rule(&AnimeDbs::Mal, anime_object.id);
 
         for rule in relation_rule {
-            debug!("Applying rule {:?}", rule);
+            debug!("Applying rule {rule:?}");
 
             let (new_id, new_ep) =
                 rule.convert_episode_number(&AnimeDbs::Mal, anime_object.id, title.episode_number);

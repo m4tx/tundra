@@ -207,7 +207,7 @@ impl GtkApp {
                             this.switch_to_scrobble_page();
                         }
                         LoginAction::OpenBrowser(url) => {
-                            info!("Authentication URL: {}", url);
+                            info!("Authentication URL: {url}");
                             this.main_window.show_info(&gettext("Your web browser has been launched. Please sign in to MyAnimeList and then return to Tundra."));
                             gtk::show_uri(gtk::Window::NONE, &url, gdk::CURRENT_TIME);
                         }
@@ -237,9 +237,9 @@ impl GtkApp {
 
                 let result = Self::daemon_tick(&app, &images).await;
                 let new_result = result.map_err(|error| {
-                    error!("{}", error);
+                    error!("{error}");
                     if let Some(source) = error.source() {
-                        error!("{}", source);
+                        error!("{source}");
                     }
                     error.to_string()
                 });
