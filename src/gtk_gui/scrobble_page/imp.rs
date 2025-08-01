@@ -2,7 +2,7 @@ use std::cell::RefCell;
 use std::rc::Rc;
 
 use gettextrs::gettext;
-use glib::{clone, ParamSpec, ParamSpecObject, ParamSpecString, Value};
+use glib::{ParamSpec, ParamSpecObject, ParamSpecString, Value, clone};
 use gtk::prelude::*;
 use gtk::subclass::prelude::*;
 use gtk::{gdk, glib};

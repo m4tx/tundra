@@ -2,8 +2,8 @@ use gettextrs::gettext;
 use gtk::gio::{Menu, SimpleAction};
 use gtk::glib::clone;
 use gtk::{
-    gdk, Application, InfoBar, Label, MenuButton, MessageType, Orientation, PopoverMenu, Stack,
-    StackTransitionType, Switch,
+    Application, InfoBar, Label, MenuButton, MessageType, Orientation, PopoverMenu, Stack,
+    StackTransitionType, Switch, gdk,
 };
 use libadwaita::prelude::*;
 use libadwaita::{ApplicationWindow, HeaderBar};

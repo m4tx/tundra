@@ -193,9 +193,9 @@ impl TundraApp {
                 .icon("dialog-information-symbolic")
                 .timeout(6000)
                 .show()
-                .with_context(|| {
-                    "Failed to send the notification. Is the notification daemon running?"
-                })?;
+                .with_context(
+                    || "Failed to send the notification. Is the notification daemon running?",
+                )?;
         }
 
         Ok(())

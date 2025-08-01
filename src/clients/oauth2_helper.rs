@@ -4,16 +4,16 @@ use std::net::{IpAddr, Ipv4Addr, SocketAddr};
 use std::sync::Arc;
 use std::time::Duration;
 
+use axum::Router;
 use axum::extract::{Query, State};
 use axum::response::Html;
 use axum::routing::get;
-use axum::Router;
 use gettextrs::gettext;
 use log::info;
 use oauth2::basic::{BasicClient, BasicTokenResponse};
 use oauth2::{
-    reqwest, AuthUrl, AuthorizationCode, ClientId, CsrfToken, EndpointNotSet, EndpointSet,
-    HttpClientError, PkceCodeChallenge, PkceCodeVerifier, RedirectUrl, TokenResponse, TokenUrl,
+    AuthUrl, AuthorizationCode, ClientId, CsrfToken, EndpointNotSet, EndpointSet, HttpClientError,
+    PkceCodeChallenge, PkceCodeVerifier, RedirectUrl, TokenResponse, TokenUrl, reqwest,
 };
 use serde::{Deserialize, Serialize};
 use tokio::sync::Mutex;
