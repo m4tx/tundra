@@ -2,7 +2,7 @@
 name = "tundra"
 version = "0.5.4"
 authors = ["Mateusz Maćkowski <mateusz@mackowski.org>"]
-edition = "2021"
+edition = "2024"
 
 readme = "README.md"
 license = "GPL-3.0"

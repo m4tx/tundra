@@ -9,17 +9,17 @@ use about_dialog::AboutDialog;
 use async_std::sync::Mutex;
 use gettextrs::gettext;
 use gtk::glib::clone;
-use gtk::{gdk, Application};
+use gtk::{Application, gdk};
 use libadwaita::prelude::*;
 use log::{error, info};
 use logs_window::LogsWindow;
 use tokio::time;
 
+use crate::TundraApp;
 use crate::app::PlayedTitle;
 use crate::clients::PictureUrl;
 use crate::constants::{REFRESH_INTERVAL, USER_AGENT};
 use crate::gtk_gui::main_window::MainWindow;
-use crate::TundraApp;
 
 mod about_dialog;
 mod login_page;
