@@ -8,7 +8,7 @@ use std::sync::{Arc, RwLock};
 use about_dialog::AboutDialog;
 use async_std::sync::Mutex;
 use gettextrs::gettext;
-use glib::clone;
+use gtk::glib::clone;
 use gtk::{gdk, Application};
 use libadwaita::prelude::*;
 use log::{error, info};
@@ -45,10 +45,10 @@ const DEFAULT_CHANNEL_SIZE: usize = 1;
 
 #[derive(Clone)]
 pub struct GtkApp {
-    gtk_application: gtk::Application,
+    gtk_application: Application,
     app: Arc<Mutex<TundraApp>>,
     main_window: Rc<MainWindow>,
-    images: Arc<RwLock<HashMap<PictureUrl, glib::Bytes>>>,
+    images: Arc<RwLock<HashMap<PictureUrl, gtk::glib::Bytes>>>,
     current_image_url: Rc<RefCell<PictureUrl>>,
     scrobbling_enabled: Arc<AtomicBool>,
 }
@@ -154,7 +154,7 @@ impl GtkApp {
         });
 
         let this = self.clone();
-        glib::spawn_future_local(async move {
+        gtk::glib::spawn_future_local(async move {
             let is_mal_authenticated = rx.recv().await.expect("Couldn't receive data from channel");
             if is_mal_authenticated {
                 this.switch_to_scrobble_page();
@@ -198,7 +198,7 @@ impl GtkApp {
         });
 
         let this = self.clone();
-        glib::spawn_future_local(async move {
+        gtk::glib::spawn_future_local(async move {
             while let Ok(result) = rx.recv().await {
                 match result {
                     Ok(login_action) => match login_action {
@@ -252,7 +252,7 @@ impl GtkApp {
         let main_window = self.main_window.clone();
         let images = self.images.clone();
         let current_image_url = self.current_image_url.clone();
-        glib::spawn_future_local(async move {
+        gtk::glib::spawn_future_local(async move {
             while let Ok(result) = rx.recv().await {
                 Self::handle_ui_daemon_tick(&result, &main_window, &images, &current_image_url);
             }
@@ -261,7 +261,7 @@ impl GtkApp {
 
     async fn daemon_tick(
         app: &Arc<Mutex<TundraApp>>,
-        images: &Arc<RwLock<HashMap<PictureUrl, glib::Bytes>>>,
+        images: &Arc<RwLock<HashMap<PictureUrl, gtk::glib::Bytes>>>,
     ) -> anyhow::Result<Option<PlayedTitle>> {
         let mut app = app.lock().await;
         app.try_scrobble().await?;
@@ -273,7 +273,7 @@ impl GtkApp {
             if !image_downloaded {
                 let bytes = Self::get_picture(picture_url).await?;
                 let vec = Vec::from(bytes.as_ref());
-                let glib_bytes = glib::Bytes::from_owned(vec);
+                let glib_bytes = gtk::glib::Bytes::from_owned(vec);
                 images
                     .write()
                     .unwrap()
@@ -292,7 +292,7 @@ impl GtkApp {
     fn handle_ui_daemon_tick(
         result: &Result<Option<PlayedTitle>, String>,
         main_window: &Rc<MainWindow>,
-        images: &Arc<RwLock<HashMap<PictureUrl, glib::Bytes>>>,
+        images: &Arc<RwLock<HashMap<PictureUrl, gtk::glib::Bytes>>>,
         current_image_url: &Rc<RefCell<PictureUrl>>,
     ) {
         if let Err(error_string) = result {

@@ -19,7 +19,7 @@ impl PlayerController {
         Ok(Self { connection })
     }
 
-    pub fn get_players(&self) -> anyhow::Result<Vec<Player>> {
+    pub fn get_players(&self) -> anyhow::Result<Vec<Player<'_>>> {
         let proxy =
             self.connection
                 .with_proxy("org.freedesktop.DBus", "/", Duration::from_millis(5000));

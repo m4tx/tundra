@@ -1,4 +1,3 @@
-use gtk::gdk;
 use gtk::gdk::Texture;
 use gtk::prelude::*;
 use libadwaita::ApplicationWindow;
@@ -34,10 +33,11 @@ impl AboutDialog {
     }
 
     fn get_logo_texture() -> Texture {
-        let bytes = glib::Bytes::from(LOGO_BYTES);
-        let stream = gio::MemoryInputStream::from_bytes(&bytes);
-        let pixbuf = gdk_pixbuf::Pixbuf::from_stream(&stream, gio::Cancellable::NONE).unwrap();
-        gdk::Texture::for_pixbuf(&pixbuf)
+        let bytes = gtk::glib::Bytes::from(LOGO_BYTES);
+        let stream = gtk::gio::MemoryInputStream::from_bytes(&bytes);
+        let pixbuf =
+            gtk::gdk_pixbuf::Pixbuf::from_stream(&stream, gtk::gio::Cancellable::NONE).unwrap();
+        Texture::for_pixbuf(&pixbuf)
     }
 
     pub fn run(&self) {
