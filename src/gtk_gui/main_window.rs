@@ -1,6 +1,6 @@
 use gettextrs::gettext;
-use gio::{Menu, SimpleAction};
-use glib::clone;
+use gtk::gio::{Menu, SimpleAction};
+use gtk::glib::clone;
 use gtk::{
     gdk, Application, InfoBar, Label, MenuButton, MessageType, Orientation, PopoverMenu, Stack,
     StackTransitionType, Switch,
@@ -174,7 +174,7 @@ impl MainWindow {
         self.enable_switch.connect_state_set(move |_, state| {
             f(state);
 
-            glib::Propagation::Proceed
+            gtk::glib::Propagation::Proceed
         });
     }
 
@@ -219,11 +219,12 @@ impl MainWindow {
         player_name: &str,
         status: &str,
         website_url: &WebsiteUrl,
-        picture: Option<glib::Bytes>,
+        picture: Option<gtk::glib::Bytes>,
     ) {
         let picture_texture = picture.map(|bytes| {
-            let stream = gio::MemoryInputStream::from_bytes(&bytes);
-            let pixbuf = gdk_pixbuf::Pixbuf::from_stream(&stream, gio::Cancellable::NONE).unwrap();
+            let stream = gtk::gio::MemoryInputStream::from_bytes(&bytes);
+            let pixbuf =
+                gtk::gdk_pixbuf::Pixbuf::from_stream(&stream, gtk::gio::Cancellable::NONE).unwrap();
             gdk::Texture::for_pixbuf(&pixbuf)
         });
 

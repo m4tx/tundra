@@ -29,14 +29,10 @@ clap = "4.5.42"
 dbus = "0.9.7"
 directories = "6.0.0"
 edit-distance = "2.1.3"
-gdk-pixbuf = "0.21.0"
 gettext-rs = { version = "0.7.2", features = ["gettext-system"] }
-gio = "0.21.0"
-glib = "0.21.0"
-gtk = { package = "gtk4", version = "0.9.6" }
-hyper = "1.6.0"
+gtk = { package = "gtk4", version = "0.10" }
 lazy_static = "1.5.0"
-libadwaita = "0.7.2"
+libadwaita = "0.8"
 log = "0.4.27"
 notify-rust = { version = "4.11.7", default-features = false, features = ["d"] }
 oauth2 = { version = "5.0.0", features = ["pkce-plain"] }
@@ -45,7 +41,6 @@ percent-encoding = "2.3.1"
 regex = "1.11.1"
 reqwest = { version = "0.12.22", features = ["json"] }
 serde = { version = "1.0.219", features = ["derive"] }
-serde_json = "1.0.142"
 tokio = { version = "1.47.0", features = ["macros", "rt", "rt-multi-thread", "time"] }
 toml = "0.9.4"
 url = "2.5.4"

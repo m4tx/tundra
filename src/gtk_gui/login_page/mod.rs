@@ -7,7 +7,7 @@ mod imp;
 glib::wrapper! {
     pub struct LoginPage(ObjectSubclass<imp::LoginPage>)
         @extends gtk::Grid, gtk::Widget,
-        @implements gtk::Accessible, gtk::Actionable, gtk::Buildable, gtk::ConstraintTarget;
+        @implements gtk::Accessible, gtk::Actionable, gtk::Buildable, gtk::ConstraintTarget, gtk::Orientable;
 }
 
 #[allow(clippy::new_without_default)]
