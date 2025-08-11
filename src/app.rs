@@ -161,13 +161,13 @@ impl TundraApp {
     pub async fn try_scrobble(&mut self) -> anyhow::Result<()> {
         let title = self.get_played_title().await?;
 
-        if let Some(title) = title {
-            if title.should_scrobble {
-                if title.scrobbled {
-                    info!("Already scrobbled, skipping...");
-                } else {
-                    self.scrobble_title(&title.anime_info).await?;
-                }
+        if let Some(title) = title
+            && title.should_scrobble
+        {
+            if title.scrobbled {
+                info!("Already scrobbled, skipping...");
+            } else {
+                self.scrobble_title(&title.anime_info).await?;
             }
         }
 
