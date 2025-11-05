@@ -340,7 +340,7 @@ impl MalClient {
 
     fn search_relevance(query: &str, anime_object: &AnimeObject) -> f32 {
         let dist =
-            edit_distance::edit_distance(&anime_object.title.to_lowercase(), &query.to_lowercase());
+            edit_distance::edit_distance(anime_object.title.to_lowercase(), query.to_lowercase());
         let edit_distance_relevance = 1.0 / (dist + 1) as f32;
         let popularity_relevance = 1.0 / anime_object.popularity as f32;
 
