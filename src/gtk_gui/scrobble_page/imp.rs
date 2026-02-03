@@ -1,12 +1,12 @@
 use std::cell::RefCell;
 use std::rc::Rc;
+use std::sync::LazyLock;
 
 use gettextrs::gettext;
 use glib::{ParamSpec, ParamSpecObject, ParamSpecString, Value, clone};
 use gtk::prelude::*;
 use gtk::subclass::prelude::*;
 use gtk::{gdk, glib};
-use once_cell::sync::Lazy;
 
 #[derive(Default)]
 pub struct ScrobblePage {
@@ -129,7 +129,7 @@ impl ObjectImpl for ScrobblePage {
     }
 
     fn properties() -> &'static [ParamSpec] {
-        static PROPERTIES: Lazy<Vec<ParamSpec>> = Lazy::new(|| {
+        static PROPERTIES: LazyLock<Vec<ParamSpec>> = LazyLock::new(|| {
             vec![
                 ParamSpecString::builder(super::ScrobblePage::STATUS_SUMMARY_PROPERTY)
                     .blurb("Status summary")

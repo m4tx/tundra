@@ -1,8 +1,8 @@
 use std::collections::HashMap;
 use std::ops::Range;
 use std::str::FromStr;
+use std::sync::LazyLock;
 
-use lazy_static::lazy_static;
 use regex::Regex;
 
 #[derive(Debug, PartialEq, Eq, Hash)]
@@ -51,11 +51,11 @@ impl AnimeRelations {
     }
 
     fn build_rule(s: &str) -> AnimeRelationRule {
-        lazy_static! {
-            static ref LINE_RE: Regex = Regex::new(
-                r"- ([0-9?]+)\|([0-9?]+)\|([0-9?]+):([0-9\-?]+) -> ([0-9?~]+)\|([0-9?~]+)\|([0-9?~]+):([0-9\-?]+)"
-            ).unwrap();
-        }
+        static LINE_RE: LazyLock<Regex> = LazyLock::new(|| {
+            Regex::new(
+            r"- ([0-9?]+)\|([0-9?]+)\|([0-9?]+):([0-9\-?]+) -> ([0-9?~]+)\|([0-9?~]+)\|([0-9?~]+):([0-9\-?]+)"
+        ).unwrap()
+        });
 
         let captures = LINE_RE.captures(s).unwrap();
 

@@ -4,10 +4,12 @@ use std::net::{IpAddr, Ipv4Addr, SocketAddr};
 use std::sync::Arc;
 use std::time::Duration;
 
-use axum::Router;
-use axum::extract::{Query, State};
-use axum::response::Html;
-use axum::routing::get;
+use cot::config::ProjectConfig;
+use cot::html::Html;
+use cot::project::RegisterAppsContext;
+use cot::request::extractors::UrlQuery;
+use cot::router::{Route, Router};
+use cot::{App, AppBuilder, Bootstrapper, Project, Template};
 use gettextrs::gettext;
 use log::info;
 use oauth2::basic::{BasicClient, BasicTokenResponse};
@@ -31,7 +33,7 @@ type OAuth2Client =
 #[derive(Debug)]
 pub enum OAuth2FlowError {
     ServerStartFailed(std::io::Error),
-    ServerError(std::io::Error),
+    ServerError(cot::Error),
     OAuth2RequestError(oauth2::basic::BasicRequestTokenError<HttpClientError<reqwest::Error>>),
     VerificationFailed,
     WaitingForServerStopFailed(tokio::task::JoinError),
@@ -163,6 +165,7 @@ impl From<&RefreshToken> for oauth2::RefreshToken {
 #[derive(Debug, Clone)]
 pub struct OAuth2Token {
     pub access_token: AccessToken,
+    #[allow(dead_code)]
     pub expires_in: Option<Duration>,
     pub refresh_token: Option<RefreshToken>,
 }
@@ -388,7 +391,7 @@ impl CodeReceiverServerBuilder {
 #[derive(Debug)]
 struct CodeReceiverServer {
     state: Arc<Mutex<StateData>>,
-    join_handle: JoinHandle<Result<(), std::io::Error>>,
+    join_handle: JoinHandle<cot::Result<()>>,
 }
 
 impl CodeReceiverServer {
@@ -396,18 +399,7 @@ impl CodeReceiverServer {
         let (tx, rx) = tokio::sync::oneshot::channel::<()>();
         let state = Arc::new(Mutex::new(StateData::waiting_for_code(tx)));
 
-        let app = Router::new()
-            .route("/", get(root))
-            .with_state(state.clone());
-
-        let join_handle = tokio::spawn(async {
-            axum::serve(builder.listener, app.into_make_service())
-                .with_graceful_shutdown(async {
-                    rx.await.ok();
-                    info!("OAuth2 code receiver server has been stopped");
-                })
-                .await
-        });
+        let join_handle = tokio::spawn(create_server(builder.listener, state.clone(), rx));
 
         info!("OAuth2 code receiver server is running");
 
@@ -432,40 +424,90 @@ impl CodeReceiverServer {
     }
 }
 
+async fn create_server(
+    listener: tokio::net::TcpListener,
+    state: Arc<Mutex<StateData>>,
+    rx: tokio::sync::oneshot::Receiver<()>,
+) -> cot::Result<()> {
+    let handler = async move |UrlQuery(oauth2_response): UrlQuery<OAuth2Response>| {
+        let mut state = state.lock().await;
+
+        if state.is_waiting_for_code() {
+            match std::mem::replace(
+                &mut *state,
+                StateData::code_received(oauth2_response.code, oauth2_response.state),
+            ) {
+                StateData::WaitingForCode { tx } => {
+                    tx.send(())
+                        .expect("Could not send shutdown signal to OAuth2 code receiver server");
+                }
+                _ => unreachable!(),
+            }
+        }
+
+        build_html_response()
+    };
+
+    #[derive(Clone)]
+    struct OAuth2App {
+        router: Router,
+    }
+
+    impl App for OAuth2App {
+        fn name(&self) -> &str {
+            "oauth2_app"
+        }
+
+        fn router(&self) -> Router {
+            self.router.clone()
+        }
+    }
+
+    struct OAuth2Project {
+        app: OAuth2App,
+    }
+
+    impl Project for OAuth2Project {
+        fn register_apps(&self, apps: &mut AppBuilder, _context: &RegisterAppsContext) {
+            apps.register_with_views(self.app.clone(), "");
+        }
+    }
+
+    let router = Router::with_urls([Route::with_handler("/", handler)]);
+
+    let project = OAuth2Project {
+        app: OAuth2App { router },
+    };
+
+    let bootstrapper = Bootstrapper::new(project)
+        .with_config(ProjectConfig::default())
+        .boot()
+        .await?;
+
+    cot::project::run_at_with_shutdown(bootstrapper, listener, async move {
+        rx.await.ok();
+        info!("OAuth2 code receiver server has been stopped");
+    })
+    .await
+}
+
 #[derive(Debug, Deserialize)]
 struct OAuth2Response {
     code: String,
     state: String,
 }
 
-async fn root(
-    Query(oauth2_response): Query<OAuth2Response>,
-    State(state): State<Arc<Mutex<StateData>>>,
-) -> Html<String> {
-    let mut state = state.lock().await;
-
-    if state.is_waiting_for_code() {
-        match std::mem::replace(
-            &mut *state,
-            StateData::code_received(oauth2_response.code, oauth2_response.state),
-        ) {
-            StateData::WaitingForCode { tx } => {
-                tx.send(())
-                    .expect("Could not send shutdown signal to OAuth2 code receiver server");
-            }
-            _ => unreachable!(),
-        }
+fn build_html_response() -> cot::Result<Html> {
+    #[derive(Template)]
+    #[template(path = "oauth2_response.html")]
+    struct OAuth2ResponseTemplateContext {
+        title: String,
+        body: String,
     }
 
-    Html(build_html_response())
-}
-
-#[must_use]
-fn build_html_response() -> String {
-    include_str!("oauth2_response.html")
-        .replace("{{ title }}", &gettext("Tundra authentication"))
-        .replace(
-            "{{ body }}",
-            &gettext("The authentication has succeeded; you may now close this tab."),
-        )
+    let response_template = OAuth2ResponseTemplateContext {
+        title: gettext("Tundra authentication"),
+        body: gettext("The authentication has succeeded; you may now close this tab."),
+    };
+    Ok(Html::new(response_template.render()?))
 }
