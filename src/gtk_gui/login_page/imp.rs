@@ -1,10 +1,11 @@
+use std::sync::LazyLock;
+
 use gettextrs::gettext;
 use glib::clone;
 use glib::subclass::Signal;
 use gtk::glib;
 use gtk::prelude::*;
 use gtk::subclass::prelude::*;
-use once_cell::sync::Lazy;
 
 #[derive(Default)]
 pub struct LoginPage {}
@@ -68,8 +69,8 @@ impl ObjectImpl for LoginPage {
     }
 
     fn signals() -> &'static [Signal] {
-        static SIGNALS: Lazy<Vec<Signal>> =
-            Lazy::new(|| vec![Signal::builder(super::LoginPage::ACTIVATE_PROPERTY).build()]);
+        static SIGNALS: LazyLock<Vec<Signal>> =
+            LazyLock::new(|| vec![Signal::builder(super::LoginPage::ACTIVATE_PROPERTY).build()]);
         SIGNALS.as_ref()
     }
 }

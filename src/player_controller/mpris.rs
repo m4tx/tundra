@@ -1,5 +1,6 @@
 use dbus::{arg, blocking};
 
+#[allow(dead_code)]
 pub trait OrgMprisMediaPlayer2 {
     fn identity(&self) -> Result<String, dbus::Error>;
     fn desktop_entry(&self) -> Result<String, dbus::Error>;

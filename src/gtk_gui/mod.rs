@@ -6,13 +6,13 @@ use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Arc, RwLock};
 
 use about_dialog::AboutDialog;
-use async_std::sync::Mutex;
 use gettextrs::gettext;
 use gtk::glib::clone;
 use gtk::{Application, gdk};
 use libadwaita::prelude::*;
 use log::{error, info};
 use logs_window::LogsWindow;
+use tokio::sync::Mutex;
 use tokio::time;
 
 use crate::TundraApp;
@@ -143,7 +143,7 @@ impl GtkApp {
     fn start_main(&mut self) {
         self.run_daemon();
 
-        let (tx, rx) = async_channel::bounded(DEFAULT_CHANNEL_SIZE);
+        let (tx, mut rx) = tokio::sync::mpsc::channel(DEFAULT_CHANNEL_SIZE);
         let app = self.app.clone();
         tokio::spawn(async move {
             let app = app.lock().await;
@@ -182,7 +182,7 @@ impl GtkApp {
     fn sign_in(&mut self) {
         self.main_window.set_login_page_loading(true);
 
-        let (tx, rx) = async_channel::bounded(DEFAULT_CHANNEL_SIZE);
+        let (tx, mut rx) = tokio::sync::mpsc::channel(DEFAULT_CHANNEL_SIZE);
         let app = self.app.clone();
         tokio::spawn(async move {
             let mut app = app.lock().await;
@@ -199,7 +199,7 @@ impl GtkApp {
 
         let this = self.clone();
         gtk::glib::spawn_future_local(async move {
-            while let Ok(result) = rx.recv().await {
+            while let Some(result) = rx.recv().await {
                 match result {
                     Ok(login_action) => match login_action {
                         LoginAction::LoggedIn => {
@@ -225,7 +225,7 @@ impl GtkApp {
         let app = self.app.clone();
         let images = self.images.clone();
         let scrobbling_enabled = self.scrobbling_enabled.clone();
-        let (tx, rx) = async_channel::bounded(DEFAULT_CHANNEL_SIZE);
+        let (tx, mut rx) = tokio::sync::mpsc::channel(DEFAULT_CHANNEL_SIZE);
         tokio::spawn(async move {
             let mut interval = time::interval(REFRESH_INTERVAL);
 
@@ -253,7 +253,7 @@ impl GtkApp {
         let images = self.images.clone();
         let current_image_url = self.current_image_url.clone();
         gtk::glib::spawn_future_local(async move {
-            while let Ok(result) = rx.recv().await {
+            while let Some(result) = rx.recv().await {
                 Self::handle_ui_daemon_tick(&result, &main_window, &images, &current_image_url);
             }
         });

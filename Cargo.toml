@@ -17,30 +17,26 @@ strip = true
 panic = "abort"
 
 [dependencies]
-anitomy = "0.2.0"
-anyhow = "1.0.102"
-async-channel = "2.5.0"
-async-std = "1.13.2"
-async-trait = "0.1.89"
-axum = "0.8.8"
-bytes = "1.11.1"
-chrono = "0.4.44"
-clap = "4.5.60"
-dbus = "0.9.10"
-directories = "6.0.0"
-edit-distance = "2.2.2"
-gettext-rs = { version = "0.7.7", features = ["gettext-system"] }
-gtk = { package = "gtk4", version = "0.10" }
-lazy_static = "1.5.0"
-libadwaita = "0.8"
-log = "0.4.29"
-notify-rust = { version = "4.12.0", default-features = false, features = ["d"] }
-oauth2 = { version = "5.0.0", features = ["pkce-plain"] }
-once_cell = "1.21.3"
-percent-encoding = "2.3.2"
-regex = "1.12.3"
-reqwest = { version = "0.13.2", features = ["form", "json", "query"] }
-serde = { version = "1.0.219", features = ["derive"] }
-tokio = { version = "1.49.0", features = ["macros", "rt", "rt-multi-thread", "time"] }
-toml = "1.0.3"
-url = "2.5.8"
+anitomy = "0.2"
+anyhow = "1"
+async-trait = "0.1"
+bytes = "1"
+chrono = "0.4"
+clap = "4"
+cot = { version = "0.6", default-features = false }
+dbus = "0.9"
+directories = "6"
+edit-distance = "2"
+gettext-rs = { version = "0.7", features = ["gettext-system"] }
+gtk = { package = "gtk4", version = "0.11" }
+libadwaita = "0.9"
+log = "0.4"
+notify-rust = { version = "4", default-features = false, features = ["d"] }
+oauth2 = { version = "5", features = ["pkce-plain"] }
+percent-encoding = "2"
+regex = "1"
+reqwest = { version = "0.13", features = ["form", "json", "query"] }
+serde = { version = "1", features = ["derive"] }
+tokio = { version = "1", features = ["macros", "rt", "rt-multi-thread", "time"] }
+toml = "1"
+url = "2"
