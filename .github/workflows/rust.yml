@@ -25,7 +25,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout source
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           submodules: recursive
 
@@ -36,7 +36,7 @@ jobs:
           sudo apt install -y pkg-config libdbus-1-dev libgtk-4-dev libadwaita-1-dev libnotify-dev gettext
 
       - name: Cache Cargo registry
-        uses: actions/cache@v5
+        uses: actions/cache@v6
         with:
           path: |
             ~/.cargo/registry
@@ -59,7 +59,7 @@ jobs:
     needs: ["build"]
     steps:
       - name: Checkout source
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           submodules: recursive
 
@@ -70,7 +70,7 @@ jobs:
           sudo apt install -y pkg-config libdbus-1-dev libgtk-4-dev libadwaita-1-dev libnotify-dev gettext
 
       - name: Cache Cargo registry
-        uses: actions/cache@v5
+        uses: actions/cache@v6
         with:
           path: |
             ~/.cargo/registry
@@ -91,10 +91,10 @@ jobs:
     needs: ["build"]
     steps:
       - name: Checkout source
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Cache Cargo registry
-        uses: actions/cache@v5
+        uses: actions/cache@v6
         with:
           path: |
             ~/.cargo/registry
