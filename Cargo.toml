@@ -23,7 +23,7 @@ async-trait = "0.1"
 bytes = "1"
 chrono = "0.4"
 clap = "4"
-cot = { version = "0.6", default-features = false }
+cot = { version = "0.7", default-features = false }
 dbus = "0.9"
 directories = "6"
 edit-distance = "2"
