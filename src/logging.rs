@@ -26,7 +26,7 @@ impl log::Log for Logger {
                 record.args()
             );
 
-            println!("{}", &log_line);
+            println!("{log_line}");
             let mut logs = LOGS.lock().expect("Could not lock logs store");
             logs.push(log_line);
         }
