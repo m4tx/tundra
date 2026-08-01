@@ -14,7 +14,7 @@ fn generate_translation_files() {
     let mut dest_path = PathBuf::from(TARGET_DIR);
     dest_path.push("locale");
 
-    println!("Creating directory: {:?}", &dest_path);
+    println!("Creating directory: {dest_path:?}");
     let _ = fs::remove_dir_all(&dest_path);
     fs::create_dir_all(&dest_path).expect("Could not create translations directory");
 
@@ -38,7 +38,7 @@ fn generate_mo(src_path: &Path, dest_path: &Path) {
 
     print!(
         "Generating .mo file for {:?} to {} ",
-        &src_path.display(),
+        src_path.display(),
         file_dest_path.display(),
     );
     let res = Command::new("msgfmt")
