@@ -64,10 +64,14 @@ fn init_i18n() -> anyhow::Result<()> {
     } else {
         text_domain
     };
-    text_domain.init().unwrap_or_else(|e| {
-        info!("Did not initialize i18n: {e}");
-        None
-    });
+    // SAFETY: init() is safe to call because at this point the program
+    // is single-threaded
+    unsafe {
+        text_domain.init().unwrap_or_else(|e| {
+            info!("Did not initialize i18n: {e}");
+            None
+        });
+    }
 
     Ok(())
 }
