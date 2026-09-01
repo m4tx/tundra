@@ -27,7 +27,7 @@ cot = { version = "0.7", default-features = false }
 dbus = "0.9"
 directories = "6"
 edit-distance = "2"
-gettext-rs = { version = "0.7", features = ["gettext-system"] }
+gettext-rs = { version = "0.8", features = ["gettext-system"] }
 gtk = { package = "gtk4", version = "0.11" }
 libadwaita = "0.9"
 log = "0.4"
