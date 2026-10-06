@@ -59,7 +59,7 @@ impl ScrobblePage {
                 gesture.set_state(gtk::EventSequenceState::Claimed);
                 let url = website_url.borrow();
                 if !url.is_empty() {
-                    gtk::show_uri(gtk::Window::NONE, &url, gdk::CURRENT_TIME);
+                    crate::gtk_gui::open_uri(&url);
                 }
             }
         ));

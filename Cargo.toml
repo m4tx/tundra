@@ -29,7 +29,7 @@ directories = "6"
 edit-distance = "2"
 gettext-rs = { version = "0.8", features = ["gettext-system"] }
 gtk = { package = "gtk4", version = "0.11", features = ["v4_10"] }
-libadwaita = "0.9"
+libadwaita = { version = "0.9", features = ["v1_3"] }
 log = "0.4"
 notify-rust = { version = "4", default-features = false, features = ["d"] }
 oauth2 = { version = "5", features = ["pkce-plain"] }

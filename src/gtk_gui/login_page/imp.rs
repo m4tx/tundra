@@ -8,7 +8,10 @@ use gtk::prelude::*;
 use gtk::subclass::prelude::*;
 
 #[derive(Default)]
-pub struct LoginPage {}
+pub struct LoginPage {
+    sign_in_button: gtk::Button,
+    info_label: gtk::Label,
+}
 
 impl LoginPage {
     fn make_title() -> gtk::Label {
@@ -19,11 +22,13 @@ impl LoginPage {
         title
     }
 
-    fn make_sign_in_button(&self) -> gtk::Button {
-        let sign_in_button = gtk::Button::with_mnemonic(&gettext("_Sign in"));
+    fn setup_sign_in_button(&self) {
+        let sign_in_button = &self.sign_in_button;
+        sign_in_button.set_label(&gettext("_Sign in"));
+        sign_in_button.set_use_underline(true);
         sign_in_button.set_receives_default(true);
         sign_in_button.set_hexpand(true);
-        sign_in_button.style_context().add_class("suggested-action");
+        sign_in_button.add_css_class("suggested-action");
 
         let this = self.to_owned();
         sign_in_button.connect_clicked(clone!(
@@ -33,8 +38,24 @@ impl LoginPage {
                 this.emit_activate(&this.obj());
             }
         ));
+    }
 
-        sign_in_button
+    fn setup_info_label(&self) {
+        let info_label = &self.info_label;
+        info_label.set_wrap(true);
+        info_label.set_wrap_mode(gtk::pango::WrapMode::WordChar);
+        info_label.set_width_chars(35);
+        info_label.set_justify(gtk::Justification::Center);
+        info_label.set_visible(false);
+    }
+
+    pub(super) fn set_loading(&self, loading: bool) {
+        self.sign_in_button.set_sensitive(!loading);
+    }
+
+    pub(super) fn set_info(&self, info: Option<&str>) {
+        self.info_label.set_text(info.unwrap_or_default());
+        self.info_label.set_visible(info.is_some());
     }
 
     fn emit_activate(&self, obj: &super::LoginPage) {
@@ -65,7 +86,10 @@ impl ObjectImpl for LoginPage {
 
         let title = Self::make_title();
         obj.attach(&title, 0, 0, 1, 1);
-        obj.attach(&self.make_sign_in_button(), 0, 1, 1, 1);
+        self.setup_sign_in_button();
+        obj.attach(&self.sign_in_button, 0, 1, 1, 1);
+        self.setup_info_label();
+        obj.attach(&self.info_label, 0, 2, 1, 1);
     }
 
     fn signals() -> &'static [Signal] {

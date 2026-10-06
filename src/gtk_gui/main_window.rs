@@ -2,11 +2,10 @@ use gettextrs::gettext;
 use gtk::gio::{Menu, SimpleAction};
 use gtk::glib::clone;
 use gtk::{
-    Application, InfoBar, Label, MenuButton, MessageType, Orientation, PopoverMenu, Stack,
-    StackTransitionType, Switch, gdk,
+    Application, MenuButton, Orientation, PopoverMenu, Stack, StackTransitionType, Switch, gdk,
 };
 use libadwaita::prelude::*;
-use libadwaita::{ApplicationWindow, HeaderBar};
+use libadwaita::{ApplicationWindow, Banner, HeaderBar};
 
 use crate::clients::WebsiteUrl;
 use crate::gtk_gui::login_page::LoginPage;
@@ -17,8 +16,7 @@ pub struct MainWindow {
     window: ApplicationWindow,
     enable_switch: gtk::Switch,
     overflow_button: gtk::MenuButton,
-    info_bar: gtk::InfoBar,
-    info_bar_text: gtk::Label,
+    error_banner: Banner,
     main_stack: gtk::Stack,
     login_page: LoginPage,
     scrobble_page: ScrobblePage,
@@ -36,10 +34,10 @@ impl MainWindow {
         main_stack.add_child(&login_page);
         main_stack.add_child(&scrobble_page);
 
-        let (info_bar, info_bar_text) = Self::make_info_bar();
+        let error_banner = Self::make_error_banner();
 
         let content = gtk::Box::new(Orientation::Vertical, 0);
-        content.append(&info_bar);
+        content.append(&error_banner);
         content.append(&main_stack);
 
         let enable_switch = Self::make_enable_switch();
@@ -65,8 +63,7 @@ impl MainWindow {
         let main_window = Self {
             app: app.clone(),
             window,
-            info_bar,
-            info_bar_text,
+            error_banner,
             enable_switch,
             overflow_button,
             main_stack,
@@ -85,25 +82,12 @@ impl MainWindow {
         main_stack
     }
 
-    fn make_info_bar() -> (InfoBar, Label) {
-        let info_bar = InfoBar::new();
-        info_bar.set_show_close_button(true);
-        info_bar.set_revealed(false);
-        info_bar.connect_response(|bar, response| {
-            if response == gtk::ResponseType::Close {
-                bar.set_revealed(false);
-            }
-        });
-
-        let info_bar_text = Label::new(None);
-        info_bar_text.set_wrap(true);
-        info_bar_text.set_wrap_mode(gtk::pango::WrapMode::WordChar);
-        info_bar_text.set_halign(gtk::Align::Center);
-        info_bar_text.set_hexpand(true);
-        info_bar_text.set_justify(gtk::Justification::Center);
-        info_bar.add_child(&info_bar_text);
-
-        (info_bar, info_bar_text)
+    fn make_error_banner() -> Banner {
+        let banner = Banner::new("");
+        banner.set_use_markup(false);
+        banner.set_button_label(Some(&gettext("_Dismiss")));
+        banner.connect_button_clicked(|banner| banner.set_revealed(false));
+        banner
     }
 
     fn make_overflow_button() -> MenuButton {
@@ -183,33 +167,33 @@ impl MainWindow {
     }
 
     pub fn set_login_page_loading(&self, loading: bool) {
-        self.login_page.set_sensitive(!loading);
+        self.login_page.set_loading(loading);
+        if !loading {
+            self.login_page.set_info(None);
+        }
     }
 
-    pub fn show_info(&self, error_string: &str) {
-        self.info_bar_text.set_text(error_string);
-        self.info_bar.set_message_type(MessageType::Info);
-        self.info_bar.set_revealed(true);
+    pub fn show_login_info(&self, info: &str) {
+        self.login_page.set_info(Some(info));
     }
 
     pub fn show_error(&self, error_string: &str) {
-        self.info_bar_text.set_text(error_string);
-        self.info_bar.set_message_type(MessageType::Error);
-        self.info_bar.set_revealed(true);
+        self.error_banner.set_title(error_string);
+        self.error_banner.set_revealed(true);
     }
 
     pub fn switch_to_scrobble_page(&self) {
         self.main_stack.set_visible_child(&self.scrobble_page);
-        self.enable_switch.show();
-        self.overflow_button.show();
-        self.info_bar.set_revealed(false);
+        self.enable_switch.set_visible(true);
+        self.overflow_button.set_visible(true);
+        self.error_banner.set_revealed(false);
     }
 
     pub fn switch_to_login_page(&self) {
         self.main_stack.set_visible_child(&self.login_page);
-        self.enable_switch.hide();
-        self.overflow_button.hide();
-        self.info_bar.set_revealed(false);
+        self.enable_switch.set_visible(false);
+        self.overflow_button.set_visible(false);
+        self.error_banner.set_revealed(false);
     }
 
     pub fn set_anime_info(
@@ -243,7 +227,7 @@ impl MainWindow {
     }
 
     pub fn show(&self) {
-        self.window.show();
+        self.window.present();
     }
 
     pub fn window(&self) -> ApplicationWindow {

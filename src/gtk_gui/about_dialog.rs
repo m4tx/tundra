@@ -41,6 +41,6 @@ impl AboutDialog {
     }
 
     pub fn run(&self) {
-        self.dialog.show();
+        self.dialog.present();
     }
 }
