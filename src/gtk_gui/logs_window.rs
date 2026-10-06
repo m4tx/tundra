@@ -61,6 +61,6 @@ impl LogsWindow {
     }
 
     pub fn show(&self) {
-        self.window.show();
+        self.window.present();
     }
 }

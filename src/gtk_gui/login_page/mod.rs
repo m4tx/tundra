@@ -1,6 +1,7 @@
 use glib::Object;
 use glib::object::ObjectExt;
 use gtk::glib;
+use gtk::subclass::prelude::*;
 
 mod imp;
 
@@ -23,5 +24,13 @@ impl LoginPage {
             f();
             None
         });
+    }
+
+    pub fn set_loading(&self, loading: bool) {
+        self.imp().set_loading(loading);
+    }
+
+    pub fn set_info(&self, info: Option<&str>) {
+        self.imp().set_info(info);
     }
 }
