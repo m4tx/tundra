@@ -7,8 +7,8 @@ use std::sync::{Arc, RwLock};
 
 use about_dialog::AboutDialog;
 use gettextrs::gettext;
+use gtk::Application;
 use gtk::glib::clone;
-use gtk::{Application, gdk};
 use libadwaita::prelude::*;
 use log::{error, info};
 use logs_window::LogsWindow;
@@ -208,8 +208,8 @@ impl GtkApp {
                         }
                         LoginAction::OpenBrowser(url) => {
                             info!("Authentication URL: {url}");
-                            this.main_window.show_info(&gettext("Your web browser has been launched. Please sign in to MyAnimeList and then return to Tundra."));
-                            gtk::show_uri(gtk::Window::NONE, &url, gdk::CURRENT_TIME);
+                            this.main_window.show_login_info(&gettext("Your web browser has been launched. Please sign in to MyAnimeList and then return to Tundra."));
+                            open_uri(&url);
                         }
                     },
                     Err(error_string) => {
@@ -335,4 +335,12 @@ impl GtkApp {
 enum LoginAction {
     LoggedIn,
     OpenBrowser(String),
+}
+
+fn open_uri(uri: &str) {
+    gtk::UriLauncher::new(uri).launch(gtk::Window::NONE, gtk::gio::Cancellable::NONE, |result| {
+        if let Err(e) = result {
+            error!("Failed to open URI: {e}");
+        }
+    });
 }
